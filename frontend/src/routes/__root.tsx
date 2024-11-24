@@ -1,29 +1,34 @@
-import { createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import { Text } from '@mantine/core';
-
+import {createRootRoute, Outlet} from '@tanstack/react-router'
+import {AppShell, Burger, Group, Image, Title} from "@mantine/core";
+import {useDisclosure} from "@mantine/hooks";
 
 export const Route = createRootRoute({
-    component: () => (
-        <>
-            <Text size="xs">Extra small text</Text>
-            <Text size="sm">Small text</Text>
-            <Text size="md">Default text</Text>
-            <Text size="lg">Large text</Text>
-            <Text size="xl">Extra large text</Text>
-            <Text fw={500}>Semibold</Text>
-            <Text fw={700}>Bold</Text>
-            <Text fs="italic">Italic</Text>
-            <Text td="underline">Underlined</Text>
-            <Text td="line-through">Strikethrough</Text>
-            <Text c="dimmed">Dimmed text</Text>
-            <Text c="blue">Blue text</Text>
-            <Text c="teal.4">Teal 4 text</Text>
-            <Text tt="uppercase">Uppercase</Text>
-            <Text tt="capitalize">capitalized text</Text>
-            <Text ta="center">Aligned to center</Text>
-            <Text ta="right">Aligned to right</Text>
-            <TanStackRouterDevtools />
-        </>
-    ),
+    component: () => {
+        const [opened, {toggle}] = useDisclosure();
+
+        return (
+            <>
+                <AppShell
+                    header={{height: 60}}
+                    padding="md"
+                >
+                    <AppShell.Header>
+                        <Group h="100%" px="md">
+                            <Burger
+                                opened={opened}
+                                onClick={toggle}
+                                hiddenFrom="sm"
+                                size="sm"
+                            />
+                            <Image py="sm" h="100%" src="blobnom.png"/>
+                            <Title order={4}>Blobnom</Title>
+                        </Group>
+                    </AppShell.Header>
+                    <AppShell.Main>
+                        <Outlet/>
+                    </AppShell.Main>
+                </AppShell>
+                {/*<TanStackRouterDevtools/>*/}
+            </>);
+    },
 })
