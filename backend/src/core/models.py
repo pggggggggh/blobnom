@@ -1,7 +1,7 @@
 from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, BigInteger, Boolean
 from sqlalchemy.orm import Relationship, relationship
 
-from database import Base
+from src.core.config import Base
 
 
 class Room(Base):

@@ -1,0 +1,1 @@
+MAX_USER_PER_ROOM = 20
