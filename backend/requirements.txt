@@ -1,0 +1,8 @@
+fastapi
+httpx==0.24.0
+SQLAlchemy==2.0.21
+starlette
+uvicorn
+psycopg2-binary==2.9.7
+pytz==2023.3
+python-dotenv==1.0.0
