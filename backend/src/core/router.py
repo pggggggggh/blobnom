@@ -3,40 +3,18 @@ from collections import deque
 from datetime import datetime
 
 import httpx
-from fastapi import FastAPI, Form, Body, HTTPException, Depends
+from fastapi import FastAPI, Form, Body, HTTPException, Depends, APIRouter
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 from starlette.middleware.cors import CORSMiddleware
 
-import models
-from database import engine, SessionLocal
-from models import Problem, User, ProblemRoom, UserRoom, Room
+import src.core.models as models
+from src.core.constants import MAX_USER_PER_ROOM
+from src.core.config import engine, SessionLocal
+from src.core.models import Problem, User, ProblemRoom, UserRoom, Room
 import pytz
 
-MAX_USER_PER_ROOM = 20
-
-korea_tz = pytz.timezone('Asia/Seoul')
-
-try:
-    models.Base.metadata.create_all(bind=engine)
-except:
-    pass
-
-origins = [
-    "http://localhost:5173",
-    "https://blobnom.netlify.app",
-    "http://blobnom.xyz",
-    "https://blobnom.xyz",
-]
-app = FastAPI(docs_url=None, redoc_url=None)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+router = APIRouter()
 
 def get_db():
     db = SessionLocal()
@@ -45,8 +23,7 @@ def get_db():
     finally:
         db.close()
 
-
-@app.get("/")
+@router.get("/")
 async def room_info(db: Session = Depends(get_db)):
     rooms = (db.query(Room)
              .outerjoin(ProblemRoom)
@@ -92,7 +69,7 @@ async def room_info(db: Session = Depends(get_db)):
     }
 
 
-@app.get("/room/info/{id}")
+@router.get("/room/info/{id}")
 async def room_info(id: int, db: Session = Depends(get_db)):
     room = db.query(Room).filter(Room.id == id).options(
         joinedload(Room.user_associations).joinedload(UserRoom.user),
@@ -101,7 +78,7 @@ async def room_info(id: int, db: Session = Depends(get_db)):
     return room
 
 
-@app.post("/room/join/{id}")
+@router.post("/room/join/{id}")
 async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_db)):
     async with httpx.AsyncClient() as client:
         users = db.query(UserRoom).filter(UserRoom.room_id == id).all()
@@ -246,7 +223,7 @@ async def calculate(roomId, db):
     db.commit()
 
 
-@app.post("/room/solved/")
+@router.post("/room/solved/")
 async def room_refresh(roomId: int = Body(...), problemId: int = Body(...), db: Session = Depends(get_db)):
     room = db.query(Room).filter(Room.id == roomId).first()
     if not room:
@@ -282,7 +259,7 @@ async def room_refresh(roomId: int = Body(...), problemId: int = Body(...), db: 
         await calculate(roomId, db)
 
 
-@app.post("/room/create")
+@router.post("/room/create")
 async def create_room(db: Session = Depends(get_db),
                       handles: str = Body(...),
                       title: str = Body(...),
