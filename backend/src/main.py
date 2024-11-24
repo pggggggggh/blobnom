@@ -4,9 +4,6 @@ from starlette.middleware.cors import CORSMiddleware
 from src.core.router import router as core_router
 import src.core.models as models
 from src.core.config import engine
-import pytz
-
-korea_tz = pytz.timezone('Asia/Seoul')
 
 try:
     models.Base.metadata.create_all(bind=engine)

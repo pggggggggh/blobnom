@@ -3,16 +3,16 @@ from collections import deque
 from datetime import datetime
 
 import httpx
-from fastapi import FastAPI, Form, Body, HTTPException, Depends, APIRouter
+from fastapi import Body, HTTPException, Depends, APIRouter
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
-from starlette.middleware.cors import CORSMiddleware
 
-import src.core.models as models
 from src.core.constants import MAX_USER_PER_ROOM
-from src.core.config import engine, SessionLocal
+from src.core.config import SessionLocal
 from src.core.models import Problem, User, ProblemRoom, UserRoom, Room
 import pytz
+
+korea_tz = pytz.timezone('Asia/Seoul')
 
 router = APIRouter()
 
