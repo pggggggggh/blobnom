@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "blobnum"
+version = "0.1.0"
+description = ""
+authors = ["Jin Kim <92560356+plast7@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "blobnum", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.5"
+uvicorn = "^0.32.1"
+httpx = "0.24.0"
+sqlalchemy = "2.0.21"
+starlette = "^0.41.3"
+psycopg2-binary = "2.9.7"
+pytz = "2023.3"
+python-dotenv = "1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
