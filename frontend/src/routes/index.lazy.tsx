@@ -1,26 +1,27 @@
 import {createLazyFileRoute} from '@tanstack/react-router';
 import {Badge, Box, Button, Card, Container, Group, Pagination, Stack, Text, TextInput} from "@mantine/core";
 import {IconHexagons, IconSearch, IconUsers} from '@tabler/icons-react';
+import {useRoomList} from "../hooks/hooks.tsx";
+import {useEffect} from "react";
 
 export const Route = createLazyFileRoute('/')({
     component: Index,
 })
 
 function Index() {
-    // 실제로는 API에서 받아올 데이터
-    const rooms = [
-        {
-            id: 1,
-            title: "ychangseok vs hyperion1019",
-            host: "bnb2011",
-            users: 2,
-            maxUsers: 4,
-            problems: 2,
-            maxProblems: 17,
-            status: "waiting", // waiting, playing, ended
-        },
-        // ... 더 많은 방 데이터
-    ];
+    const {data: rooms, isLoading, error} = useRoomList();
+
+    useEffect(() => {
+        if (isLoading) {
+            console.log('Loading...');
+        } else if (error) {
+            console.log('Error:', error);
+        } else {
+            console.log('Rooms data:', rooms);
+        }
+    }, [isLoading, error, rooms]);
+
+    if (isLoading) return (<div></div>);
 
     return (
         <Container size="lg">
@@ -33,36 +34,39 @@ function Index() {
                 </Group>
             </Group>
             <Stack gap="sm">
-                {rooms.map((room) => (
+                {rooms?.publicroom.map((room) => (
                     <Card key={room.id} withBorder shadow="sm">
                         <Group justify="space-between">
-                            <Box w={{base: 200, sm: 300, md: 500}}>
+                            <Box w={{base: 10, xs: 150, sm: 300, md: 500}}>
                                 <Text fw={500} size="lg" truncate>
-                                    {room.title}
+                                    {room.name}
                                 </Text>
                                 <Text size="sm" c="dimmed">
-                                    방장: {room.host}
+                                    방장: plast
                                 </Text>
                             </Box>
                             <Group>
-                                <Badge
-                                    color={room.status === 'waiting' ? 'green' : 'yellow'}
-                                >
-                                    {room.status === 'waiting' ? '대기중' : '게임중'}
-                                </Badge>
-                                <Group gap="xs">
-                                    <IconUsers size={16}/>
-                                    <Text size="sm">
-                                        {room.users}/{room.maxUsers}
-                                    </Text>
+                                <Group w={220}>
+                                    <Badge color='green'>
+                                        진행 중
+                                    </Badge>
+                                    <Box w={65}>
+                                        <Group gap="xs">
+                                            <IconUsers size={16}/>
+                                            <Text size="sm" w={30} ta="right">
+                                                {room.users}/20
+                                            </Text>
+                                        </Group>
+                                    </Box>
+                                    <Box w={65}>
+                                        <Group gap="xs">
+                                            <IconHexagons size={16}/>
+                                            <Text size="sm" w={30} ta="right">
+                                                1/{room.size}
+                                            </Text>
+                                        </Group>
+                                    </Box>
                                 </Group>
-                                <Group gap="xs">
-                                    <IconHexagons size={16}/>
-                                    <Text size="sm">
-                                        {room.problems}/{room.maxProblems}
-                                    </Text>
-                                </Group>
-
                                 <Button variant='filled'>
                                     참여하기
                                 </Button>
