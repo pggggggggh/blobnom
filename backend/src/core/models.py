@@ -1,9 +1,9 @@
 from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, BigInteger, Boolean
 from sqlalchemy.orm import relationship
 
-from src.database import Base
+from src.database import Base, TimestampMixin
 
-class User(Base):
+class User(TimestampMixin, Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -11,21 +11,19 @@ class User(Base):
     user_rooms = relationship("UserRoom", back_populates="user")
 
 
-class Room(Base):
+class Room(TimestampMixin, Base):
     __tablename__ = "rooms"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     password = Column(String)
-    started_at = Column(DateTime)
-    updated_at = Column(DateTime)
     finished_at = Column(DateTime)
     is_private = Column(Boolean)
     winner_user_id = Column(ForeignKey("users.id"))
     user_rooms = relationship("UserRoom", back_populates="room")
 
 
-class Problem(Base):
+class Problem(TimestampMixin, Base):
     __tablename__ = "problems"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -35,7 +33,7 @@ class Problem(Base):
     solved_user_id = Column(ForeignKey("users.id"))
 
 
-class UserRoom(Base):
+class UserRoom(TimestampMixin, Base):
     __tablename__ = "user_room"
 
     id = Column(Integer, primary_key=True, index=True)

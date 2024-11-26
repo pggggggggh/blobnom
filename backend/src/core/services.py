@@ -1,5 +1,5 @@
 from models import Room
-from schemas import RoomDetail, RoomSummary
+from src.core.schemas import RoomDetail, RoomSummary
 
 def create_room_summary(room: Room) -> RoomSummary:
     return RoomSummary(

@@ -7,10 +7,10 @@ from sqlalchemy import func, desc
 from sqlalchemy.orm import Session, joinedload
 
 from src.database import get_db
-from constants import MAX_USER_PER_ROOM, korea_tz
-from models import Problem, User, ProblemRoom, UserRoom, Room
-from utils import update_solver
-from services import create_room_summary
+from src.core.constants import MAX_USER_PER_ROOM, korea_tz
+from src.core.models import Problem, User, ProblemRoom, UserRoom, Room
+from src.core.utils import update_solver
+from src.core.services import create_room_summary
 
 router = APIRouter()
 
@@ -43,7 +43,7 @@ async def room_list(db: Session = Depends(get_db)):
 
 
 @router.get("/room/info/{id}")
-async def room_info(id: int, db: Session = Depends(get_db)):
+async def room_detail(id: int, db: Session = Depends(get_db)):
     room = db.query(Room).filter(Room.id == id).options(
         joinedload(Room.user_associations).joinedload(UserRoom.user),
         joinedload(Room.problem_associations).joinedload(ProblemRoom.problem)
