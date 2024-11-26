@@ -3,55 +3,49 @@ from datetime import datetime
 
 import httpx
 from fastapi import Body, HTTPException, Depends, APIRouter
-from sqlalchemy import func
+from sqlalchemy import func, desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.core.constants import MAX_USER_PER_ROOM, korea_tz
+from src.corev2.constants import MAX_USER_PER_ROOM, korea_tz
 from src.database import get_db
-from src.core.models import Problem, User, ProblemRoom, UserRoom, Room
-from src.core.utils import update_solver
+from src.corev2.models import Problem, User, ProblemRoom, UserRoom, Room
+from src.corev2.utils import update_solver
 
 router = APIRouter()
 
+# TODO: move to schemas.py, use pydentic
+def create_room_data(room: Room) -> dict:
+    return {
+        "id": room.id,
+        "name": room.name,
+        "begin": room.started_at,
+        "end": room.finished_at,
+        "public": not room.is_private,
+        "users": len(room.users),
+        "top_user": room.winner_user
+    }
+
 @router.get("/")
 async def room_info(db: Session = Depends(get_db)):
-    rooms = (db.query(Room)
-             .outerjoin(ProblemRoom)
-             .group_by(Room.id)
-             .order_by(func.greatest(
-        Room.begin,
-        func.coalesce(func.max(ProblemRoom.solved_at), Room.begin)
-    ).desc())
-             .options(joinedload(Room.user_associations).joinedload(UserRoom.user))
-             .limit(120)
-             .all())
+    rooms = (
+        db.query(Room)
+        .join(Room.user_rooms)
+        .join(UserRoom.user)
+        .options(joinedload(Room.user_rooms).joinedload(UserRoom.user))
+        .order_by(desc(Room.updated_at))
+        .all()
+    )
 
     public_rooms = []
     private_rooms = []
 
     for room in rooms:
-        room_data = {
-            "id": room.id,
-            "name": room.name,
-            "size": room.size,
-            "begin": room.begin,
-            "end": room.end,
-            "public": room.public,
-            "users": len(room.users),
-            "top_user": max(
-                (
-                    {"name": assoc.user.name, "score": assoc.score, "score2": assoc.score2}
-                    for assoc in room.user_associations
-                ),
-                key=lambda x: (x["score"], x["score2"]),
-                default={"name": None, "score": 0}
-            )
-        }
+        room_data = create_room_data(room)
 
-        if room.public:
-            public_rooms.append(room_data)
-        else:
+        if room.is_private:
             private_rooms.append(room_data)
+        else:
+            public_rooms.append(room_data)
 
     return {
         "publicroom": public_rooms,
