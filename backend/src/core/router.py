@@ -6,10 +6,10 @@ from fastapi import Body, HTTPException, Depends, APIRouter
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.corev2.constants import MAX_USER_PER_ROOM, korea_tz
+from src.core.constants import MAX_USER_PER_ROOM, korea_tz
 from src.database import get_db
-from src.corev2.models import Problem, User, ProblemRoom, UserRoom, Room
-from src.corev2.utils import update_solver
+from src.core.models import Problem, User, ProblemRoom, UserRoom, Room
+from src.core.utils import update_solver
 
 router = APIRouter()
 

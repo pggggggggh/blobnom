@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.corev2.router import router as corev2_router
-import src.corev2.models as models
+from src.core.router import router as core_router
+import src.core.models as models
 from src.database import engine
 
 try:
@@ -25,4 +25,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(corev2_router, prefix="/v2")
+app.include_router(core_router)
