@@ -6,27 +6,16 @@ from fastapi import Body, HTTPException, Depends, APIRouter
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.core.constants import MAX_USER_PER_ROOM, korea_tz
 from src.database import get_db
-from src.core.models import Problem, User, ProblemRoom, UserRoom, Room
-from src.core.utils import update_solver
+from constants import MAX_USER_PER_ROOM, korea_tz
+from models import Problem, User, ProblemRoom, UserRoom, Room
+from utils import update_solver
+from services import create_room_summary
 
 router = APIRouter()
 
-# TODO: move to schemas.py, use pydentic
-def create_room_data(room: Room) -> dict:
-    return {
-        "id": room.id,
-        "name": room.name,
-        "begin": room.started_at,
-        "end": room.finished_at,
-        "public": not room.is_private,
-        "users": len(room.users),
-        "top_user": room.winner_user
-    }
-
 @router.get("/")
-async def room_info(db: Session = Depends(get_db)):
+async def room_list(db: Session = Depends(get_db)):
     rooms = (
         db.query(Room)
         .join(Room.user_rooms)
@@ -40,7 +29,7 @@ async def room_info(db: Session = Depends(get_db)):
     private_rooms = []
 
     for room in rooms:
-        room_data = create_room_data(room)
+        room_data = create_room_summary(room)
 
         if room.is_private:
             private_rooms.append(room_data)
