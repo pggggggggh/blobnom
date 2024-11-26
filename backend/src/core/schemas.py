@@ -21,7 +21,11 @@ class ProblemRoomInfo(BaseModel):
     class Config:
         orm_mode = True
 
-class RoomSummary(BaseModel)
+class RoomSummary(BaseModel):
+    created_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True
 
 class RoomDetail(BaseModel):
     created_at: Optional[datetime]
