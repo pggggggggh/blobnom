@@ -1,8 +1,8 @@
 import {createLazyFileRoute} from '@tanstack/react-router';
-import {Badge, Box, Button, Card, Container, Group, Pagination, Stack, Text, TextInput} from "@mantine/core";
-import {IconHexagons, IconSearch, IconUsers} from '@tabler/icons-react';
+import {Container, Group, Pagination, TextInput} from "@mantine/core";
+import {IconSearch} from '@tabler/icons-react';
 import {useRoomList} from "../hooks/hooks.tsx";
-import {useEffect} from "react";
+import RoomListComponent from "../components/RoomListComponent.tsx";
 
 export const Route = createLazyFileRoute('/')({
     component: Index,
@@ -10,19 +10,7 @@ export const Route = createLazyFileRoute('/')({
 
 function Index() {
     const {data: rooms, isLoading, error} = useRoomList();
-
-    useEffect(() => {
-        if (isLoading) {
-            console.log('Loading...');
-        } else if (error) {
-            console.log('Error:', error);
-        } else {
-            console.log('Rooms data:', rooms);
-        }
-    }, [isLoading, error, rooms]);
-
-    if (isLoading) return (<div></div>);
-
+    if (isLoading || error) return (<div></div>);
     return (
         <Container size="lg">
             <Group justify="space-between" mb="md">
@@ -33,50 +21,7 @@ function Index() {
                     />
                 </Group>
             </Group>
-            <Stack gap="sm">
-                {rooms?.publicroom.map((room) => (
-                    <Card key={room.id} withBorder shadow="sm">
-                        <Group justify="space-between">
-                            <Box w={{base: 10, xs: 150, sm: 300, md: 500}}>
-                                <Text fw={500} size="lg" truncate>
-                                    {room.name}
-                                </Text>
-                                <Text size="sm" c="dimmed">
-                                    방장: plast
-                                </Text>
-                            </Box>
-                            <Group>
-                                <Group w={220}>
-                                    <Badge color='green'>
-                                        진행 중
-                                    </Badge>
-                                    <Box w={65}>
-                                        <Group gap="xs">
-                                            <IconUsers size={16}/>
-                                            <Text size="sm" w={30} ta="right">
-                                                {room.users}/20
-                                            </Text>
-                                        </Group>
-                                    </Box>
-                                    <Box w={65}>
-                                        <Group gap="xs">
-                                            <IconHexagons size={16}/>
-                                            <Text size="sm" w={30} ta="right">
-                                                1/{room.size}
-                                            </Text>
-                                        </Group>
-                                    </Box>
-                                </Group>
-                                <Button variant='filled'>
-                                    참여하기
-                                </Button>
-                            </Group>
-                        </Group>
-                    </Card>
-                ))}
-            </Stack>
-
-            {/* 페이지네이션 */}
+            <RoomListComponent rooms={rooms}/>
             <Group justify="center" mt="xl">
                 <Pagination total={10}/>
             </Group>

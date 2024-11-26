@@ -1,11 +1,9 @@
 import {createRootRoute, Outlet} from '@tanstack/react-router'
-import {AppShell, Burger, Group, Image, Title} from "@mantine/core";
-import {useDisclosure} from "@mantine/hooks";
+import {AppShell} from "@mantine/core";
+import HeaderComponent from "../components/HeaderComponent.tsx";
 
 export const Route = createRootRoute({
     component: () => {
-        const [opened, {toggle}] = useDisclosure();
-
         return (
             <>
                 <AppShell
@@ -13,16 +11,7 @@ export const Route = createRootRoute({
                     padding="md"
                 >
                     <AppShell.Header>
-                        <Group h="100%" px="md">
-                            <Burger
-                                opened={opened}
-                                onClick={toggle}
-                                hiddenFrom="sm"
-                                size="sm"
-                            />
-                            <Image py="sm" h="100%" src="blobnom.png"/>
-                            <Title order={4}>Blobnom</Title>
-                        </Group>
+                        <HeaderComponent/>
                     </AppShell.Header>
                     <AppShell.Main>
                         <Outlet/>

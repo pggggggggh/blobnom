@@ -1,4 +1,4 @@
-export interface RoomInfoDTO {
+export interface RoomListDTO {
     privateroom: RoomInfo[];
     publicroom: RoomInfo[];
 }
