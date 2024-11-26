@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.core.router import router as core_router
 from src.corev2.router import router as corev2_router
-import src.core.models as models
+import src.corev2.models as models
 from src.database import engine
 
 try:
