@@ -5,7 +5,7 @@ import {RoomListDTO} from "../types/roomInfo.tsx";
 const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
     return (
         <Stack gap="sm">
-            {rooms?.publicroom.map((room) => (
+            {rooms?.publicroom?.map((room) => (
                 <Card key={room.id} withBorder shadow="sm">
                     <Group justify="space-between">
                         <Box w={{base: 10, xs: 150, sm: 300, md: 500}}>
