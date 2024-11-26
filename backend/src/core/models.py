@@ -1,16 +1,7 @@
 from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, BigInteger, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Relationship, relationship
 
-from src.database import Base
-
-
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    room_associations = relationship("UserRoom", back_populates="user")
-    rooms = relationship("Room", secondary="user_room", back_populates="users")
+from src.core.config import Base
 
 
 class Room(Base):
@@ -26,14 +17,6 @@ class Room(Base):
     problem_associations = relationship("ProblemRoom", back_populates="room")
     users = relationship("User", secondary="user_room", back_populates="rooms")
     problems = relationship("Problem", secondary="problem_room", back_populates="rooms")
-
-
-class Problem(Base):
-    __tablename__ = "problems"
-
-    id = Column(Integer, primary_key=True, index=True)
-    room_associations = relationship("ProblemRoom", back_populates="problem")
-    rooms = relationship("Room", secondary="problem_room", back_populates="problems")
 
 
 class UserRoom(Base):
@@ -60,3 +43,20 @@ class ProblemRoom(Base):
 
     problem = relationship("Problem", back_populates="room_associations")
     room = relationship("Room", back_populates="problem_associations")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    room_associations = relationship("UserRoom", back_populates="user")
+    rooms = relationship("Room", secondary="user_room", back_populates="users")
+
+
+class Problem(Base):
+    __tablename__ = "problems"
+
+    id = Column(Integer, primary_key=True, index=True)
+    room_associations = relationship("ProblemRoom", back_populates="problem")
+    rooms = relationship("Room", secondary="problem_room", back_populates="problems")

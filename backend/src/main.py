@@ -2,9 +2,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from src.core.router import router as core_router
-from src.corev2.router import router as corev2_router
 import src.core.models as models
-from src.database import engine
+from src.core.config import engine
 
 try:
     models.Base.metadata.create_all(bind=engine)
@@ -27,4 +26,3 @@ app.add_middleware(
 )
 
 app.include_router(core_router)
-app.include_router(corev2_router, prefix="/v2")

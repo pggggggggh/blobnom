@@ -6,12 +6,22 @@ from fastapi import Body, HTTPException, Depends, APIRouter
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
-from src.core.constants import MAX_USER_PER_ROOM, korea_tz
-from src.database import get_db
+from src.core.constants import MAX_USER_PER_ROOM
+from src.core.config import SessionLocal
 from src.core.models import Problem, User, ProblemRoom, UserRoom, Room
 from src.core.utils import update_solver
+import pytz
+
+korea_tz = pytz.timezone('Asia/Seoul')
 
 router = APIRouter()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @router.get("/")
 async def room_info(db: Session = Depends(get_db)):

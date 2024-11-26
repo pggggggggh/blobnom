@@ -3,6 +3,7 @@ from collections import deque
 from src.core.constants import MAX_USER_PER_ROOM
 from src.core.models import ProblemRoom, UserRoom, Room
 
+
 async def update_solver(roomId, db):
     room = db.query(Room).filter(Room.id == roomId).first()
     if not room:
