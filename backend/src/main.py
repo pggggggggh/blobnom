@@ -25,5 +25,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(core_router)
 app.include_router(corev2_router, prefix="/v2")
