@@ -1,19 +1,9 @@
-export interface RoomListDTO {
-    privateroom: RoomInfo[];
-    publicroom: RoomInfo[];
-}
-
 export interface RoomInfo {
-    id: string;
+    id: number;
     name: string;
-    size: number;
-    begin: string;
-    end: string;
-    public: boolean;
-    users: number;
-    top_user: {
-        name: string | null;
-        score: number;
-        score2?: number;
-    };
+    startsAt: Date;
+    endsAt: Date;
+    num_players: number;
+    max_players: number;
+    isPrivate: boolean;
 }

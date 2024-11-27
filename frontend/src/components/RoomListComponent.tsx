@@ -1,12 +1,12 @@
 import {Badge, Box, Button, Card, Group, Stack, Text} from "@mantine/core";
 import {IconHexagons, IconUsers} from "@tabler/icons-react";
-import {RoomListDTO} from "../types/roomInfo.tsx";
 import {Link} from "@tanstack/react-router";
+import {RoomInfo} from "../types/roomInfo.tsx";
 
-const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
+const RoomListComponent = ({rooms}: { rooms: RoomInfo[] }) => {
     return (
         <Stack gap="sm">
-            {rooms?.publicroom?.map((room) => (
+            {rooms?.map((room) => (
                 <Card key={room.id} withBorder shadow="sm">
                     <Group justify="space-between">
                         <Box w={{base: 200, xs: 200, sm: 300, md: 500}}>
@@ -26,7 +26,7 @@ const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
                                     <Group gap="xs">
                                         <IconUsers size={16}/>
                                         <Text size="sm" w={30} ta="right">
-                                            {room.users}/20
+                                            {room.num_players}/{room.max_players}
                                         </Text>
                                     </Group>
                                 </Box>
@@ -34,7 +34,7 @@ const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
                                     <Group gap="xs">
                                         <IconHexagons size={16}/>
                                         <Text size="sm" w={30} ta="right">
-                                            1/{room.size}
+                                            1/3
                                         </Text>
                                     </Group>
                                 </Box>
@@ -42,7 +42,7 @@ const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
                             <Link
                                 to="/rooms/$roomId"
                                 params={{
-                                    roomId: room.id
+                                    roomId: room.id.toString()
                                 }}
                             >
                                 <Button variant='filled'>
