@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-class UserRoomInfo(BaseModel):
+class RoomPlayerInfo(BaseModel):
     user_id: int
     name: str
     user_index: int
@@ -11,21 +11,21 @@ class UserRoomInfo(BaseModel):
     last_solved_at: Optional[datetime]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-class ProblemRoomInfo(BaseModel):
+class RoomMissionInfo(BaseModel):
     problem_id: int
     solved_at: Optional[datetime]
     solved_user_id: Optional[int]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class RoomSummary(BaseModel):
     created_at: Optional[datetime]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class RoomDetail(BaseModel):
     created_at: Optional[datetime]
@@ -34,8 +34,8 @@ class RoomDetail(BaseModel):
     name: str
     public: bool
     size: int
-    user_list: List[UserRoomInfo]
-    problem_list: List[ProblemRoomInfo]
+    user_list: List[RoomPlayerInfo]
+    problem_list: List[RoomMissionInfo]
 
     class Config:
-        orm_mode = True
+        from_attributes = True

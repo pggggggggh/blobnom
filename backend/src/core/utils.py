@@ -2,43 +2,41 @@ import math
 from collections import deque
 from datetime import datetime
 
+from sqlalchemy.orm import joinedload
+
 from src.core.constants import MAX_USER_PER_ROOM, korea_tz
-from src.core.models import User, Problem, UserRoom, Room
+from src.core.models import User, Room, RoomPlayer, RoomMission
+
 
 async def update_score(room_id, db):
     room = db.query(Room).filter(Room.id == room_id).first()
     if not room:
         return
 
-    user_rooms = (
-        db.query(UserRoom, User)
-        .join(User, UserRoom.user_id == User.id)
-        .filter(UserRoom.room_id == room_id)
-        .all()
+    room_players = (
+        db.query(RoomPlayer)
+        .options(joinedload(RoomPlayer.user))
     )
-    problems = db.query(Problem).filter(Problem.room_id == room_id).all()
+    missions = db.query(RoomMission).filter(RoomMission.room_id == room_id).all()
 
-    num_problem = len(problems)
-    board_width = 2 * math.sqrt(num_problem / 3) + 3
+    num_mission = len(missions)
+    board_width = 2 * math.sqrt(num_mission / 3) + 3
 
     board = [[-1 for _ in range(board_width)] for _ in range(board_width)]
-    solved_user_index = [-1 for _ in range(num_problem)]
+    solved_player_index = [-1 for _ in range(num_mission)]
+
 
     adjacent_solved_count_list = [0 for _ in range(MAX_USER_PER_ROOM)]
     total_solved_count_list = [0 for _ in range(MAX_USER_PER_ROOM)]
     last_solved_at_list = [room.created_at for _ in range(MAX_USER_PER_ROOM)]
 
-    user_id2index = {user.id: index for index, (userroom, user) in enumerate(user_rooms)}
-
-    for index, problem in enumerate(problems):
-        solved_user_id = problem.solved_user_id
-        if solved_user_id is not None:
-            solved_user_index = user_id2index[solved_user_id]
-
-            solved_user_index[index] = solved_user_index
-            total_solved_count_list[solved_user_index] += 1
-            if problem.solved_at > last_solved_at_list[solved_user_index]:
-                last_solved_at_list[solved_user_index] = problem.solved_at
+    for index, mission in enumerate(missions):
+        if mission.solved_at is not None:
+            solved_player_index = mission.solved_room_player_id
+            solved_player_index[index] = solved_player_index
+            total_solved_count_list[solved_player_index] += 1
+            if mission.solved_at > last_solved_at_list[solved_player_index]:
+                last_solved_at_list[solved_player_index] = mission.solved_at
 
     ptr = 0
     for i in range(board_width):
@@ -46,7 +44,7 @@ async def update_score(room_id, db):
         for j in range(board_width - abs(i - board_width // 2)):
             board[s + j][i] = ptr
             ptr += 1
-    graph = [[] for _ in range(num_problem)]
+    graph = [[] for _ in range(num_mission)]
     for i in range(board_width):
         for j in range(board_width):
             if board[i][j] < 0: continue
@@ -60,9 +58,9 @@ async def update_score(room_id, db):
                 graph[board[i][j]].append(board[i + 1][j + 1])
                 graph[board[i + 1][j + 1]].append(board[i][j])
     
-    vis = [False for _ in range(num_problem)]
-    for i in range(num_problem):
-        if solved_user_index[i] < 0 or vis[i]: continue
+    vis = [False for _ in range(num_mission)]
+    for i in range(num_mission):
+        if solved_player_index[i] < 0 or vis[i]: continue
         q = deque([])
         q.append(i)
         adjacent_count = 0
@@ -73,23 +71,22 @@ async def update_score(room_id, db):
             vis[u] = True
             adjacent_count += 1
             for v in graph[u]:
-                if solved_user_index[v] == solved_user_index[i]: q.append(v)
-        adjacent_solved_count_list[solved_user_index[i]] = max(
-            adjacent_solved_count_list[solved_user_index[i]],
+                if solved_player_index[v] == solved_player_index[i]: q.append(v)
+        adjacent_solved_count_list[solved_player_index[i]] = max(
+            adjacent_solved_count_list[solved_player_index[i]],
             adjacent_count
         )
 
-    for (userroom, user) in user_rooms:
-        user_index = user_id2index[user.id]
-        user.adjacent_solved_count = adjacent_solved_count_list[user_index]
-        user.total_solved_count = total_solved_count_list[user_index]
-        user.last_solved_at = last_solved_at_list[user_index]
-        db.add(user)
+    for player in room_players:
+        player.adjacent_solved_count = adjacent_solved_count_list[player.player_index]
+        player.total_solved_count = total_solved_count_list[player.player_index]
+        player.last_solved_at = last_solved_at_list[player.player_index]
+        db.add(player)
     db.commit()
 
-    users = [user for (userroom, user) in user_rooms]    
-    sorted_users = sorted(
-        users,
+    # 같은 객체 다시 쿼리할 필요 X
+    sorted_players = sorted(
+        room_players,
         key=lambda user: (
             -user.adjacent_solved_count,   # 내림차순
             -user.total_solved_count,      # 내림차순
@@ -97,15 +94,16 @@ async def update_score(room_id, db):
         )
     )
 
-    room.winning_user_id = sorted_users[0].id
+    room.winner_player_id = sorted_players[0].id
+    room.winner_user_id = sorted_players[0].user_id
     db.commit()
     db.refresh(room)
     return
 
 
-async def get_solved_problem_list(room_id, username, db, client):
-    problems = db.query(Problem).filter(Problem.room_id == room_id).all()
-    problem_ids = [problem.problem_id for problem in problems if problem.solved_at is None]
+async def get_solved_mission_list(room_id, username, db, client):
+    missions = db.query(RoomMission).filter(RoomMission.room_id == room_id).all()
+    problem_ids = [mission.problem_id for mission in missions if mission.solved_at is None]
     paged_problem_ids = [problem_ids[i:i + 50] for i in range(0, len(problem_ids), 50)]
 
     solved_problem_list = []
@@ -127,17 +125,17 @@ async def get_solved_problem_list(room_id, username, db, client):
 
 
 async def update_solver(room_id, user, db, client):
-    solved_problem_list = get_solved_problem_list(room_id, user.name, db, client)
+    solved_mission_list = get_solved_mission_list(room_id, user.name, db, client)
 
-    problems = db.query(Problem).filter(
-        Problem.id.in_(solved_problem_list),
-        Problem.room_id == room_id
+    missions = db.query(RoomMission).filter(
+        RoomMission.id.in_(solved_mission_list),
+        RoomMission.room_id == room_id
     ).all()
 
-    for problem in problems:
-        problem.solved_at = datetime.now(korea_tz)
-        problem.solved_by = user.id
+    for mission in missions:
+        mission.solved_at = datetime.now(korea_tz)
+        mission.solved_by = user.id
 
         db.commit()
-        db.refresh(problem)
+        db.refresh(mission)
     return

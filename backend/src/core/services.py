@@ -1,19 +1,18 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 
-from src.core.models import Problem, User, UserRoom, Room
+from src.core.models import User, Room, RoomPlayer, RoomMission
 from src.core.schemas import RoomDetail, RoomSummary
-from src.core.schemas import UserRoomInfo, ProblemRoomInfo, RoomDetail
+from src.core.schemas import RoomPlayerInfo, RoomMissionInfo, RoomDetail
 
 def get_room_summary(room: Room) -> RoomSummary:
     return RoomSummary(
         id = room.id,
         name = room.name,
-        begin = room.started_at,
-        end = room.finished_at,
+        started_at = room.started_at,
+        finished_at = room.finished_at,
         public = not room.is_private,
-        users = len(room.users),
-        top_user = room.winner_user
+        users = len(room.players)
     )
 
 def get_room_detail(room_id: int, db: Session) -> RoomDetail:
@@ -21,33 +20,31 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
-    user_rooms = (
-        db.query(UserRoom, User)
-        .join(User, UserRoom.user_id == User.id)
-        .filter(UserRoom.room_id == id)
+    players = (
+        db.query(RoomPlayer)
+        .options(joinedload(RoomPlayer.user))
+        .filter(RoomPlayer.room_id == id)
         .all()
     )
+    room_player_info = [
+        RoomPlayerInfo(
+            user_id=player.user.id,
+            name=player.user.name,
+            user_index=player.user_index,
+            adjacent_solved_count=player.adjacent_solved_count,
+            total_solved_count=player.total_solved_count,
+            last_solved_at=player.last_solved_at
+        ) for player in players]
 
-    user_room_info = [
-        UserRoomInfo(
-            user_id=user.id,
-            name=user.name,
-            user_index=user_room.user_index,
-            adjacent_solved_count=user_room.adjacent_solved_count,
-            total_solved_count=user_room.total_solved_count,
-            last_solved_at=user_room.last_solved_at
+    missions = (db.query(RoomMission)
+                .filter(RoomMission.room_id == id).all())
+    room_mission_info = [
+        RoomMissionInfo(
+            problem_id=mission.problem_id,
+            solved_at=mission.solved_at,
+            solved_user_id=mission.solved_user_id
         )
-        for user_room, user in user_rooms
-    ]
-
-    problems = db.query(Problem).filter(Problem.room_id == id).all()
-    problem_room_info = [
-        ProblemRoomInfo(
-            problem_id=problem.problem_id,
-            solved_at=problem.solved_at,
-            solved_user_id=problem.solved_user_id
-        )
-        for problem in problems
+        for mission in missions
     ]
 
     room_detail = RoomDetail(
@@ -56,8 +53,8 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
         id=room.id,
         name=room.name,
         is_private=room.is_private,
-        user_room_info=user_room_info,
-        problem_room_info=problem_room_info
+        user_room_info=room_player_info,
+        problem_room_info=room_mission_info
     )
 
     return room_detail
