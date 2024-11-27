@@ -11,7 +11,7 @@ except:
     pass
 
 origins = [
-    "https://b5m.netlify.app/",
+    "https://b5m.netlify.app",
     "http://localhost:5173",
     "https://blobnom.netlify.app",
     "http://blobnom.xyz",
