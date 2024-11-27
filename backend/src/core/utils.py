@@ -87,6 +87,21 @@ async def update_score(room_id, db):
         db.add(user)
     db.commit()
 
+    users = [user for (userroom, user) in user_rooms]    
+    sorted_users = sorted(
+        users,
+        key=lambda user: (
+            -user.adjacent_solved_count,   # 내림차순
+            -user.total_solved_count,      # 내림차순
+            user.last_solved_at            # 오름차순
+        )
+    )
+
+    room.winning_user_id = sorted_users[0].id
+    db.commit()
+    db.refresh(room)
+    return
+
 
 async def get_solved_problem_list(room_id, username, db, client):
     problems = db.query(Problem).filter(Problem.room_id == room_id).all()
