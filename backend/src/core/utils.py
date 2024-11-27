@@ -1,9 +1,10 @@
 from collections import deque
+from datetime import datetime
 
-from src.core.constants import MAX_USER_PER_ROOM
-from src.core.models import ProblemRoom, UserRoom, Room
+from src.core.constants import MAX_USER_PER_ROOM, korea_tz
+from src.core.models import Problem, UserRoom, Room
 
-async def update_solver(roomId, db):
+async def update_score(roomId, db):
     room = db.query(Room).filter(Room.id == roomId).first()
     if not room:
         return
@@ -68,3 +69,43 @@ async def update_solver(roomId, db):
         user.score2 = score2s[user.index_in_room]
         db.add(user)
     db.commit()
+
+
+async def get_solved_problem_list(room_id, username, db, client):
+    problems = db.query(Problem).filter(Problem.room_id == room_id).all()
+    problem_ids = [problem.problem_id for problem in problems if problem.solved_at is None]
+    paged_problem_ids = [problem_ids[i:i + 50] for i in range(0, len(problem_ids), 50)]
+
+    solved_problem_list = []
+
+    for problem_ids_page in paged_problem_ids:
+        query = ""
+        for problem_id in problem_ids_page:
+            if len(query) > 0:
+                query += "|"
+            query += "id:" + str(problem_id)
+        query += " @" + username
+        response = await client.get("https://solved.ac/api/v3/search/problem",
+                                    params={"query": query})
+        items = response.json()["items"]
+        for item in items:
+            solved_problem_list.append(item["problemId"])
+    
+    return solved_problem_list
+
+
+async def update_solver(room_id, user, db, client):
+    solved_problem_list = get_solved_problem_list(room_id, user.name, db, client)
+
+    problems = db.query(Problem).filter(
+        Problem.id.in_(solved_problem_list),
+        Problem.room_id == room_id
+    ).all()
+
+    for problem in problems:
+        problem.solved_at = datetime.now(korea_tz)
+        problem.solved_by = user.id
+
+        db.commit()
+        db.refresh(problem)
+    return
