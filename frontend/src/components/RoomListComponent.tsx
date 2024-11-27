@@ -1,6 +1,7 @@
 import {Badge, Box, Button, Card, Group, Stack, Text} from "@mantine/core";
 import {IconHexagons, IconUsers} from "@tabler/icons-react";
 import {RoomListDTO} from "../types/roomInfo.tsx";
+import {Link} from "@tanstack/react-router";
 
 const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
     return (
@@ -38,9 +39,16 @@ const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
                                     </Group>
                                 </Box>
                             </Group>
-                            <Button variant='filled'>
-                                참여하기
-                            </Button>
+                            <Link
+                                to="/rooms/$roomId"
+                                params={{
+                                    roomId: room.id
+                                }}
+                            >
+                                <Button variant='filled'>
+                                    참여하기
+                                </Button>
+                            </Link>
                         </Group>
                     </Group>
                 </Card>
