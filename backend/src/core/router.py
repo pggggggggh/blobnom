@@ -139,63 +139,48 @@ async def room_create(db: Session = Depends(get_db),
                       title: str = Body(...),
                       query: str = Body(...),
                       size: int = Body(...),
-                      public: bool = Body(...),
+                      is_private: bool = Body(...),
                       end: int = Body(...)):
     async with httpx.AsyncClient() as client:
         handles = handles.split()
 
-        items = []
-        ids = []
-        for page in range(1, 7):
+        problem_ids = []
+        for _ in range(4):
             response = await client.get("https://solved.ac/api/v3/search/problem",
                                         params={"query": query, "sort": "random", "page": 1})
             tmp = response.json()["items"]
             for item in tmp:
-                if item["problemId"] not in ids:
-                    items.append(item)
-                    ids.append(item["problemId"])
-        n = 3 * size * (size + 1) + 1
-        if len(items) < n:
-            raise HTTPException(status_code=400, detail="Bad query")
-        items = items[:n]
-        ids = [item["problemId"] for item in items]
+                if item["problemId"] not in problem_ids:
+                    problem_ids.append(item["problemId"])
+        num_problem = 3 * size * (size + 1) + 1
+        if len(problem_ids) < num_problem:
+            raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 적어 방을 만드는데 실패했습니다.")
+        problem_ids = problem_ids[:num_problem]
+
         room = Room(
-            name=title, begin=datetime.now(korea_tz), end=datetime.fromtimestamp(end), size=size, public=public
+            name=title, finished_at=datetime.fromtimestamp(end), is_private=is_private
         )
         db.add(room)
         db.commit()
         db.refresh(room)
 
-        for i in range(n):
-            if not db.query(Problem).filter(Problem.id == ids[i]).first():
-                problem = Problem(id=ids[i])
-                db.add(problem)
-                db.commit()
-                db.refresh(problem)
-            else:
-                problem = db.query(Problem).filter(Problem.id == ids[i]).first()
-            problem_room = ProblemRoom(
-                problem_id=problem.id,
-                room_id=room.id,
-                index_in_room=i
-            )
-            db.add(problem_room)
+        for problem_id in problem_ids:
+            problem = Problem(problem_id=problem_id, room_id = room.id)
+            db.add(problem)
             db.commit()
-        db.commit()
-
-        for i in range(len(handles)):
-            if not db.query(User).filter(User.name == handles[i]).first():
-                user = User(name=handles[i])
+            db.refresh(problem)
+        
+        for username in handles:
+            user = db.query(User).filter(User.name ==username).first()
+            if not user:
+                user = User(name=username)
                 db.add(user)
                 db.commit()
                 db.refresh(user)
-            else:
-                user = db.query(User).filter(User.name == handles[i]).first()
+            
             user_room = UserRoom(
                 user_id=user.id,
                 room_id=room.id,
-                index_in_room=i,
-                score=0,
             )
             db.add(user_room)
             db.commit()

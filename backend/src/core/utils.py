@@ -1,72 +1,89 @@
+import math
 from collections import deque
 from datetime import datetime
 
 from src.core.constants import MAX_USER_PER_ROOM, korea_tz
-from src.core.models import Problem, UserRoom, Room
+from src.core.models import User, Problem, UserRoom, Room
 
-async def update_score(roomId, db):
-    room = db.query(Room).filter(Room.id == roomId).first()
+async def update_score(room_id, db):
+    room = db.query(Room).filter(Room.id == room_id).first()
     if not room:
         return
-    n = 3 * room.size * (room.size + 1) + 1
-    w = room.size * 2 + 1
 
-    room_users = db.query(UserRoom).filter(
-        UserRoom.room_id == roomId
-    ).all()
-    mp = [[-1 for _ in range(w)] for _ in range(w)]
-    sol = [-1 for _ in range(n)]
-    score2s = [0 for _ in range(MAX_USER_PER_ROOM)]
-    for i in range(n):
-        sol[i] = db.query(ProblemRoom) \
-            .filter(ProblemRoom.room_id == roomId, ProblemRoom.index_in_room == i).first() \
-            .solved_by
+    user_rooms = (
+        db.query(UserRoom, User)
+        .join(User, UserRoom.user_id == User.id)
+        .filter(UserRoom.room_id == room_id)
+        .all()
+    )
+    problems = db.query(Problem).filter(Problem.room_id == room_id).all()
 
-        if sol[i] is None:
-            sol[i] = -1
-        else:
-            score2s[sol[i]] += 1
+    num_problem = len(problems)
+    board_width = 2 * math.sqrt(num_problem / 3) + 3
+
+    board = [[-1 for _ in range(board_width)] for _ in range(board_width)]
+    solved_user_index = [-1 for _ in range(num_problem)]
+
+    adjacent_solved_count_list = [0 for _ in range(MAX_USER_PER_ROOM)]
+    total_solved_count_list = [0 for _ in range(MAX_USER_PER_ROOM)]
+    last_solved_at_list = [room.created_at for _ in range(MAX_USER_PER_ROOM)]
+
+    user_id2index = {user.id: index for index, (userroom, user) in enumerate(user_rooms)}
+
+    for index, problem in enumerate(problems):
+        solved_user_id = problem.solved_user_id
+        if solved_user_id is not None:
+            solved_user_index = user_id2index[solved_user_id]
+
+            solved_user_index[index] = solved_user_index
+            total_solved_count_list[solved_user_index] += 1
+            if problem.solved_at > last_solved_at_list[solved_user_index]:
+                last_solved_at_list[solved_user_index] = problem.solved_at
 
     ptr = 0
-    for i in range(w):
-        s = max(0, i - w // 2)
-        for j in range(w - abs(i - w // 2)):
-            mp[s + j][i] = ptr
+    for i in range(board_width):
+        s = max(0, i - board_width // 2)
+        for j in range(board_width - abs(i - board_width // 2)):
+            board[s + j][i] = ptr
             ptr += 1
-    adj = [[] for _ in range(n)]
-    for i in range(w):
-        for j in range(w):
-            if mp[i][j] < 0: continue
-            if j + 1 < w and mp[i][j + 1] >= 0:
-                adj[mp[i][j]].append(mp[i][j + 1])
-                adj[mp[i][j + 1]].append(mp[i][j])
-            if i + 1 < w and mp[i + 1][j] >= 0:
-                adj[mp[i][j]].append(mp[i + 1][j])
-                adj[mp[i + 1][j]].append(mp[i][j])
-            if i + 1 < w and j + 1 < w and mp[i + 1][j + 1] >= 0:
-                adj[mp[i][j]].append(mp[i + 1][j + 1])
-                adj[mp[i + 1][j + 1]].append(mp[i][j])
-
-    scores = [0 for _ in range(MAX_USER_PER_ROOM)]
-    vis = [False for _ in range(n)]
-    for i in range(n):
-        if sol[i] < 0 or vis[i]: continue
+    graph = [[] for _ in range(num_problem)]
+    for i in range(board_width):
+        for j in range(board_width):
+            if board[i][j] < 0: continue
+            if j + 1 < board_width and board[i][j + 1] >= 0:
+                graph[board[i][j]].append(board[i][j + 1])
+                graph[board[i][j + 1]].append(board[i][j])
+            if i + 1 < board_width and board[i + 1][j] >= 0:
+                graph[board[i][j]].append(board[i + 1][j])
+                graph[board[i + 1][j]].append(board[i][j])
+            if i + 1 < board_width and j + 1 < board_width and board[i + 1][j + 1] >= 0:
+                graph[board[i][j]].append(board[i + 1][j + 1])
+                graph[board[i + 1][j + 1]].append(board[i][j])
+    
+    vis = [False for _ in range(num_problem)]
+    for i in range(num_problem):
+        if solved_user_index[i] < 0 or vis[i]: continue
         q = deque([])
         q.append(i)
-        cur_sz = 0
+        adjacent_count = 0
         while q:
             u = q.popleft()
             if vis[u]:
                 continue
             vis[u] = True
-            cur_sz += 1
-            for v in adj[u]:
-                if sol[v] == sol[i]: q.append(v)
-        scores[sol[i]] = max(scores[sol[i]], cur_sz)
+            adjacent_count += 1
+            for v in graph[u]:
+                if solved_user_index[v] == solved_user_index[i]: q.append(v)
+        adjacent_solved_count_list[solved_user_index[i]] = max(
+            adjacent_solved_count_list[solved_user_index[i]],
+            adjacent_count
+        )
 
-    for user in room_users:
-        user.score = scores[user.index_in_room]
-        user.score2 = score2s[user.index_in_room]
+    for (userroom, user) in user_rooms:
+        user_index = user_id2index[user.id]
+        user.adjacent_solved_count = adjacent_solved_count_list[user_index]
+        user.total_solved_count = total_solved_count_list[user_index]
+        user.last_solved_at = last_solved_at_list[user_index]
         db.add(user)
     db.commit()
 
@@ -78,9 +95,9 @@ async def get_solved_problem_list(room_id, username, db, client):
 
     solved_problem_list = []
 
-    for problem_ids_page in paged_problem_ids:
+    for problem_ids in paged_problem_ids:
         query = ""
-        for problem_id in problem_ids_page:
+        for problem_id in problem_ids:
             if len(query) > 0:
                 query += "|"
             query += "id:" + str(problem_id)
