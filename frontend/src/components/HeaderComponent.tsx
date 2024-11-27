@@ -1,6 +1,6 @@
 import {Burger, Group, Image, Title} from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
-import logo from "../assets/blobnom.png"
+import logo from "../../public/blobnom.png"
 
 const HeaderComponent = () => {
     const [opened, {toggle}] = useDisclosure();

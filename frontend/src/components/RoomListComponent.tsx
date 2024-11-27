@@ -8,7 +8,7 @@ const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
             {rooms?.publicroom?.map((room) => (
                 <Card key={room.id} withBorder shadow="sm">
                     <Group justify="space-between">
-                        <Box w={{base: 10, xs: 150, sm: 300, md: 500}}>
+                        <Box w={{base: 150, xs: 200, sm: 300, md: 500}}>
                             <Text fw={500} size="lg" truncate>
                                 {room.name}
                             </Text>
@@ -17,11 +17,11 @@ const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
                             </Text>
                         </Box>
                         <Group>
-                            <Group w={220}>
+                            <Group>
                                 <Badge color='green'>
                                     진행 중
                                 </Badge>
-                                <Box w={65}>
+                                <Box visibleFrom="xs" w={65}>
                                     <Group gap="xs">
                                         <IconUsers size={16}/>
                                         <Text size="sm" w={30} ta="right">
@@ -29,7 +29,7 @@ const RoomListComponent = ({rooms}: { rooms: RoomListDTO }) => {
                                         </Text>
                                     </Group>
                                 </Box>
-                                <Box w={65}>
+                                <Box visibleFrom="sm" w={65}>
                                     <Group gap="xs">
                                         <IconHexagons size={16}/>
                                         <Text size="sm" w={30} ta="right">
