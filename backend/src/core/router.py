@@ -2,12 +2,13 @@ import random
 from datetime import datetime
 
 import httpx
+import pytz
 from fastapi import Body, HTTPException, Depends, APIRouter, status
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session, joinedload
 
 from src.database import get_db
-from src.core.constants import MAX_USER_PER_ROOM, korea_tz
+from src.core.constants import MAX_USER_PER_ROOM
 from src.core.models import User, Room, RoomPlayer, RoomMission
 from src.core.utils import update_score, update_solver, get_solved_mission_list
 from src.core.services import get_room_summary, get_room_detail
@@ -66,8 +67,6 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
         if not db.query(User).filter(User.name == handle).first():
             user = User(name=handle)
             db.add(user)
-            db.commit()
-            db.refresh(user)
         user = db.query(User).filter(User.name == handle).first()
         
         solved_mission_list = get_solved_mission_list(id, handle, db, client)
@@ -80,7 +79,6 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
             room_id=id,
         )
         db.add(player)
-        db.commit()
 
         missions = db.query(RoomMission).filter(
             RoomMission.problem_id.in_(solved_mission_list),
@@ -88,12 +86,11 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
         ).all()
 
         for mission in missions:
-            mission.solved_at = room.started_at
+            mission.solved_at = room.starts_at
             mission.solved_room_player_id = player.id
             mission.solved_user_id = user.id
 
-            db.commit()
-            db.refresh(mission)
+        db.commit()
 
         await update_score(id, db)
         return {"success": True}
@@ -104,7 +101,7 @@ async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db
     room = db.query(Room).filter(Room.id == room_id).first()
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
-    if datetime.now(korea_tz).replace(tzinfo=None) > room.end:
+    if datetime.now(tz=pytz.UTC).replace(tzinfo=None) > room.ends_at:
         raise HTTPException(status_code=400)
 
     async with httpx.AsyncClient() as client:
@@ -130,7 +127,12 @@ async def room_create(db: Session = Depends(get_db),
                       query: str = Body(...),
                       size: int = Body(...),
                       is_private: bool = Body(...),
-                      end: int = Body(...)):
+                      max_players: int = Body(...),
+                      starts_at: datetime = Body(...),
+                      ends_at: datetime = Body(...)):
+    if max_players > MAX_USER_PER_ROOM:
+        raise HTTPException(status_code=400)
+
     async with httpx.AsyncClient() as client:
         handles = handles.split()
 
@@ -148,32 +150,26 @@ async def room_create(db: Session = Depends(get_db),
         problem_ids = problem_ids[:num_mission]
 
         room = Room(
-            name=title, finished_at=datetime.fromtimestamp(end), is_private=is_private
+            name=title, max_players=max_players, starts_at = starts_at,ends_at=ends_at, is_private=is_private
         )
         db.add(room)
-        db.commit()
-        db.refresh(room)
 
         for problem_id in problem_ids:
             mission = RoomMission(problem_id=problem_id, room_id = room.id)
             db.add(mission)
-            db.commit()
-            db.refresh(mission)
         
-        for username in handles:
+        for idx, username in enumerate(handles):
             user = db.query(User).filter(User.name ==username).first()
             if not user:
                 user = User(name=username)
                 db.add(user)
-                db.commit()
-                db.refresh(user)
             
             room_player = RoomPlayer(
                 user_id=user.id,
                 room_id=room.id,
+                player_index=idx
             )
-            db.add(RoomPlayer)
-            db.commit()
+            db.add(room_player)
         db.commit()
 
         return {"success": True, "roomId": room.id}

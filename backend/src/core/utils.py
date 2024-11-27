@@ -2,9 +2,10 @@ import math
 from collections import deque
 from datetime import datetime
 
+import pytz
 from sqlalchemy.orm import joinedload
 
-from src.core.constants import MAX_USER_PER_ROOM, korea_tz
+from src.core.constants import MAX_USER_PER_ROOM
 from src.core.models import User, Room, RoomPlayer, RoomMission
 
 
@@ -133,7 +134,7 @@ async def update_solver(room_id, user, db, client):
     ).all()
 
     for mission in missions:
-        mission.solved_at = datetime.now(korea_tz)
+        mission.solved_at = datetime.now(tz=pytz.utc)
         mission.solved_by = user.id
 
         db.commit()

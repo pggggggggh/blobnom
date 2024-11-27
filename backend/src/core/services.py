@@ -9,10 +9,11 @@ def get_room_summary(room: Room) -> RoomSummary:
     return RoomSummary(
         id = room.id,
         name = room.name,
-        started_at = room.started_at,
-        finished_at = room.finished_at,
-        public = not room.is_private,
-        users = len(room.players)
+        starts_at = room.starts_at,
+        ends_at = room.ends_at,
+        num_players = len(room.players),
+        max_players = room.max_players,
+        is_private = room.is_private,
     )
 
 def get_room_detail(room_id: int, db: Session) -> RoomDetail:
@@ -48,8 +49,8 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
     ]
 
     room_detail = RoomDetail(
-        begin=room.started_at,
-        end=room.finished_at,
+        begin=room.starts_at,
+        end=room.ends_at,
         id=room.id,
         name=room.name,
         is_private=room.is_private,

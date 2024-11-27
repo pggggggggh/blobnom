@@ -1,6 +1,7 @@
 from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, BigInteger, Boolean, Enum
 from sqlalchemy.orm import relationship, Relationship
 
+from src.core.constants import MAX_USER_PER_ROOM
 from src.core.enums import ProblemType
 from src.database import Base, TimestampMixin
 
@@ -20,8 +21,10 @@ class Room(TimestampMixin, Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True)
     password = Column(String)
-    started_at = Column(DateTime)
-    finished_at = Column(DateTime)
+    starts_at = Column(DateTime)
+    ends_at = Column(DateTime)
+
+    max_players = Column(Integer, default=MAX_USER_PER_ROOM)
     is_private = Column(Boolean)
 
     winning_user_id = Column(ForeignKey("users.id"))

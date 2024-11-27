@@ -22,7 +22,13 @@ class RoomMissionInfo(BaseModel):
         from_attributes = True
 
 class RoomSummary(BaseModel):
-    created_at: Optional[datetime]
+    id: int
+    name: str
+    starts_at: datetime
+    ends_at: datetime
+    num_players: int
+    max_players: int
+    is_private: bool
 
     class Config:
         from_attributes = True
