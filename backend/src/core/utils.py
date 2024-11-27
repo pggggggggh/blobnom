@@ -94,8 +94,8 @@ async def update_score(room_id, db):
         )
     )
 
-    room.winner_player_id = sorted_players[0].id
-    room.winner_user_id = sorted_players[0].user_id
+    room.winning_player_id = sorted_players[0].id
+    room.winning_user_id = sorted_players[0].user_id
     db.commit()
     db.refresh(room)
     return

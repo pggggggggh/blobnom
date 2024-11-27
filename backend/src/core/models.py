@@ -24,13 +24,14 @@ class Room(TimestampMixin, Base):
     finished_at = Column(DateTime)
     is_private = Column(Boolean)
 
-    winner_user_id = Column(ForeignKey("users.id"))
-    winner_user = relationship("User")
-    winner_player_id = Column(ForeignKey("room_players.id"))
-    winner_player = relationship("RoomPlayer")
+    winning_user_id = Column(ForeignKey("users.id"))
+    winning_user = relationship("User", foreign_keys=[winning_user_id])
 
-    players = relationship("RoomPlayer", back_populates="room")
-    missions = relationship("RoomMission",back_populates="room")
+    winning_player_id = Column(ForeignKey("room_players.id"))
+    winning_player = relationship("RoomPlayer", foreign_keys=[winning_player_id])
+
+    players = relationship("RoomPlayer", back_populates="room", foreign_keys="RoomPlayer.room_id")
+    missions = relationship("RoomMission", back_populates="room")
 
 
 class RoomMission(TimestampMixin, Base):
@@ -65,7 +66,7 @@ class RoomPlayer(TimestampMixin, Base):
     user = relationship("User", back_populates="user_rooms")
 
     room_id = Column(ForeignKey("rooms.id"))
-    room = relationship("Room", back_populates="players")
+    room = relationship("Room", back_populates="players", foreign_keys=[room_id])
 
     solved_missions = relationship("RoomMission",back_populates="solved_room_player")
 
