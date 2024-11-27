@@ -17,9 +17,9 @@ router = APIRouter()
 @router.get("/")
 async def room_list(db: Session = Depends(get_db)):
     rooms = (
-        db.query(Room)
-        .join(Room.user_rooms)
-        .join(UserRoom.user)
+        db.query(UserRoom, User, Room)
+        .join(User, UserRoom.user_id == User.id)
+        .join(User, UserRoom.room_id == Room.id)
         .options(joinedload(Room.user_rooms).joinedload(UserRoom.user))
         .order_by(desc(Room.updated_at))
         .all()
