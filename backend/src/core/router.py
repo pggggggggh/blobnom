@@ -137,6 +137,7 @@ async def room_create(db: Session = Depends(get_db),
     if not owner:
         owner = User(name=owner_handle)
         db.add(owner)
+        db.flush()
 
     async with httpx.AsyncClient() as client:
         handles = handles.split()
@@ -166,17 +167,20 @@ async def room_create(db: Session = Depends(get_db),
             is_private=is_private
         )
         db.add(room)
+        db.flush()
 
         for problem_id in problem_ids:
             mission = RoomMission(problem_id=problem_id, room_id=room.id)
             room.missions.append(mission)
             db.add(mission)
+            db.flush()
         
         for idx, username in enumerate(handles):
             user = db.query(User).filter(User.name ==username).first()
             if not user:
                 user = User(name=username)
                 db.add(user)
+                db.flush()
             room_player = RoomPlayer(
                 user_id=user.id,
                 room_id=room.id,
