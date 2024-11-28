@@ -20,6 +20,7 @@ class Room(TimestampMixin, Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True)
+    query = Column(String)
     password = Column(String)
     starts_at = Column(DateTime)
     ends_at = Column(DateTime)

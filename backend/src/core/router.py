@@ -32,12 +32,12 @@ async def room_list(db: Session = Depends(get_db)):
     return room_list
 
 
-@router.get("/room/info/{id}")
+@router.get("/rooms/detail/{id}")
 async def room_detail(id: int, db: Session = Depends(get_db)):
     return get_room_detail(room_id=id, db=db)
 
 
-@router.post("/room/join/{id}")
+@router.post("/rooms/join/{id}")
 async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_db)):
     async with httpx.AsyncClient() as client:
         room = db.query(Room).filter(Room.id == id).first()
@@ -96,7 +96,7 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
         return {"success": True}
 
 
-@router.post("/room/solved/")
+@router.post("/rooms/solved/")
 async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db: Session = Depends(get_db)):
     room = db.query(Room).filter(Room.id == room_id).first()
     if not room:
@@ -120,7 +120,7 @@ async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db
         await update_score(room_id, db)
 
 
-@router.post("/room/create")
+@router.post("/rooms/create")
 async def room_create(db: Session = Depends(get_db),
                       handles: str = Body(...),
                       title: str = Body(...),
@@ -150,12 +150,18 @@ async def room_create(db: Session = Depends(get_db),
         problem_ids = problem_ids[:num_mission]
 
         room = Room(
-            name=title, max_players=max_players, starts_at = starts_at,ends_at=ends_at, is_private=is_private
+            name=title,
+            query=query,
+            max_players=max_players,
+            starts_at = starts_at,
+            ends_at=ends_at,
+            is_private=is_private
         )
         db.add(room)
 
         for problem_id in problem_ids:
-            mission = RoomMission(problem_id=problem_id, room_id = room.id)
+            mission = RoomMission(problem_id=problem_id, room_id=room.id)
+            room.missions.append(mission)
             db.add(mission)
         
         for idx, username in enumerate(handles):
@@ -163,12 +169,13 @@ async def room_create(db: Session = Depends(get_db),
             if not user:
                 user = User(name=username)
                 db.add(user)
-            
+            print(user.id,"!!!")
             room_player = RoomPlayer(
                 user_id=user.id,
                 room_id=room.id,
                 player_index=idx
             )
+            room.players.append(room_player)
             db.add(room_player)
         db.commit()
 

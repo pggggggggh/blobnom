@@ -5,7 +5,7 @@ from datetime import datetime
 class RoomPlayerInfo(BaseModel):
     user_id: int
     name: str
-    user_index: int
+    player_index: int
     adjacent_solved_count: Optional[int]
     total_solved_count: Optional[int]
     last_solved_at: Optional[datetime]
@@ -34,14 +34,14 @@ class RoomSummary(BaseModel):
         from_attributes = True
 
 class RoomDetail(BaseModel):
-    created_at: Optional[datetime]
-    end: Optional[datetime]
+    starts_at: Optional[datetime]
+    ends_at: Optional[datetime]
     id: int
     name: str
-    public: bool
-    size: int
-    user_list: List[RoomPlayerInfo]
-    problem_list: List[RoomMissionInfo]
+    is_private: bool
+    num_missions: int
+    player_info: List[RoomPlayerInfo]
+    mission_info: List[RoomMissionInfo]
 
     class Config:
         from_attributes = True

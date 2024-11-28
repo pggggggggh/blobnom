@@ -17,28 +17,25 @@ def get_room_summary(room: Room) -> RoomSummary:
     )
 
 def get_room_detail(room_id: int, db: Session) -> RoomDetail:
-    room = db.query(Room).filter(Room.id == id).first()
+    room = (db.query(Room).filter(Room.id == room_id)
+            .options(joinedload(Room.missions))
+            .options(joinedload(Room.players))
+            .first())
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
-    players = (
-        db.query(RoomPlayer)
-        .options(joinedload(RoomPlayer.user))
-        .filter(RoomPlayer.room_id == id)
-        .all()
-    )
+    players = room.players
     room_player_info = [
         RoomPlayerInfo(
             user_id=player.user.id,
             name=player.user.name,
-            user_index=player.user_index,
+            player_index=player.player_index,
             adjacent_solved_count=player.adjacent_solved_count,
             total_solved_count=player.total_solved_count,
             last_solved_at=player.last_solved_at
         ) for player in players]
 
-    missions = (db.query(RoomMission)
-                .filter(RoomMission.room_id == id).all())
+    missions = room.missions
     room_mission_info = [
         RoomMissionInfo(
             problem_id=mission.problem_id,
@@ -49,13 +46,14 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
     ]
 
     room_detail = RoomDetail(
-        begin=room.starts_at,
-        end=room.ends_at,
+        starts_at=room.starts_at,
+        ends_at=room.ends_at,
         id=room.id,
         name=room.name,
         is_private=room.is_private,
-        user_room_info=room_player_info,
-        problem_room_info=room_mission_info
+        num_missions=len(missions),
+        player_info=room_player_info,
+        mission_info=room_mission_info
     )
 
     return room_detail
