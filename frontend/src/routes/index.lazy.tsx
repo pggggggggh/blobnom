@@ -3,6 +3,7 @@ import {Container, Group, Pagination, TextInput} from "@mantine/core";
 import {useRoomList} from "../hooks/hooks.tsx";
 import SearchIcon from '@mui/icons-material/Search';
 import RoomListComponent from "../components/RoomListComponent.tsx";
+import dayjs from "dayjs";
 
 export const Route = createLazyFileRoute('/')({
     component: Index,
@@ -10,6 +11,7 @@ export const Route = createLazyFileRoute('/')({
 
 function Index() {
     const {data: rooms, isLoading, error} = useRoomList();
+    const date = dayjs().utc();
     if (isLoading || error) return (<div></div>);
     return (
         <Container size="lg">
@@ -21,7 +23,7 @@ function Index() {
                     />
                 </Group>
             </Group>
-            <RoomListComponent rooms={rooms}/>
+            <RoomListComponent rooms={rooms} cur_datetime={date}/>
             <Group justify="center" mt="xl">
                 <Pagination total={10}/>
             </Group>
