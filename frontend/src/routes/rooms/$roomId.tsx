@@ -8,7 +8,6 @@ export const Route = createFileRoute('/rooms/$roomId')({
 function RouteComponent() {
     const {roomId} = Route.useParams()
     const {data: roomDetail, isLoading, error} = useRoomDetail(parseInt(roomId));
-    if (isLoading || error) return (<div></div>);
-    console.log(roomDetail)
-    return <div>{roomId}</div>
+    if (isLoading || error || !roomDetail) return (<div></div>);
+    return <div>{roomDetail.name}</div>
 }
