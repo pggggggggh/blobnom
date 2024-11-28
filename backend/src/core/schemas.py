@@ -30,8 +30,8 @@ class RoomSummary(BaseModel):
     owner: str
     num_players: int
     max_players: int
-    num_problems: int
-    num_solved_problems: int
+    num_missions: int
+    num_solved_missions: int
     is_private: bool
 
     class Config:
