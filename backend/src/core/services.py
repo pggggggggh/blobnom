@@ -14,8 +14,8 @@ def get_room_summary(room: Room) -> RoomSummary:
         owner = room.owner.name if room.owner else "",
         num_players = len(room.players),
         max_players = room.max_players,
-        num_problems = len(room.missions),
-        num_solved_problems = len([mission for mission in room.missions if mission.solved_at is not None]),
+        num_missions = len(room.missions),
+        num_solved_missions = len([mission for mission in room.missions if mission.solved_at is not None]),
         is_private = room.is_private,
     )
 
