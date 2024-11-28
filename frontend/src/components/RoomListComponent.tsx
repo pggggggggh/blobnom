@@ -1,15 +1,16 @@
 import {Badge, Box, Button, Card, Group, Stack, Text} from "@mantine/core";
-import {IconHexagons, IconUsers} from "@tabler/icons-react";
 import {Link} from "@tanstack/react-router";
-import {RoomInfo} from "../types/roomInfo.tsx";
+import {RoomSummary} from "../types/RoomSummary.tsx";
+import TokenOutlinedIcon from '@mui/icons-material/TokenOutlined';
+import PersonIcon from '@mui/icons-material/Person';
 
-const RoomListComponent = ({rooms}: { rooms: RoomInfo[] }) => {
+const RoomListComponent = ({rooms}: { rooms: RoomSummary[] }) => {
     return (
         <Stack gap="sm">
             {rooms?.map((room) => (
                 <Card key={room.id} withBorder shadow="sm">
                     <Group justify="space-between">
-                        <Box w={{base: 200, xs: 200, sm: 300, md: 500}}>
+                        <Box w={{base: 150, xs: 200, sm: 300, md: 500}}>
                             <Text fw={500} size="lg" truncate>
                                 {room.name}
                             </Text>
@@ -24,16 +25,16 @@ const RoomListComponent = ({rooms}: { rooms: RoomInfo[] }) => {
                                 </Badge>
                                 <Box visibleFrom="xs" w={65}>
                                     <Group gap="xs">
-                                        <IconUsers size={16}/>
-                                        <Text size="sm" w={30} ta="right">
+                                        <PersonIcon/>
+                                        <Text size="sm" w={20} ta="right">
                                             {room.num_players}/{room.max_players}
                                         </Text>
                                     </Group>
                                 </Box>
                                 <Box visibleFrom="sm" w={65}>
                                     <Group gap="xs">
-                                        <IconHexagons size={16}/>
-                                        <Text size="sm" w={30} ta="right">
+                                        <TokenOutlinedIcon/>
+                                        <Text size="sm" w={20} ta="right">
                                             1/3
                                         </Text>
                                     </Group>

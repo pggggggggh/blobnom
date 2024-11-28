@@ -1,11 +1,19 @@
 import {useQuery} from '@tanstack/react-query';
-import fetchRoom from '../api/api.tsx'
-import {RoomInfo} from "../types/roomInfo.tsx";
+import {RoomDetail} from "../types/RoomDetail.tsx";
+import {fetchRoomDetail, fetchRoomList} from "../api/api.tsx";
+import {RoomSummary} from "../types/RoomSummary.tsx";
 
 export const useRoomList = () => {
-    return useQuery<RoomInfo[], Error>({
+    return useQuery<RoomSummary[], Error>({
         queryKey: ['roomList'],
-        queryFn: fetchRoom,
+        queryFn: fetchRoomList,
         initialData: []
+    });
+};
+
+export const useRoomDetail = (roomId: number) => {
+    return useQuery<RoomDetail, Error>({
+        queryKey: ['roomDetail', roomId],
+        queryFn: () => fetchRoomDetail(roomId),
     });
 };

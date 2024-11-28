@@ -1,7 +1,7 @@
 import {createLazyFileRoute} from '@tanstack/react-router';
 import {Container, Group, Pagination, TextInput} from "@mantine/core";
-import {IconSearch} from '@tabler/icons-react';
 import {useRoomList} from "../hooks/hooks.tsx";
+import SearchIcon from '@mui/icons-material/Search';
 import RoomListComponent from "../components/RoomListComponent.tsx";
 
 export const Route = createLazyFileRoute('/')({
@@ -17,7 +17,7 @@ function Index() {
                 <Group>
                     <TextInput
                         placeholder="방 검색..."
-                        leftSection={<IconSearch size={16}/>}
+                        leftSection={<SearchIcon/>}
                     />
                 </Group>
             </Group>
