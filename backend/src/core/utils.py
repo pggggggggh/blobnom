@@ -1,7 +1,7 @@
 import math
 from collections import deque
-from datetime import datetime
-
+from datetime import datetime, tzinfo
+from fastapi import Body, HTTPException, Depends, APIRouter, status
 import pytz
 from sqlalchemy.orm import joinedload
 
@@ -21,7 +21,7 @@ async def update_score(room_id, db):
     missions = db.query(RoomMission).filter(RoomMission.room_id == room_id).all()
 
     num_mission = len(missions)
-    board_width = 2 * math.sqrt(num_mission / 3) + 3
+    board_width = (3+int(math.sqrt(12*num_mission-3)))//6
 
     board = [[-1 for _ in range(board_width)] for _ in range(board_width)]
     solved_player_index = [-1 for _ in range(num_mission)]
@@ -33,11 +33,13 @@ async def update_score(room_id, db):
 
     for index, mission in enumerate(missions):
         if mission.solved_at is not None:
-            solved_player_index = mission.solved_room_player_id
-            solved_player_index[index] = solved_player_index
-            total_solved_count_list[solved_player_index] += 1
-            if mission.solved_at > last_solved_at_list[solved_player_index]:
-                last_solved_at_list[solved_player_index] = mission.solved_at
+            cur_solved_index = mission.solved_room_player.player_index
+            # indicates the player_index in room
+            solved_player_index[index] = cur_solved_index
+            total_solved_count_list[cur_solved_index] += 1
+            if (mission.solved_at.replace(tzinfo=pytz.UTC) >
+                    last_solved_at_list[cur_solved_index].replace(tzinfo=pytz.UTC)):
+                last_solved_at_list[cur_solved_index] = mission.solved_at
 
     ptr = 0
     for i in range(board_width):
@@ -125,18 +127,21 @@ async def get_solved_mission_list(room_id, username, db, client):
     return solved_problem_list
 
 
-async def update_solver(room_id, user, db, client):
-    solved_mission_list = get_solved_mission_list(room_id, user.name, db, client)
-
-    missions = db.query(RoomMission).filter(
-        RoomMission.id.in_(solved_mission_list),
+async def update_solver(room_id, problem_id, player, db, client):
+    mission = db.query(RoomMission).filter(
+        RoomMission.problem_id == problem_id,
         RoomMission.room_id == room_id
-    ).all()
+    ).first()
 
-    for mission in missions:
-        mission.solved_at = datetime.now(tz=pytz.utc)
-        mission.solved_by = user.id
+    if mission is None:
+        raise HTTPException(status_code=400,detail="Such problem does not exist")
+    if mission.solved_at is not None:
+        raise HTTPException(status_code=400, detail="The problem was already solved")
 
-        db.commit()
-        db.refresh(mission)
+    mission.solved_at = datetime.now(tz=pytz.utc)
+    mission.solved_user = player.user
+    mission.solved_room_player = player
+
+    db.commit()
+    db.refresh(mission)
     return

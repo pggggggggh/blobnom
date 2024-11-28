@@ -16,7 +16,8 @@ class RoomPlayerInfo(BaseModel):
 class RoomMissionInfo(BaseModel):
     problem_id: int
     solved_at: Optional[datetime]
-    solved_user_id: Optional[int]
+    solved_player_index: Optional[int]
+    solved_user_name: Optional[str]
 
     class Config:
         from_attributes = True

@@ -18,7 +18,9 @@ def get_room_summary(room: Room) -> RoomSummary:
 
 def get_room_detail(room_id: int, db: Session) -> RoomDetail:
     room = (db.query(Room).filter(Room.id == room_id)
-            .options(joinedload(Room.missions))
+            .options(joinedload(Room.missions)
+                     .joinedload(RoomMission.solved_room_player)
+                     .joinedload(RoomPlayer.user))
             .options(joinedload(Room.players))
             .first())
     if not room:
@@ -40,7 +42,8 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
         RoomMissionInfo(
             problem_id=mission.problem_id,
             solved_at=mission.solved_at,
-            solved_user_id=mission.solved_user_id
+            solved_player_index=mission.solved_room_player.player_index if mission.solved_at else None,
+            solved_user_name=mission.solved_room_player.user.name if mission.solved_at else None
         )
         for mission in missions
     ]
