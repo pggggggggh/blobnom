@@ -143,4 +143,6 @@ async def update_solver(room_id, problem_id, player, db, client):
 
     db.commit()
     db.refresh(mission)
+
+    print(mission.solved_at)
     return
