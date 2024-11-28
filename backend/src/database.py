@@ -1,5 +1,7 @@
 import os
+from datetime import datetime
 
+import pytz
 from sqlalchemy import create_engine, Column, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -13,9 +15,21 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autoflush=False, bind=engine)
 Base = declarative_base()
 
+def utcnow():
+    return datetime.now(pytz.utc)
+
 class TimestampMixin:
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    created_at = Column(
+        DateTime(timezone=True),
+        default=utcnow,
+        nullable=False
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=utcnow,
+        onupdate=utcnow,
+        nullable=False
+    )
 
 def get_db():
     db = SessionLocal()

@@ -126,23 +126,20 @@ async def get_solved_mission_list(room_id, username, db, client):
     return solved_problem_list
 
 
-async def update_solver(room_id, problem_id, player, db, client):
-    mission = db.query(RoomMission).filter(
-        RoomMission.problem_id == problem_id,
-        RoomMission.room_id == room_id
-    ).first()
-
+async def update_solver(room_id, mission, room_players, db, client):
     if mission is None:
         raise HTTPException(status_code=400,detail="Such problem does not exist")
-    if mission.solved_at is not None:
-        raise HTTPException(status_code=400, detail="The problem was already solved")
+    # if mission.solved_at is not None:
+    #     raise HTTPException(status_code=400, detail="The problem was already solved")
 
-    mission.solved_at = datetime.now(tz=pytz.utc)
-    mission.solved_user = player.user
-    mission.solved_room_player = player
+    for player in room_players:
+        solved_problem_list = await get_solved_mission_list(room_id,player.user.name,db,client)
+        if mission.problem_id in solved_problem_list:
+            mission.solved_at = datetime.now(tz=pytz.utc)
+            mission.solved_user = player.user
+            mission.solved_room_player = player
+            break
 
     db.commit()
     db.refresh(mission)
-
-    print(mission.solved_at)
     return

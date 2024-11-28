@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, BigInteger, Boolean, Enum
 from sqlalchemy.orm import relationship, Relationship
 
@@ -24,8 +26,8 @@ class Room(TimestampMixin, Base):
     query = Column(String)
 
     password = Column(String)
-    starts_at = Column(DateTime)
-    ends_at = Column(DateTime)
+    starts_at = Column(DateTime(timezone=True))
+    ends_at = Column(DateTime(timezone=True))
 
     max_players = Column(Integer, default=MAX_USER_PER_ROOM)
     is_private = Column(Boolean)
@@ -50,7 +52,7 @@ class RoomMission(TimestampMixin, Base):
 
     problem_type = Column(Enum(ProblemType), nullable=False, default=ProblemType.BOJ)
     problem_id = Column(Integer)
-    solved_at = Column(DateTime)
+    solved_at = Column(DateTime(timezone=True))
 
     room_id = Column(ForeignKey("rooms.id"))
     room = relationship("Room", back_populates="missions")
@@ -69,7 +71,7 @@ class RoomPlayer(TimestampMixin, Base):
     team_index = Column(Integer)
     adjacent_solved_count = Column(Integer,nullable=False,default=0)
     total_solved_count = Column(Integer,nullable=False,default=0)
-    last_solved_at = Column(DateTime)
+    last_solved_at = Column(DateTime(timezone=True))
 
     user_id = Column(ForeignKey("users.id"))
     user = relationship("User", back_populates="user_rooms")

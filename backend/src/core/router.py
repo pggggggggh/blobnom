@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+from mailbox import mboxMessage
 
 import httpx
 import pytz
@@ -105,16 +106,22 @@ async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db
             .options(joinedload(Room.missions))
             .filter(Room.id == room_id)
             .first())
+
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
-    if datetime.now(tz=pytz.UTC).replace(tzinfo=None) > room.ends_at:
+    if datetime.now(tz=pytz.UTC) > room.ends_at:
         raise HTTPException(status_code=400, detail="The room has already ended")
+
+    mission = None
+    for m in room.missions:
+        if m.problem_id == problem_id:
+            mission = m
+            break
 
     async with httpx.AsyncClient() as client:
         room_players = room.players
         random.shuffle(room_players)
-        for player in room_players:
-            await update_solver(room_id, problem_id, player, db, client)
+        await update_solver(room_id, mission, room_players, db, client)
         await update_score(room_id, db)
 
 
