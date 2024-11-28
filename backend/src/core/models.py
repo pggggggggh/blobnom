@@ -11,6 +11,7 @@ class User(TimestampMixin, Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True)
 
+    owned_rooms = relationship("Room", back_populates="owner", foreign_keys="[Room.owner_id]")
     user_rooms = relationship("RoomPlayer", back_populates="user")
     solved_missions = relationship("RoomMission", back_populates="solved_user")
 
@@ -21,12 +22,16 @@ class Room(TimestampMixin, Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True)
     query = Column(String)
+
     password = Column(String)
     starts_at = Column(DateTime)
     ends_at = Column(DateTime)
 
     max_players = Column(Integer, default=MAX_USER_PER_ROOM)
     is_private = Column(Boolean)
+
+    owner_id = Column(ForeignKey("users.id"),nullable=True)
+    owner = relationship("User",foreign_keys=[owner_id],back_populates="owned_rooms")
 
     winning_user_id = Column(ForeignKey("users.id"))
     winning_user = relationship("User", foreign_keys=[winning_user_id])

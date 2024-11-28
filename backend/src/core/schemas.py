@@ -27,8 +27,11 @@ class RoomSummary(BaseModel):
     name: str
     starts_at: datetime
     ends_at: datetime
+    owner: str
     num_players: int
     max_players: int
+    num_problems: int
+    num_solved_problems: int
     is_private: bool
 
     class Config:

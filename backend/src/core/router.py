@@ -20,6 +20,8 @@ async def room_list(db: Session = Depends(get_db)):
     rooms = (
         db.query(Room)
         .options(joinedload(Room.players))
+        .options(joinedload(Room.missions))
+        .options(joinedload(Room.owner))
         .order_by(desc(Room.updated_at))
         .all()
     )
@@ -118,6 +120,7 @@ async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db
 
 @router.post("/rooms/create")
 async def room_create(db: Session = Depends(get_db),
+                      owner_handle: str = Body(...),
                       handles: str = Body(...),
                       title: str = Body(...),
                       query: str = Body(...),
@@ -126,8 +129,14 @@ async def room_create(db: Session = Depends(get_db),
                       max_players: int = Body(...),
                       starts_at: datetime = Body(...),
                       ends_at: datetime = Body(...)):
+
     if max_players > MAX_USER_PER_ROOM:
         raise HTTPException(status_code=400)
+
+    owner = db.query(User).filter(User.name == owner_handle).first()
+    if not owner:
+        owner = User(name=owner_handle)
+        db.add(owner)
 
     async with httpx.AsyncClient() as client:
         handles = handles.split()
@@ -141,6 +150,8 @@ async def room_create(db: Session = Depends(get_db),
                 if item["problemId"] not in problem_ids:
                     problem_ids.append(item["problemId"])
         num_mission = 3 * size * (size + 1) + 1
+
+
         if len(problem_ids) < num_mission:
             raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 적어 방을 만드는데 실패했습니다.")
         problem_ids = problem_ids[:num_mission]
@@ -148,6 +159,7 @@ async def room_create(db: Session = Depends(get_db),
         room = Room(
             name=title,
             query=query,
+            owner=owner,
             max_players=max_players,
             starts_at = starts_at,
             ends_at=ends_at,
@@ -165,7 +177,6 @@ async def room_create(db: Session = Depends(get_db),
             if not user:
                 user = User(name=username)
                 db.add(user)
-            print(user.id,"!!!")
             room_player = RoomPlayer(
                 user_id=user.id,
                 room_id=room.id,
