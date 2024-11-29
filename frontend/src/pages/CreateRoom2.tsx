@@ -55,6 +55,7 @@ function CreateRoom2() {
                 <SetRoomPin
                     isPrivateProps={form.getInputProps('is_private', { type: 'checkbox' })}
                     entryPinProps={form.getInputProps('entry_pin')}
+                    onClearPin={() => form.setFieldValue('entry_pin', '')}
                 />
                 <Button type="submit">생성</Button>
             </Stack>

@@ -1,18 +1,30 @@
 import { TextInput, Grid, Checkbox } from '@mantine/core';
+import { useEffect } from 'react';
 
 const SetRoomPin = ({
     isPrivateProps,
     entryPinProps,
+    onClearPin,
 }: {
     isPrivateProps: {
-        value?: boolean;
+        checked?: boolean;
         onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     };
     entryPinProps: {
         value?: string;
         onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     };
+    onClearPin: () => void;
 }) => {
+
+
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        isPrivateProps.onChange(event);
+        if (!event.target.checked) {
+            onClearPin();
+        }
+    };
+
     return (
         <Grid
             py="lg"
@@ -23,17 +35,16 @@ const SetRoomPin = ({
             <Grid.Col span={4}>
                 <Checkbox
                     label="비밀방 설정"
-                    checked={isPrivateProps.value}
-                    onChange={isPrivateProps.onChange}
+                    checked={isPrivateProps.checked}
+                    onChange={handleCheckboxChange}
                 />
             </Grid.Col>
-
             <Grid.Col span={7}>
                 <TextInput
                     {...entryPinProps}
                     placeholder="입장 비밀번호"
                     type="password"
-                    disabled={!isPrivateProps.value}
+                    disabled={!isPrivateProps.checked}
                     styles={{
                         input: {
                             height: '38px',
