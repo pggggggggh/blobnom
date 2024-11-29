@@ -1,10 +1,10 @@
 from datetime import timezone
 
 from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, BigInteger, Boolean, Enum
-from sqlalchemy.orm import relationship, Relationship
+from sqlalchemy.orm import relationship
 
 from src.core.constants import MAX_USER_PER_ROOM
-from src.core.enums import ProblemType
+from src.core.enums import ProblemType, ModeType
 from src.database import Base, TimestampMixin
 
 class User(TimestampMixin, Base):
@@ -35,11 +35,8 @@ class Room(TimestampMixin, Base):
     owner_id = Column(ForeignKey("users.id"),nullable=True)
     owner = relationship("User",foreign_keys=[owner_id],back_populates="owned_rooms")
 
-    winning_user_id = Column(ForeignKey("users.id"))
-    winning_user = relationship("User", foreign_keys=[winning_user_id])
-
-    winning_player_id = Column(ForeignKey("room_players.id"))
-    winning_player = relationship("RoomPlayer", foreign_keys=[winning_player_id])
+    mode_type = Column(Enum(ModeType), nullable=False, default=ModeType.LAND_GRAB_SOLO)
+    winning_team_index = Column(Integer, default=1)
 
     players = relationship("RoomPlayer", back_populates="room", foreign_keys="RoomPlayer.room_id")
     missions = relationship("RoomMission", back_populates="room")

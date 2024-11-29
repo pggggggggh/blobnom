@@ -32,6 +32,7 @@ class RoomSummary(BaseModel):
     max_players: int
     num_missions: int
     num_solved_missions: int
+    winner: str
     is_private: bool
 
     class Config:

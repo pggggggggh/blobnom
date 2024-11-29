@@ -2,10 +2,13 @@ from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 
 from src.core.models import User, Room, RoomPlayer, RoomMission
-from src.core.schemas import RoomDetail, RoomSummary
-from src.core.schemas import RoomPlayerInfo, RoomMissionInfo, RoomDetail
+from src.core.schemas import RoomDetail, RoomSummary, RoomPlayerInfo, RoomMissionInfo
 
 def get_room_summary(room: Room) -> RoomSummary:
+    winner_team_index = room.winning_team_index
+    winner_dict = [player.user.name for player in room.players if player.team_index == winner_team_index]
+    winner = winner_dict.join(', ')
+
     return RoomSummary(
         id = room.id,
         name = room.name,
@@ -16,6 +19,7 @@ def get_room_summary(room: Room) -> RoomSummary:
         max_players = room.max_players,
         num_missions = len(room.missions),
         num_solved_missions = len([mission for mission in room.missions if mission.solved_at is not None]),
+        winner = winner,
         is_private = room.is_private,
     )
 

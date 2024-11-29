@@ -24,7 +24,7 @@ async def update_score(room_id, db):
     board_width = (3+int(math.sqrt(12*num_mission-3)))//6
 
     board = [[-1 for _ in range(board_width)] for _ in range(board_width)]
-    solved_player_index = [-1 for _ in range(num_mission)]
+    solved_team_index = [-1 for _ in range(num_mission)]
 
 
     adjacent_solved_count_list = [0 for _ in range(MAX_USER_PER_ROOM)]
@@ -33,9 +33,8 @@ async def update_score(room_id, db):
 
     for index, mission in enumerate(missions):
         if mission.solved_at is not None:
-            cur_solved_index = mission.solved_room_player.player_index
-            # indicates the player_index in room
-            solved_player_index[index] = cur_solved_index
+            cur_solved_index = mission.solved_room_player.team_index
+            solved_team_index[index] = cur_solved_index
             total_solved_count_list[cur_solved_index] += 1
             if (mission.solved_at.replace(tzinfo=pytz.UTC) >
                     last_solved_at_list[cur_solved_index].replace(tzinfo=pytz.UTC)):
@@ -63,7 +62,7 @@ async def update_score(room_id, db):
     
     vis = [False for _ in range(num_mission)]
     for i in range(num_mission):
-        if solved_player_index[i] < 0 or vis[i]: continue
+        if solved_team_index[i] < 0 or vis[i]: continue
         q = deque([])
         q.append(i)
         adjacent_count = 0
@@ -74,26 +73,25 @@ async def update_score(room_id, db):
             vis[u] = True
             adjacent_count += 1
             for v in graph[u]:
-                if solved_player_index[v] == solved_player_index[i]: q.append(v)
-        adjacent_solved_count_list[solved_player_index[i]] = max(
-            adjacent_solved_count_list[solved_player_index[i]],
+                if solved_team_index[v] == solved_team_index[i]: q.append(v)
+        adjacent_solved_count_list[solved_team_index[i]] = max(
+            adjacent_solved_count_list[solved_team_index[i]],
             adjacent_count
         )
 
     for player in room_players:
-        player.adjacent_solved_count = adjacent_solved_count_list[player.player_index]
-        player.total_solved_count = total_solved_count_list[player.player_index]
-        player.last_solved_at = last_solved_at_list[player.player_index]
+        player.adjacent_solved_count = adjacent_solved_count_list[player.team_index]
+        player.total_solved_count = total_solved_count_list[player.team_index]
+        player.last_solved_at = last_solved_at_list[player.team_index]
         db.add(player)
     db.commit()
 
-    # 같은 객체 다시 쿼리할 필요 X
     sorted_players = sorted(
         room_players,
         key=lambda user: (
-            -user.adjacent_solved_count,   # 내림차순
-            -user.total_solved_count,      # 내림차순
-            user.last_solved_at            # 오름차순
+            -user.adjacent_solved_count,
+            -user.total_solved_count,
+            user.last_solved_at
         )
     )
 

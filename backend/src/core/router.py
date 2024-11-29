@@ -23,6 +23,7 @@ async def room_list(db: Session = Depends(get_db)):
         .options(joinedload(Room.players))
         .options(joinedload(Room.missions))
         .options(joinedload(Room.owner))
+        .options(joinedload(Room.missions.user))
         .order_by(desc(Room.updated_at))
         .all()
     )
