@@ -9,5 +9,4 @@ export interface RoomSummary {
     is_private: boolean;
     num_missions: number;
     num_solved_missions: number;
-    isPrivate: boolean;
 }
