@@ -1,4 +1,4 @@
-export interface CreateRoom {
+export interface RoomForm {
     owner: string;
     edit_password: string;
     handles: string;
