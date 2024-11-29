@@ -1,4 +1,5 @@
-export type Tier = { value: number; label: string; short: string };
+import { ReactNode } from 'react';
+export type Tier = { value: number; label: string|ReactNode; short: string };
 
 export const tiers: Tier[] = [
     { value: 0, label: "Unrated", short: "unrated" },
@@ -34,13 +35,83 @@ export const tiers: Tier[] = [
     { value: 30, label: "Ruby I", short: "r1" },
 ];
 
-
-
 export const marks: Tier[] = [
-    { value: 1, label: "Bronze V", short: "b5" },
-    { value: 6, label: "Silver V", short: "s5" },
-    { value: 11, label: "Gold V", short: "g5" },
-    { value: 16, label: "Platinum V", short: "p5" },
-    { value: 21, label: "Diamond V", short: "d5" },
-    { value: 26, label: "Ruby V", short: "r5" },
-]
+    {
+      value: 1,
+      label: (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="/images/bronze.png"
+            alt="Bronze 아이콘"
+            style={{ width: '17px', height: '22px' }}
+          />
+        </div>
+      ),
+      short: 'b5',
+    },
+    {
+      value: 6,
+      label: (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="/images/silver.png"
+            alt="Silver 아이콘"
+            style={{ width: '17px', height: '22px' }}
+          />
+        </div>
+      ),
+      short: 's5',
+    },
+    {
+      value: 11,
+      label: (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="/images/gold.png"
+            alt="Gold 아이콘"
+            style={{ width: '17px', height: '22px' }}
+          />
+        </div>
+      ),
+      short: 'g5',
+    },
+    {
+      value: 16,
+      label: (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="/images/platinum.png"
+            alt="Platinum 아이콘"
+            style={{ width: '17px', height: '22px' }}
+          />
+        </div>
+      ),
+      short: 'p5',
+    },
+    {
+      value: 21,
+      label: (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="/images/diamond.png"
+            alt="Diamond 아이콘"
+            style={{ width: '17px', height: '22px' }}
+          />
+        </div>
+      ),
+      short: 'd5',
+    },
+    {
+      value: 26,
+      label: (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img
+            src="/images/ruby.png"
+            alt="Ruby 아이콘"
+            style={{ width: '17px', height: '22px' }}
+          />
+        </div>
+      ),
+      short: 'r5',
+    },
+  ];
