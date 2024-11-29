@@ -2,7 +2,7 @@ import {createLazyFileRoute} from '@tanstack/react-router';
 import {Container, Group, Pagination, TextInput} from "@mantine/core";
 import {useRoomList} from "../hooks/hooks.tsx";
 import SearchIcon from '@mui/icons-material/Search';
-import RoomListComponent from "../components/RoomListComponent.tsx";
+import RoomListComponent from '../components/RoomListComponent.tsx'
 import dayjs from "dayjs";
 
 export const Route = createLazyFileRoute('/')({
