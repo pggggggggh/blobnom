@@ -7,7 +7,7 @@ from src.core.schemas import RoomDetail, RoomSummary, RoomPlayerInfo, RoomMissio
 def get_room_summary(room: Room) -> RoomSummary:
     winner_team_index = room.winning_team_index
     winner_dict = [player.user.name for player in room.players if player.team_index == winner_team_index]
-    winner = winner_dict.join(', ')
+    winner = ", ".join(winner_dict)
 
     return RoomSummary(
         id = room.id,
