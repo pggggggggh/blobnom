@@ -6,14 +6,13 @@ const HeaderComponent = () => {
     const [opened, {toggle}] = useDisclosure();
 
     return (
-        <Group h="100%" px="md">
+        <Group h="100%" px="md" gap="md">
             <Burger
                 opened={opened}
                 onClick={toggle}
                 hiddenFrom="sm"
                 size="sm"
             />
-
             <Image py="sm" h="100%" src={logo}/>
             <a href="/" className="no-underline text-white">
                 <Title order={4}>Blobnom</Title>
