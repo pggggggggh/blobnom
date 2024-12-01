@@ -6,7 +6,7 @@ import {createRouter, RouterProvider} from '@tanstack/react-router'
 import {routeTree} from './routeTree.gen'
 import '@mantine/core/styles.css';
 // import 'main.css'
-import {MantineProvider} from "@mantine/core";
+import {ColorSchemeScript, MantineProvider} from "@mantine/core";
 import "./main.css"
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import dayjs from 'dayjs';
@@ -14,7 +14,6 @@ import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import "dayjs/locale/ko";
 import utc from 'dayjs/plugin/utc';
-
 
 // Create a new router instance
 const router = createRouter({routeTree})
@@ -40,12 +39,16 @@ if (!rootElement.innerHTML) {
     const root = ReactDOM.createRoot(rootElement)
     root.render(
         <StrictMode>
-            <MantineProvider defaultColorScheme="dark">
+            <ColorSchemeScript defaultColorScheme="dark"/>
+            <MantineProvider defaultColorScheme="dark"
+                             theme={{
+                                 fontFamily: 'Noto Sans KR, sans-serif',
+                             }}>
                 <QueryClientProvider client={queryClient}>
                     <RouterProvider router={router}/>
                 </QueryClientProvider>
             </MantineProvider>
-
         </StrictMode>
     );
 }
+

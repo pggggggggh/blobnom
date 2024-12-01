@@ -13,8 +13,11 @@ const HeaderComponent = () => {
                 hiddenFrom="sm"
                 size="sm"
             />
+
             <Image py="sm" h="100%" src={logo}/>
-            <Title order={4}>Blobnom</Title>
+            <a href="/" className="no-underline text-white">
+                <Title order={4}>Blobnom</Title>
+            </a>
         </Group>
     );
 };

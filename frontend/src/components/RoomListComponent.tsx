@@ -12,7 +12,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                 return (
                     <Card key={room.id} withBorder shadow="sm">
                         <Group justify="space-between">
-                            <Box w={{base: 150, xs: 200, sm: 300, md: 500}}>
+                            <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
                                 <Text fw={500} size="lg" truncate>
                                     {room.name}
                                 </Text>
