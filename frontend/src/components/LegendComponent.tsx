@@ -3,8 +3,8 @@ import {userColors} from "../constants/UserColors.tsx";
 import {PlayerInfo} from "../types/RoomDetail.tsx";
 
 const LegendComponent = ({players}: { players: PlayerInfo[] }) => {
-    return (<Box
-        className="p-2 fixed bottom-4 right-4 bg-zinc-900 opacity-85 text-white shadow-lg rounded-md max-h-100 overflow-y-auto">
+    return (<div
+        className="p-2 fixed bottom-4 right-4 bg-zinc-900 opacity-85 text-white shadow-lg rounded-md max-h-100 overflow-y-auto z-0">
         {players.map((player, i) => {
             return (
                 <Box className="flex items-center gap-2">
@@ -14,7 +14,7 @@ const LegendComponent = ({players}: { players: PlayerInfo[] }) => {
                 </Box>
             );
         })}
-    </Box>);
+    </div>);
 }
 
 export default LegendComponent;

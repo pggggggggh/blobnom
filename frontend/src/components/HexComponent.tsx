@@ -8,7 +8,8 @@ export const HexComponent = ({missions}: { missions: MissionInfo[] }) => {
 
     return (
         <Center h="calc(100vh - var(--app-shell-header-height, 0px) - 32px)">
-            <Box className="w-full h-full overflow-auto">
+            <Box
+                className="w-full h-full ">
                 <HexGrid
                     className="min-w-[800px] min-h-[600px] mx-auto"
                     width="100%"
