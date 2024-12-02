@@ -1,20 +1,20 @@
 import random
 from datetime import datetime
-from mailbox import mboxMessage
 
 import httpx
 import pytz
 from fastapi import Body, HTTPException, Depends, APIRouter, status
-from sqlalchemy import func, desc
+from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.database import get_db
-from src.core.constants import MAX_USER_PER_ROOM
+from src.core.constants import MAX_TEAM_PER_ROOM
 from src.core.models import User, Room, RoomPlayer, RoomMission
-from src.core.utils import update_score, update_solver, get_solved_mission_list
 from src.core.services import get_room_summary, get_room_detail
+from src.core.utils import update_score, update_solver, get_solved_problem_list
+from src.database import get_db
 
 router = APIRouter()
+
 
 @router.get("/")
 async def room_list(db: Session = Depends(get_db)):
@@ -43,7 +43,7 @@ async def room_detail(id: int, db: Session = Depends(get_db)):
 @router.post("/rooms/join/{id}")
 async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_db)):
     async with httpx.AsyncClient() as client:
-        room = db.query(Room).filter(Room.id == id).first()
+        room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
         if not room:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
@@ -54,7 +54,7 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
             .all()
         )
 
-        if len(room_players) >= MAX_USER_PER_ROOM:
+        if len(room_players) >= MAX_TEAM_PER_ROOM:
             raise HTTPException(status_code=400, detail="인원이 가득 찼습니다.")
 
         if any(user.name == handle for (user_room, user) in room_players):
@@ -71,9 +71,9 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
             user = User(name=handle)
             db.add(user)
         user = db.query(User).filter(User.name == handle).first()
-        
-        solved_mission_list = get_solved_mission_list(id, handle, db, client)
 
+        unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
+        solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, handle, db, client)
         if len(solved_mission_list) > 2:
             raise HTTPException(status_code=400, detail="이미 해결한 문제가 2문제를 초과하여 참여할 수 없습니다.")
 
@@ -136,8 +136,7 @@ async def room_create(db: Session = Depends(get_db),
                       max_players: int = Body(...),
                       starts_at: datetime = Body(...),
                       ends_at: datetime = Body(...)):
-
-    if max_players > MAX_USER_PER_ROOM:
+    if max_players > MAX_TEAM_PER_ROOM:
         raise HTTPException(status_code=400)
 
     owner = db.query(User).filter(User.name == owner_handle).first()
@@ -159,7 +158,6 @@ async def room_create(db: Session = Depends(get_db),
                     problem_ids.append(item["problemId"])
         num_mission = 3 * size * (size + 1) + 1
 
-
         if len(problem_ids) < num_mission:
             raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 적어 방을 만드는데 실패했습니다.")
         problem_ids = problem_ids[:num_mission]
@@ -169,21 +167,21 @@ async def room_create(db: Session = Depends(get_db),
             query=query,
             owner=owner,
             max_players=max_players,
-            starts_at = starts_at,
+            starts_at=starts_at,
             ends_at=ends_at,
             is_private=is_private
         )
         db.add(room)
         db.flush()
 
-        for problem_id in problem_ids:
-            mission = RoomMission(problem_id=problem_id, room_id=room.id)
+        for idx, problem_id in enumerate(problem_ids):
+            mission = RoomMission(problem_id=problem_id, room_id=room.id, index_in_room=idx)
             room.missions.append(mission)
             db.add(mission)
             db.flush()
-        
+
         for idx, username in enumerate(handles):
-            user = db.query(User).filter(User.name ==username).first()
+            user = db.query(User).filter(User.name == username).first()
             if not user:
                 user = User(name=username)
                 db.add(user)
@@ -191,7 +189,8 @@ async def room_create(db: Session = Depends(get_db),
             room_player = RoomPlayer(
                 user_id=user.id,
                 room_id=room.id,
-                player_index=idx
+                player_index=idx,
+                team_index=idx  # 테스트를 위한 것임!!!
             )
             room.players.append(room_player)
             db.add(room_player)

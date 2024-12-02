@@ -1,3 +1,2 @@
-import pytz
-
+MAX_TEAM_PER_ROOM = 16
 MAX_USER_PER_ROOM = 16

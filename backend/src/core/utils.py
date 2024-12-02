@@ -1,12 +1,13 @@
 import math
 from collections import deque
-from datetime import datetime, tzinfo
-from fastapi import Body, HTTPException, Depends, APIRouter, status
+from datetime import datetime
+
 import pytz
+from fastapi import HTTPException
 from sqlalchemy.orm import joinedload
 
-from src.core.constants import MAX_USER_PER_ROOM
-from src.core.models import User, Room, RoomPlayer, RoomMission
+from src.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
+from src.core.models import Room, RoomPlayer, RoomMission
 
 
 async def update_score(room_id, db):
@@ -19,26 +20,30 @@ async def update_score(room_id, db):
         .options(joinedload(RoomPlayer.user))
     )
     missions = db.query(RoomMission).filter(RoomMission.room_id == room_id).all()
-
     num_mission = len(missions)
-    board_width = (3+int(math.sqrt(12*num_mission-3)))//6
+    board_width = ((3 + int(math.sqrt(12 * num_mission - 3))) // 6 - 1) * 2 + 1
 
     board = [[-1 for _ in range(board_width)] for _ in range(board_width)]
     solved_team_index = [-1 for _ in range(num_mission)]
+    adjacent_solved_count_list = [0 for _ in range(MAX_TEAM_PER_ROOM)]
+    total_solved_count_list = [0 for _ in range(MAX_TEAM_PER_ROOM)]
+    last_solved_at_list = [room.created_at for _ in range(MAX_TEAM_PER_ROOM)]
 
+    indiv_solved_count_list = [0 for _ in range(MAX_USER_PER_ROOM)]
 
-    adjacent_solved_count_list = [0 for _ in range(MAX_USER_PER_ROOM)]
-    total_solved_count_list = [0 for _ in range(MAX_USER_PER_ROOM)]
-    last_solved_at_list = [room.created_at for _ in range(MAX_USER_PER_ROOM)]
-
-    for index, mission in enumerate(missions):
+    for mission in missions:
+        index = mission.index_in_room
         if mission.solved_at is not None:
-            cur_solved_index = mission.solved_room_player.team_index
-            solved_team_index[index] = cur_solved_index
-            total_solved_count_list[cur_solved_index] += 1
+            cur_solved_player_index = mission.solved_room_player.player_index
+            cur_solved_team_index = mission.solved_room_player.team_index
+
+            solved_team_index[index] = cur_solved_team_index
+            total_solved_count_list[cur_solved_team_index] += 1
+            indiv_solved_count_list[cur_solved_player_index] += 1
+
             if (mission.solved_at.replace(tzinfo=pytz.UTC) >
-                    last_solved_at_list[cur_solved_index].replace(tzinfo=pytz.UTC)):
-                last_solved_at_list[cur_solved_index] = mission.solved_at
+                    last_solved_at_list[cur_solved_team_index].replace(tzinfo=pytz.UTC)):
+                last_solved_at_list[cur_solved_team_index] = mission.solved_at
 
     ptr = 0
     for i in range(board_width):
@@ -59,7 +64,7 @@ async def update_score(room_id, db):
             if i + 1 < board_width and j + 1 < board_width and board[i + 1][j + 1] >= 0:
                 graph[board[i][j]].append(board[i + 1][j + 1])
                 graph[board[i + 1][j + 1]].append(board[i][j])
-    
+    print(board)
     vis = [False for _ in range(num_mission)]
     for i in range(num_mission):
         if solved_team_index[i] < 0 or vis[i]: continue
@@ -78,64 +83,62 @@ async def update_score(room_id, db):
             adjacent_solved_count_list[solved_team_index[i]],
             adjacent_count
         )
-
     for player in room_players:
         player.adjacent_solved_count = adjacent_solved_count_list[player.team_index]
         player.total_solved_count = total_solved_count_list[player.team_index]
         player.last_solved_at = last_solved_at_list[player.team_index]
+        player.indiv_solved_count = indiv_solved_count_list[player.player_index]
         db.add(player)
     db.commit()
-
     sorted_players = sorted(
         room_players,
-        key=lambda user: (
-            -user.adjacent_solved_count,
-            -user.total_solved_count,
-            user.last_solved_at
+        key=lambda player: (
+            -adjacent_solved_count_list[player.team_index],
+            last_solved_at_list[player.team_index],
+            -player.adjacent_solved_count,
+            -player.total_solved_count,
+            player.last_solved_at
         )
     )
-
-    room.winning_player_id = sorted_players[0].id
-    room.winning_user_id = sorted_players[0].user_id
+    room.winning_team_index = sorted_players[0].team_index
     db.commit()
     return
 
 
-async def get_solved_mission_list(room_id, username, db, client):
-    missions = db.query(RoomMission).filter(RoomMission.room_id == room_id).all()
-    problem_ids = [mission.problem_id for mission in missions if mission.solved_at is None]
-    paged_problem_ids = [problem_ids[i:i + 50] for i in range(0, len(problem_ids), 50)]
+async def get_solved_problem_list(problem_ids, username, db, client):
+    paged_problem_ids = [problem_ids[i:i + 25] for i in range(0, len(problem_ids), 25)]
 
     solved_problem_list = []
 
     for problem_ids in paged_problem_ids:
-        query = ""
+        query = "("
         for problem_id in problem_ids:
-            if len(query) > 0:
+            if len(query) > 1:
                 query += "|"
             query += "id:" + str(problem_id)
-        query += " @" + username
+        query += ") & @" + username
         response = await client.get("https://solved.ac/api/v3/search/problem",
                                     params={"query": query})
+        print(query)
         items = response.json()["items"]
         for item in items:
             solved_problem_list.append(item["problemId"])
-    
+
     return solved_problem_list
 
 
 async def update_solver(room_id, mission, room_players, db, client):
     if mission is None:
-        raise HTTPException(status_code=400,detail="Such problem does not exist")
-    # if mission.solved_at is not None:
-    #     raise HTTPException(status_code=400, detail="The problem was already solved")
+        raise HTTPException(status_code=400, detail="Such problem does not exist")
 
     for player in room_players:
-        solved_problem_list = await get_solved_mission_list(room_id,player.user.name,db,client)
+        solved_problem_list = await get_solved_problem_list([mission.problem_id], player.user.name, db, client)
+        print(player.user.name, solved_problem_list)
         if mission.problem_id in solved_problem_list:
             mission.solved_at = datetime.now(tz=pytz.utc)
             mission.solved_user = player.user
             mission.solved_room_player = player
+            mission.solved_team_index = player.team_index
             break
 
     db.commit()

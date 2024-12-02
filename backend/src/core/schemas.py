@@ -1,11 +1,12 @@
-from pydantic import BaseModel
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional, Dict
 
-class RoomPlayerInfo(BaseModel):
-    user_id: int
-    name: str
-    player_index: int
+from pydantic import BaseModel
+
+
+class RoomTeamInfo(BaseModel):
+    users: List[Dict]
+    team_index: int
     adjacent_solved_count: Optional[int]
     total_solved_count: Optional[int]
     last_solved_at: Optional[datetime]
@@ -13,14 +14,18 @@ class RoomPlayerInfo(BaseModel):
     class Config:
         from_attributes = True
 
+
 class RoomMissionInfo(BaseModel):
     problem_id: int
+    index_in_room: int
     solved_at: Optional[datetime]
     solved_player_index: Optional[int]
+    solved_team_index: Optional[int]
     solved_user_name: Optional[str]
 
     class Config:
         from_attributes = True
+
 
 class RoomSummary(BaseModel):
     id: int
@@ -38,6 +43,7 @@ class RoomSummary(BaseModel):
     class Config:
         from_attributes = True
 
+
 class RoomDetail(BaseModel):
     starts_at: Optional[datetime]
     ends_at: Optional[datetime]
@@ -45,7 +51,7 @@ class RoomDetail(BaseModel):
     name: str
     is_private: bool
     num_missions: int
-    player_info: List[RoomPlayerInfo]
+    team_info: List[RoomTeamInfo]
     mission_info: List[RoomMissionInfo]
 
     class Config:

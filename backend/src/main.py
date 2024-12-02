@@ -12,7 +12,9 @@ except:
 
 origins = [
     "http://localhost:5173",
+    "http://121.189.148.34:5173",
     "https://blobnom.netlify.app",
+    "https://b5m.netlify.app",
     "http://blobnom.xyz",
     "https://blobnom.xyz",
 ]
