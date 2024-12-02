@@ -39,8 +39,8 @@ if (!rootElement.innerHTML) {
     const root = ReactDOM.createRoot(rootElement)
     root.render(
         <StrictMode>
-            <ColorSchemeScript defaultColorScheme="dark"/>
-            <MantineProvider defaultColorScheme="dark"
+            <ColorSchemeScript forceColorScheme="dark"/>
+            <MantineProvider forceColorScheme="dark"
                              theme={{
                                  fontFamily: 'Noto Sans KR, sans-serif',
                              }}>

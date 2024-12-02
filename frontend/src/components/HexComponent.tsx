@@ -1,40 +1,57 @@
 import {MissionInfo} from "../types/RoomDetail.tsx";
 import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "react-hexgrid";
-import {Box, Center} from "@mantine/core";
+import {Box, Button, Center, HoverCard} from "@mantine/core";
+import {useSolveProblem} from "../hooks/hooks.tsx";
+import {userColorsFill} from "../constants/UserColorsFill.tsx";
 
-export const HexComponent = ({missions}: { missions: MissionInfo[] }) => {
+export const HexComponent = ({roomId, missions}: { roomId: number, missions: MissionInfo[] }) => {
     const width: number = (3 + Math.sqrt(12 * missions.length - 3)) / 6 - 1;
     const hexagons = GridGenerator.hexagon(width);
 
+    const mutation = useSolveProblem();
+
     return (
         <Center h="calc(100vh - var(--app-shell-header-height, 0px) - 32px)">
-            <Box
-                className="w-full h-full ">
+            <Box w="100%" h="100%">
                 <HexGrid
-                    className="min-w-[800px] min-h-[600px] mx-auto"
+                    className="mx-auto"
                     width="100%"
                     height="97%"
-                    viewBox="-120 -120 240 240"
+                    viewBox="-105 -120 210 240"
                 >
                     <Layout spacing={1.05}>
                         {hexagons.map((hex: Hex, i: number) => (
-                            <a
-                                key={i}
-                                href={`https://www.acmicpc.net/problem/${missions[i].problem_id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Hexagon
-                                    q={hex.q}
-                                    r={hex.r}
-                                    s={hex.s}
-                                    className="transition fill-zinc-950 hover:fill-zinc-600 active:fill-zinc-700"
-                                >
-                                    <SVGText fontSize="5" className="fill-zinc-300 font-sans font-extralight stroke-0">
-                                        {missions[i].problem_id}
-                                    </SVGText>
-                                </Hexagon>
-                            </a>
+                            <HoverCard key={`hex${i}`} shadow="md" withArrow position="bottom" offset={-10}
+                                       openDelay={mutation.isPending ? 100000 : 0}
+                                       closeDelay={mutation.isPending ? 100000 : 0}>
+                                <HoverCard.Target>
+                                    <a
+                                        href={`https://www.acmicpc.net/problem/${missions[i].problem_id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <Hexagon
+                                            q={hex.q}
+                                            r={hex.r}
+                                            s={hex.s}
+                                            className={`transition ${missions[i].solved_at ?
+                                                `${userColorsFill[missions[i].solved_team_index]}` : "fill-zinc-950 hover:fill-zinc-600 active:fill-zinc-700"}`}
+                                        >
+                                            <SVGText fontSize="5"
+                                                     className="fill-zinc-100 font-sans font-extralight stroke-0 ">
+                                                {missions[i].problem_id}
+                                            </SVGText>
+                                        </Hexagon>
+                                    </a>
+                                </HoverCard.Target>
+                                <HoverCard.Dropdown className="p-0 ">
+                                    <Button
+                                        variant="default"
+                                        onClick={() => mutation.mutate({roomId, problemId: missions[i].problem_id})}
+                                        loading={mutation.isPending}
+                                    >Solve!</Button>
+                                </HoverCard.Dropdown>
+                            </HoverCard>
                         ))}
                     </Layout>
                 </HexGrid>

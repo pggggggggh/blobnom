@@ -9,22 +9,27 @@ export interface RoomDetail {
     is_private: boolean;
     num_missions: number;
     num_solved_missions: number;
-    player_info: PlayerInfo[];
+    team_info: TeamInfo[];
     mission_info: MissionInfo[];
 }
 
-export interface PlayerInfo {
-    user_id: number;
-    name: string;
-    player_index: number;
+export interface TeamInfo {
+    users: RoomPlayerInfo[];
+    team_index: number;
     adjacent_solved_count: number;
     total_solved_count: number;
     last_solved_at: string | null;
+}
+
+export interface RoomPlayerInfo {
+    name: string;
+    indiv_solved_cnt: number;
 }
 
 export interface MissionInfo {
     problem_id: number;
     solved_at: string | null;
     solved_player_index: number | null;
+    solved_team_index: number;
     solved_user_name: string | null;
 }

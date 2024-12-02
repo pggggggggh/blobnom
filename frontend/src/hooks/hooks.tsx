@@ -1,6 +1,6 @@
-import {useQuery} from '@tanstack/react-query';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import {RoomDetail} from "../types/RoomDetail.tsx";
-import {fetchRoomDetail, fetchRoomList} from "../api/api.tsx";
+import {fetchRoomDetail, fetchRoomList, postSolveProblem} from "../api/api.tsx";
 import {RoomSummary} from "../types/RoomSummary.tsx";
 
 export const useRoomList = () => {
@@ -17,3 +17,15 @@ export const useRoomDetail = (roomId: number) => {
         queryFn: () => fetchRoomDetail(roomId),
     });
 };
+
+export const useSolveProblem = () => {
+    return useMutation({
+        mutationFn: postSolveProblem,
+        onSuccess: () => {
+            window.location.reload();
+        },
+        onError: (error) => {
+            console.log(error)
+        }
+    });
+}

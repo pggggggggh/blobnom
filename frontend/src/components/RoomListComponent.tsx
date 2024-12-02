@@ -21,7 +21,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                 </Text>
                             </Box>
                             <Group>
-                                <Group gap="xs">
+                                <Group gap="xs" visibleFrom="sm">
                                     {
                                         dayjs.utc(room.starts_at).isBefore(cur_datetime) ? (
                                             <Badge color="green">
