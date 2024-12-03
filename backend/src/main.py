@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.core.router import router as core_router
 import src.core.models as models
+from src.core.router import router as core_router
 from src.database import engine
 
 try:
@@ -18,7 +18,7 @@ origins = [
     "http://blobnom.xyz",
     "https://blobnom.xyz",
 ]
-app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
