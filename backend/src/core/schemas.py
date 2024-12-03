@@ -3,6 +3,8 @@ from typing import List, Optional, Dict
 
 from pydantic import BaseModel
 
+from src.core.enums import ModeType
+
 
 class RoomTeamInfo(BaseModel):
     users: List[Dict]
@@ -51,6 +53,7 @@ class RoomDetail(BaseModel):
     name: str
     is_private: bool
     num_missions: int
+    mode_type: ModeType
     team_info: List[RoomTeamInfo]
     mission_info: List[RoomMissionInfo]
 

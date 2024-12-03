@@ -8,6 +8,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
 from src.core.constants import MAX_TEAM_PER_ROOM
+from src.core.enums import ModeType
 from src.core.models import User, Room, RoomPlayer, RoomMission
 from src.core.services import get_room_summary, get_room_detail
 from src.core.utils import update_score, update_solver, get_solved_problem_list
@@ -46,6 +47,8 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
         room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
         if not room:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+        if room.mode_type == ModeType.LAND_GRAB_MULT:
+            raise HTTPException(status_code=400, detail="팀전에는 참여할 수 없습니다.")
 
         room_players = (
             db.query(RoomPlayer)
@@ -57,7 +60,7 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
         if len(room_players) >= MAX_TEAM_PER_ROOM:
             raise HTTPException(status_code=400, detail="인원이 가득 찼습니다.")
 
-        if any(user.name == handle for (user_room, user) in room_players):
+        if any(player.user.name == handle for player in room_players):
             raise HTTPException(status_code=400, detail="이미 존재하는 유저입니다.")
 
         query = "@" + handle
@@ -70,6 +73,7 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
         if not db.query(User).filter(User.name == handle).first():
             user = User(name=handle)
             db.add(user)
+            db.flush()
         user = db.query(User).filter(User.name == handle).first()
 
         unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
@@ -77,10 +81,21 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
         if len(solved_mission_list) > 2:
             raise HTTPException(status_code=400, detail="이미 해결한 문제가 2문제를 초과하여 참여할 수 없습니다.")
 
+        # calculate mex
+        player_indices = {player.player_index for player in room_players}
+        player_index = next(i for i in range(len(player_indices) + 1) if i not in player_indices)
+
+        team_indices = {player.team_index for player in room_players}
+        team_index = next(i for i in range(len(team_indices) + 1) if i not in team_indices)
+
         player = RoomPlayer(
             user_id=user.id,
-            room_id=id,
+            room_id=room.id,
+            player_index=player_index,
+            team_index=team_index,
+            last_solved_at=room.starts_at
         )
+        room.players.append(player)
         db.add(player)
 
         missions = db.query(RoomMission).filter(
@@ -91,7 +106,8 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
         for mission in missions:
             mission.solved_at = room.starts_at
             mission.solved_room_player_id = player.id
-            mission.solved_user_id = user.id
+            mission.solved_team_index = team_index
+            mission.solved_user = user
 
         db.commit()
 
@@ -132,6 +148,7 @@ async def room_create(db: Session = Depends(get_db),
                       title: str = Body(...),
                       query: str = Body(...),
                       size: int = Body(...),
+                      mode: ModeType = Body(...),
                       is_private: bool = Body(...),
                       max_players: int = Body(...),
                       starts_at: datetime = Body(...),
@@ -166,6 +183,7 @@ async def room_create(db: Session = Depends(get_db),
             name=title,
             query=query,
             owner=owner,
+            mode_type=mode,
             max_players=max_players,
             starts_at=starts_at,
             ends_at=ends_at,

@@ -79,6 +79,7 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
         id=room.id,
         name=room.name,
         is_private=room.is_private,
+        mode_type=room.mode_type,
         num_missions=len(missions),
         team_info=room_team_info,
         mission_info=room_mission_info
