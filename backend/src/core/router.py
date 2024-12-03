@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session, joinedload
 from src.core.constants import MAX_TEAM_PER_ROOM
 from src.core.enums import ModeType
 from src.core.models import User, Room, RoomPlayer, RoomMission
+from src.core.schemas import RoomCreateRequest
 from src.core.services import get_room_summary, get_room_detail
 from src.core.utils import update_score, update_solver, get_solved_problem_list
 from src.database import get_db
@@ -137,57 +138,45 @@ async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db
     async with httpx.AsyncClient() as client:
         room_players = room.players
         random.shuffle(room_players)
-        await update_solver(room_id, mission, room_players, db, client)
+        await update_solver(room_id, [mission], room_players, db, client)
         await update_score(room_id, db)
 
 
 @router.post("/rooms/create")
-async def room_create(db: Session = Depends(get_db),
-                      owner_handle: str = Body(...),
-                      handles: str = Body(...),
-                      title: str = Body(...),
-                      query: str = Body(...),
-                      size: int = Body(...),
-                      mode: ModeType = Body(...),
-                      is_private: bool = Body(...),
-                      max_players: int = Body(...),
-                      starts_at: datetime = Body(...),
-                      ends_at: datetime = Body(...)):
-    if max_players > MAX_TEAM_PER_ROOM:
+async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get_db), ):
+    if room_request.max_players > MAX_TEAM_PER_ROOM:
         raise HTTPException(status_code=400)
 
-    owner = db.query(User).filter(User.name == owner_handle).first()
+    owner = db.query(User).filter(User.name == room_request.owner_handle).first()
     if not owner:
-        owner = User(name=owner_handle)
+        owner = User(name=room_request.owner_handle)
         db.add(owner)
         db.flush()
 
     async with httpx.AsyncClient() as client:
-        handles = handles.split()
-
         problem_ids = []
         for _ in range(4):
             response = await client.get("https://solved.ac/api/v3/search/problem",
-                                        params={"query": query, "sort": "random", "page": 1})
+                                        params={"query": room_request.query, "sort": "random", "page": 1})
             tmp = response.json()["items"]
             for item in tmp:
                 if item["problemId"] not in problem_ids:
                     problem_ids.append(item["problemId"])
-        num_mission = 3 * size * (size + 1) + 1
+        num_mission = 3 * room_request.size * (room_request.size + 1) + 1
 
         if len(problem_ids) < num_mission:
             raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 적어 방을 만드는데 실패했습니다.")
         problem_ids = problem_ids[:num_mission]
 
         room = Room(
-            name=title,
-            query=query,
+            name=room_request.title,
+            query=room_request.query,
             owner=owner,
-            mode_type=mode,
-            max_players=max_players,
-            starts_at=starts_at,
-            ends_at=ends_at,
-            is_private=is_private
+            mode_type=room_request.mode,
+            max_players=room_request.max_players,
+            starts_at=room_request.starts_at,
+            ends_at=room_request.ends_at,
+            is_private=room_request.is_private
         )
         db.add(room)
         db.flush()
@@ -198,7 +187,7 @@ async def room_create(db: Session = Depends(get_db),
             db.add(mission)
             db.flush()
 
-        for idx, username in enumerate(handles):
+        for idx, (username, team_idx) in enumerate(room_request.players.items()):
             user = db.query(User).filter(User.name == username).first()
             if not user:
                 user = User(name=username)
@@ -208,10 +197,14 @@ async def room_create(db: Session = Depends(get_db),
                 user_id=user.id,
                 room_id=room.id,
                 player_index=idx,
-                team_index=idx  # 테스트를 위한 것임!!!
+                team_index=team_idx,
+                last_solved_at=room_request.starts_at
             )
             room.players.append(room_player)
             db.add(room_player)
         db.commit()
+
+        await update_solver(room.id, room.missions, room.players, db, client, True)
+        await update_score(room.id, db)
 
         return {"success": True, "roomId": room.id}

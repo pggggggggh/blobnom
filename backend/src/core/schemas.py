@@ -6,6 +6,19 @@ from pydantic import BaseModel
 from src.core.enums import ModeType
 
 
+class RoomCreateRequest(BaseModel):
+    owner_handle: str
+    players: Dict[str, int]
+    title: str
+    query: str
+    size: int
+    mode: ModeType
+    is_private: bool
+    max_players: int
+    starts_at: datetime
+    ends_at: datetime
+
+
 class RoomTeamInfo(BaseModel):
     users: List[Dict]
     team_index: int

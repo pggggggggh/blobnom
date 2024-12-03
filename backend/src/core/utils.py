@@ -64,7 +64,6 @@ async def update_score(room_id, db):
             if i + 1 < board_width and j + 1 < board_width and board[i + 1][j + 1] >= 0:
                 graph[board[i][j]].append(board[i + 1][j + 1])
                 graph[board[i + 1][j + 1]].append(board[i][j])
-    print(board)
     vis = [False for _ in range(num_mission)]
     for i in range(num_mission):
         if solved_team_index[i] < 0 or vis[i]: continue
@@ -127,19 +126,26 @@ async def get_solved_problem_list(problem_ids, username, db, client):
     return solved_problem_list
 
 
-async def update_solver(room_id, mission, room_players, db, client):
-    if mission is None:
-        raise HTTPException(status_code=400, detail="Such problem does not exist")
+async def update_solver(room_id, missions, room_players, db, client, initial=False):
+    # initial이 True면 방 만들 때
+    room = db.query(Room).filter(Room.id == room_id).first()
+    if room is None:
+        raise HTTPException(status_code=400, detail="Such room does not exist")
+
+    problem_id_list = []
+    for mission in missions:
+        if mission is None:
+            raise HTTPException(status_code=400, detail="Such problem does not exist")
+        problem_id_list.append(mission.problem_id)
 
     for player in room_players:
-        solved_problem_list = await get_solved_problem_list([mission.problem_id], player.user.name, db, client)
-        print(player.user.name, solved_problem_list)
-        if mission.problem_id in solved_problem_list:
-            mission.solved_at = datetime.now(tz=pytz.utc)
-            mission.solved_user = player.user
-            mission.solved_room_player = player
-            mission.solved_team_index = player.team_index
-            break
+        solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.name, db, client)
+        for mission in missions:
+            if mission.problem_id in solved_problem_list:
+                mission.solved_at = datetime.now(tz=pytz.utc) if not initial else room.starts_at
+                mission.solved_user = player.user
+                mission.solved_room_player = player
+                mission.solved_team_index = player.team_index
 
     db.commit()
     db.refresh(mission)
