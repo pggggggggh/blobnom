@@ -1,8 +1,9 @@
 import {MissionInfo} from "../types/RoomDetail.tsx";
 import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "react-hexgrid";
-import {Box, Button, Center, HoverCard} from "@mantine/core";
+import {Box, Button, Center, HoverCard, Text} from "@mantine/core";
 import {useSolveProblem} from "../hooks/hooks.tsx";
 import {userColorsFill} from "../constants/UserColorsFill.tsx";
+import dayjs from "dayjs";
 
 export const HexComponent = ({roomId, missions}: { roomId: number, missions: MissionInfo[] }) => {
     const width: number = (3 + Math.sqrt(12 * missions.length - 3)) / 6 - 1;
@@ -44,13 +45,29 @@ export const HexComponent = ({roomId, missions}: { roomId: number, missions: Mis
                                         </Hexagon>
                                     </a>
                                 </HoverCard.Target>
-                                <HoverCard.Dropdown className="p-0 ">
-                                    <Button
-                                        variant="default"
-                                        onClick={() => mutation.mutate({roomId, problemId: missions[i].problem_id})}
-                                        loading={mutation.isPending}
-                                    >Solve!</Button>
-                                </HoverCard.Dropdown>
+                                {
+                                    missions[i].solved_at ?
+                                        <HoverCard.Dropdown p="xs" className="text-center">
+                                            <Text>
+                                                Solved by <strong>{missions[i].solved_user_name}</strong>
+                                            </Text>
+                                            <Text>
+                                                {dayjs(missions[i].solved_at).format("YYYY/MM/DD HH:MM:ss")}
+                                            </Text>
+                                        </HoverCard.Dropdown>
+                                        :
+                                        <HoverCard.Dropdown className="p-0 ">
+                                            <Button
+                                                variant="default"
+                                                onClick={() => mutation.mutate({
+                                                    roomId,
+                                                    problemId: missions[i].problem_id
+                                                })}
+                                                loading={mutation.isPending}
+                                            >Solve!</Button>
+                                        </HoverCard.Dropdown>
+                                }
+
                             </HoverCard>
                         ))}
                     </Layout>
