@@ -5,6 +5,7 @@ export const userColorsFill = [
     "fill-purple-600",
     "fill-orange-600",
     "fill-pink-600",
+    "fill-indigo-600"
 ];
 
 export const userColorsBg = [
@@ -14,4 +15,5 @@ export const userColorsBg = [
     "bg-purple-600",
     "bg-orange-600",
     "bg-pink-600",
+    "bg-indigo-600"
 ];

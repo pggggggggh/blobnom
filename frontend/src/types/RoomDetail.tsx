@@ -6,6 +6,7 @@ export interface RoomDetail {
     owner: string;
     num_players: number;
     max_players: number;
+    mode_type: string;
     is_private: boolean;
     num_missions: number;
     num_solved_missions: number;

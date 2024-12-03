@@ -14,6 +14,7 @@ import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import "dayjs/locale/ko";
 import utc from 'dayjs/plugin/utc';
+import {ModalsProvider} from "@mantine/modals";
 
 // Create a new router instance
 const router = createRouter({routeTree})
@@ -39,15 +40,19 @@ if (!rootElement.innerHTML) {
     const root = ReactDOM.createRoot(rootElement)
     root.render(
         <StrictMode>
-            <ColorSchemeScript forceColorScheme="dark"/>
-            <MantineProvider forceColorScheme="dark"
-                             theme={{
-                                 fontFamily: 'Noto Sans KR, sans-serif',
-                             }}>
-                <QueryClientProvider client={queryClient}>
-                    <RouterProvider router={router}/>
-                </QueryClientProvider>
-            </MantineProvider>
+            <QueryClientProvider client={queryClient}>
+                <ColorSchemeScript forceColorScheme="dark"/>
+                <MantineProvider forceColorScheme="dark"
+                                 theme={{
+                                     fontFamily: 'Noto Sans KR, sans-serif',
+                                 }}>
+                    <ModalsProvider>
+
+                        <RouterProvider router={router}/>
+
+                    </ModalsProvider>
+                </MantineProvider>
+            </QueryClientProvider>
         </StrictMode>
     );
 }

@@ -19,3 +19,9 @@ export const postSolveProblem = async (data: { roomId: number; problemId: number
     console.log(response)
     return response.data;
 }
+
+export const postJoinRoom = async (data: { roomId: number; handle: string }) => {
+    const response = await api.post(`/rooms/join/${data.roomId}`, data.handle);
+    console.log(response)
+    return response.data;
+}
