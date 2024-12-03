@@ -69,7 +69,7 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                     <span className={idx === 0 ? "font-bold" : ""}>
                                         {user.name}
                                     </span>
-                                            {team.users.length > 1 && (user.indiv_solved_cnt)}
+                                            {team.users.length > 1 && `(${user.indiv_solved_cnt})`}
                                             {idx < team.users.length - 1 && ", "}
                                 </span>
                                     ))}
