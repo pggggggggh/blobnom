@@ -20,7 +20,7 @@ const MIN_TEAMS = 2;
 const transformToOptions = (items: string[]): Option[] =>
     items.map((item) => ({ value: item, label: item }));
 
-const TeamSelector: React.FC = () => {
+const TeamSelector = () => {
     const [isTeamMode, setIsTeamMode] = useState<boolean>(false);
     const [individualParticipants, setIndividualParticipants] = useState<string[]>([]);
     const [teams, setTeams] = useState<Team[]>([[], []]);
