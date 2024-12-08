@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { Box, Title, Stack, Button } from '@mantine/core';
 import { RoomForm } from '../types/RoomForm';
-import { SetRoomSize, SetRoomPin, SetRoomTitle, SetRoomOwner, SetRoomQuery } from '../components/RoomForm';
+import { SetRoomSize, SetRoomPin, SetRoomTitle, SetRoomOwner, SetRoomQuery, TeamSelector } from '../components/RoomForm';
 
 function CreateRoom2() {
     const boxStyles = { width: '50%', minWidth: '400px', margin: '0' };
@@ -51,6 +51,7 @@ function CreateRoom2() {
 
                 <SetRoomQuery queryValue={form.values.query} queryProps={form.getInputProps('query')} />
                 <SetRoomSize sizeProps={form.getInputProps('size')} />
+                <TeamSelector />
                 <SetRoomPin
                     isPrivateProps={form.getInputProps('is_private', { type: 'checkbox' })}
                     entryPinProps={form.getInputProps('entry_pin')}
