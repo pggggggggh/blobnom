@@ -27,16 +27,17 @@ const TeamSelector: React.FC = () => {
 
     const handleIndividualChange = (tags: string[]) => {
         setIndividualParticipants(tags);
+        console.log('개인 참가자:', tags);
     };
 
     const handleTeamChange = (index: number, tags: string[]) => {
         setTeams((prevTeams) => {
             const updatedTeams = [...prevTeams];
             updatedTeams[index] = tags;
+            console.log(`업데이트된 팀들:`, updatedTeams);
             return updatedTeams;
         });
     };
-
 
     const addTeam = () => {
         setTeams((prevTeams) => {
@@ -47,7 +48,6 @@ const TeamSelector: React.FC = () => {
         });
     };
 
-
     const removeTeam = () => {
         setTeams((prevTeams) => {
             if (prevTeams.length > MIN_TEAMS) {
@@ -56,7 +56,6 @@ const TeamSelector: React.FC = () => {
             return prevTeams;
         });
     };
-
 
     const toggleMode = (event: ChangeEvent<HTMLInputElement>) => {
         const { checked } = event.target;
@@ -70,7 +69,6 @@ const TeamSelector: React.FC = () => {
         }
     };
 
-
     const validateTeams = (): boolean => {
         if (isTeamMode) {
             return teams.every((team) => team.length > 0);
@@ -78,28 +76,39 @@ const TeamSelector: React.FC = () => {
         return individualParticipants.length > 0;
     };
 
+    const getTeamWidth = (count: number): string => {
+        switch (count) {
+            case 2:
+                return 'calc((100% - 16px) / 2)'; // 2팀: 각 45%씩 (총 90%) + gap 16px
+            case 3:
+                return 'calc((100% - 32px) / 3)'; // 3팀: 각 30%씩 (총 90%) + gap 32px
+            case 4:
+                return 'calc((100% - 48px) / 4)'; // 4팀: 각 22%씩 (총 88%) + gap 48px
+            default:
+                return '100%';
+        }
+    };
+
     return (
         <Box p="md">
-
             <Group position="apart" mb="md">
                 <Text size="lg">모드 전환</Text>
                 <Switch
                     checked={isTeamMode}
                     onChange={toggleMode}
                     label={isTeamMode ? '팀전' : '개인전'}
-                    aria-label="Toggle between Team Mode and Individual Mode"
+                    aria-label="팀 모드와 개인 모드 전환"
                 />
             </Group>
 
-
             {!isTeamMode ? (
-                <Card shadow="sm" padding="lg" style={{ minHeight: '200px', minWidth: '400px' }}>
+                <Card shadow="sm" padding="lg" sx={{ minHeight: '200px', minWidth: '400px' }}>
                     <Text mb="sm">참가자 닉네임:</Text>
                     <TagsInput
                         data={transformToOptions(individualParticipants)}
                         value={individualParticipants}
                         onChange={handleIndividualChange}
-                        placeholder="handle"
+                        placeholder="닉네임 입력"
                         creatable
                         variant="unstyled"
                         getCreateLabel={(query: string) => `+ Create "${query}"`}
@@ -111,6 +120,7 @@ const TeamSelector: React.FC = () => {
                         searchable
                         clearable
                         styles={{
+                            input: { width: '100%' },
                             tag: (theme) => ({
                                 backgroundColor: theme.colors.blue[6],
                                 color: theme.white,
@@ -123,7 +133,6 @@ const TeamSelector: React.FC = () => {
                 </Card>
             ) : (
                 <Box>
-
                     <Group position="right" mb="sm">
                         <Button
                             leftIcon={<AddIcon />}
@@ -131,7 +140,7 @@ const TeamSelector: React.FC = () => {
                             disabled={teams.length >= MAX_TEAMS}
                             variant="outline"
                             color="green"
-                            aria-label="Add Team"
+                            aria-label="팀 추가"
                         >
                             팀 추가
                         </Button>
@@ -141,23 +150,20 @@ const TeamSelector: React.FC = () => {
                             disabled={teams.length <= MIN_TEAMS}
                             variant="outline"
                             color="red"
-                            aria-label="Remove Team"
+                            aria-label="팀 제거"
                         >
                             팀 제거
                         </Button>
                     </Group>
 
-
-                    <Flex wrap="wrap" gap="md">
+                    <Flex gap="md" wrap="nowrap" align="stretch">
                         {teams.map((team, index) => (
                             <Card
                                 key={index}
                                 shadow="sm"
                                 padding="lg"
                                 style={{
-                                    flex: '1 1 200px',
-                                    minWidth: '200px',
-                                    minHeight: '200px',
+                                    width: getTeamWidth(teams.length),
                                     boxSizing: 'border-box',
                                 }}
                             >
@@ -168,7 +174,7 @@ const TeamSelector: React.FC = () => {
                                     data={transformToOptions(team)}
                                     value={team}
                                     onChange={(tags) => handleTeamChange(index, tags)}
-                                    placeholder="handle"
+                                    placeholder="닉네임 입력"
                                     creatable
                                     variant="unstyled"
                                     splitChars={[',', ' ', '|']}
@@ -182,8 +188,9 @@ const TeamSelector: React.FC = () => {
                                         return query;
                                     }}
                                     searchable
-                                    clearable
+
                                     styles={{
+                                        input: { width: '100%' },
                                         tag: (theme) => ({
                                             backgroundColor: theme.colors.green[6],
                                             color: theme.white,
@@ -199,10 +206,9 @@ const TeamSelector: React.FC = () => {
                 </Box>
             )}
 
-
             <Box mt="md">
                 {!validateTeams() && (
-                    <Text c="red" size="sm">
+                    <Text color="red" size="sm">
                         {isTeamMode
                             ? '모든 팀에 최소 하나 이상의 참가자가 필요합니다.'
                             : '적어도 하나의 참가자가 필요합니다.'}
