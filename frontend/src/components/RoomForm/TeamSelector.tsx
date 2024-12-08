@@ -1,5 +1,5 @@
 // src/components/TeamSelector.tsx
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import {
     Switch,
     Group,
@@ -27,55 +27,73 @@ const TeamSelector: React.FC = () => {
 
     const handleIndividualChange = (tags: string[]) => {
         setIndividualParticipants(tags);
-        console.log(tags);
+        console.log('Individual Participants:', tags);
     };
 
     const handleTeamChange = (index: number, tags: string[]) => {
-        const newTeams = [...teams];
-        newTeams[index] = tags;
-        setTeams(newTeams);
-        console.log(newTeams);
+        setTeams((prevTeams) => {
+            const updatedTeams = [...prevTeams];
+            updatedTeams[index] = tags;
+            console.log(`Teams after update:`, updatedTeams);
+            return updatedTeams;
+        });
     };
+
 
     const addTeam = () => {
-        if (teams.length < MAX_TEAMS) {
-            setTeams([...teams, []]);
-        }
+        setTeams((prevTeams) => {
+            if (prevTeams.length < MAX_TEAMS) {
+                return [...prevTeams, []];
+            }
+            return prevTeams;
+        });
     };
+
 
     const removeTeam = () => {
-        if (teams.length > MIN_TEAMS) {
-            setTeams(teams.slice(0, teams.length - 1));
-        }
+        setTeams((prevTeams) => {
+            if (prevTeams.length > MIN_TEAMS) {
+                return prevTeams.slice(0, prevTeams.length - 1);
+            }
+            return prevTeams;
+        });
     };
 
-    const toggleMode = () => {
-        setIsTeamMode(!isTeamMode);
-        if (isTeamMode) {
+
+    const toggleMode = (event: ChangeEvent<HTMLInputElement>) => {
+        const { checked } = event.target;
+        setIsTeamMode(checked);
+        if (checked) {
+            setIndividualParticipants([]);
             setTeams([[], []]);
         } else {
+            setTeams([[], []]);
             setIndividualParticipants([]);
         }
     };
 
+
     const validateTeams = (): boolean => {
         if (isTeamMode) {
             return teams.every((team) => team.length > 0);
-        } else {
-            return individualParticipants.length > 0;
         }
+        return individualParticipants.length > 0;
     };
 
     return (
         <Box p="md">
+            {/* Mode Switch */}
             <Group position="apart" mb="md">
                 <Text size="lg">모드 전환</Text>
                 <Switch
                     checked={isTeamMode}
                     onChange={toggleMode}
                     label={isTeamMode ? '팀전' : '개인전'}
+                    aria-label="Toggle between Team Mode and Individual Mode"
                 />
             </Group>
+
+            {/* Conditional Rendering based on Mode */}
             {!isTeamMode ? (
                 <Card shadow="sm" padding="lg" style={{ minHeight: '200px', minWidth: '400px' }}>
                     <Text mb="sm">참가자 닉네임:</Text>
@@ -107,6 +125,7 @@ const TeamSelector: React.FC = () => {
                 </Card>
             ) : (
                 <Box>
+                    {/* Team Management Buttons */}
                     <Group position="right" mb="sm">
                         <Button
                             leftIcon={<AddIcon />}
@@ -114,6 +133,7 @@ const TeamSelector: React.FC = () => {
                             disabled={teams.length >= MAX_TEAMS}
                             variant="outline"
                             color="green"
+                            aria-label="Add Team"
                         >
                             팀 추가
                         </Button>
@@ -123,10 +143,13 @@ const TeamSelector: React.FC = () => {
                             disabled={teams.length <= MIN_TEAMS}
                             variant="outline"
                             color="red"
+                            aria-label="Remove Team"
                         >
                             팀 제거
                         </Button>
                     </Group>
+
+                    {/* Teams Display */}
                     <Flex wrap="wrap" gap="md">
                         {teams.map((team, index) => (
                             <Card
@@ -134,8 +157,8 @@ const TeamSelector: React.FC = () => {
                                 shadow="sm"
                                 padding="lg"
                                 style={{
-                                    flex: '1 1 15%',
-                                    minWidth: '75px',
+                                    flex: '1 1 200px',
+                                    minWidth: '200px',
                                     minHeight: '200px',
                                     boxSizing: 'border-box',
                                 }}
@@ -147,15 +170,17 @@ const TeamSelector: React.FC = () => {
                                     data={transformToOptions(team)}
                                     value={team}
                                     onChange={(tags) => handleTeamChange(index, tags)}
-                                    placeholder={`handle`}
+                                    placeholder="handle"
                                     creatable
                                     variant="unstyled"
                                     splitChars={[',', ' ', '|']}
                                     getCreateLabel={(query: string) => `+ Create "${query}"`}
                                     onCreate={(query: string) => {
-                                        const newTeams = [...teams];
-                                        newTeams[index].push(query);
-                                        setTeams(newTeams);
+                                        setTeams((prevTeams) => {
+                                            const updatedTeams = [...prevTeams];
+                                            updatedTeams[index].push(query);
+                                            return updatedTeams;
+                                        });
                                         return query;
                                     }}
                                     searchable
@@ -176,6 +201,16 @@ const TeamSelector: React.FC = () => {
                 </Box>
             )}
 
+            {/* Validation Message */}
+            <Box mt="md">
+                {!validateTeams() && (
+                    <Text c="red" size="sm">
+                        {isTeamMode
+                            ? '모든 팀에 최소 하나 이상의 참가자가 필요합니다.'
+                            : '적어도 하나의 참가자가 필요합니다.'}
+                    </Text>
+                )}
+            </Box>
         </Box>
     );
 };
