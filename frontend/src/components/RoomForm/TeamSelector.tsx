@@ -27,14 +27,12 @@ const TeamSelector: React.FC = () => {
 
     const handleIndividualChange = (tags: string[]) => {
         setIndividualParticipants(tags);
-        console.log('Individual Participants:', tags);
     };
 
     const handleTeamChange = (index: number, tags: string[]) => {
         setTeams((prevTeams) => {
             const updatedTeams = [...prevTeams];
             updatedTeams[index] = tags;
-            console.log(`Teams after update:`, updatedTeams);
             return updatedTeams;
         });
     };
