@@ -1,10 +1,10 @@
 import { TextInput, Stack } from '@mantine/core';
 import { useEffect, useState } from 'react';
-import { SetTierRange } from './'
+import { SetTierRange, SetAlgorithmTag } from './';
 import { tiers } from '../../constants/tierdata';
 
 const tierRangeString = (tierInt: [number, number]) => {
-    return `tier:${tiers[tierInt[0]].short}..${tiers[tierInt[1]].short}`
+    return `tier:${tiers[tierInt[0]].short}..${tiers[tierInt[1]].short}`;
 }
 
 const SetRoomQuery = ({
@@ -16,12 +16,17 @@ const SetRoomQuery = ({
 }) => {
     const [tierRange, setTierRange] = useState<[number, number]>([6, 11]);
     const [fixedQuery, setFixedQuery] = useState<string>('');
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
     useEffect(() => {
         const updatedQuery = tierRangeString(tierRange);
         setFixedQuery(updatedQuery);
+        console.log(selectedTags);
     }, [tierRange]);
+
     return (
         <Stack>
+            <SetAlgorithmTag selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
             <SetTierRange value={tierRange} onChange={setTierRange} />
             <Stack style={{ gap: '0px' }}>
                 <TextInput
@@ -39,7 +44,6 @@ const SetRoomQuery = ({
                         },
                     }}
                 />
-
                 <TextInput
                     {...queryProps}
                     styles={{
@@ -54,8 +58,6 @@ const SetRoomQuery = ({
                 />
             </Stack>
         </Stack>
-
-
     );
 };
 

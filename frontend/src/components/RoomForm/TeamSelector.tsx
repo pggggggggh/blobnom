@@ -79,11 +79,11 @@ const TeamSelector = () => {
     const getTeamWidth = (count: number): string => {
         switch (count) {
             case 2:
-                return 'calc((100% - 16px) / 2)'; // 2팀: 각 45%씩 (총 90%) + gap 16px
+                return 'calc((100% - 16px) / 2)';
             case 3:
-                return 'calc((100% - 32px) / 3)'; // 3팀: 각 30%씩 (총 90%) + gap 32px
+                return 'calc((100% - 32px) / 3)';
             case 4:
-                return 'calc((100% - 48px) / 4)'; // 4팀: 각 22%씩 (총 88%) + gap 48px
+                return 'calc((100% - 48px) / 4)';
             default:
                 return '100%';
         }
