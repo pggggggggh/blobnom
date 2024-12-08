@@ -82,7 +82,7 @@ const TeamSelector: React.FC = () => {
 
     return (
         <Box p="md">
-            {/* Mode Switch */}
+
             <Group position="apart" mb="md">
                 <Text size="lg">모드 전환</Text>
                 <Switch
@@ -93,7 +93,7 @@ const TeamSelector: React.FC = () => {
                 />
             </Group>
 
-            {/* Conditional Rendering based on Mode */}
+
             {!isTeamMode ? (
                 <Card shadow="sm" padding="lg" style={{ minHeight: '200px', minWidth: '400px' }}>
                     <Text mb="sm">참가자 닉네임:</Text>
@@ -125,7 +125,7 @@ const TeamSelector: React.FC = () => {
                 </Card>
             ) : (
                 <Box>
-                    {/* Team Management Buttons */}
+
                     <Group position="right" mb="sm">
                         <Button
                             leftIcon={<AddIcon />}
@@ -149,7 +149,7 @@ const TeamSelector: React.FC = () => {
                         </Button>
                     </Group>
 
-                    {/* Teams Display */}
+
                     <Flex wrap="wrap" gap="md">
                         {teams.map((team, index) => (
                             <Card
@@ -201,7 +201,7 @@ const TeamSelector: React.FC = () => {
                 </Box>
             )}
 
-            {/* Validation Message */}
+
             <Box mt="md">
                 {!validateTeams() && (
                     <Text c="red" size="sm">
