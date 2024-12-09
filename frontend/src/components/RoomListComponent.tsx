@@ -24,9 +24,14 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                 <Group gap="xs" visibleFrom="sm">
                                     {
                                         dayjs.utc(room.starts_at).isBefore(cur_datetime) ? (
-                                            <Badge color="green">
-                                                {dayjs.utc(room.starts_at).to(cur_datetime, true)} 진행 중
-                                            </Badge>
+                                            dayjs.utc(room.ends_at).isBefore(cur_datetime) ?
+                                                <Badge color="blue">
+                                                    {dayjs.utc(room.ends_at).to(cur_datetime, true)} 전 종료
+                                                </Badge>
+                                                :
+                                                <Badge color="green">
+                                                    {dayjs.utc(room.ends_at).to(cur_datetime, true)} 후 종료
+                                                </Badge>
                                         ) : (
                                             <Badge color="red">
                                                 {dayjs.utc(room.starts_at).to(cur_datetime, true)} 후 시작
