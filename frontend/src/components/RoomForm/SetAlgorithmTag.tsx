@@ -37,7 +37,7 @@ const SetAlgorithmTag: React.FC<SetAlgorithmTagProps> = ({selectedTags, setSelec
             clearable
             nothingFound="태그를 찾을 수 없습니다"
             filter={filter}
-            limit={3}
+            limit={6}
             withinPortal
             multiple
         />

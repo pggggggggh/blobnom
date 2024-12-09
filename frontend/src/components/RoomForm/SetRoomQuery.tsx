@@ -3,8 +3,8 @@ import {useEffect, useState} from 'react';
 import {SetAlgorithmTag, SetTierRange} from './';
 import {tiers} from '../../constants/tierdata';
 
-const tierRangeString = (tierInt: [number, number]) => {
-    return `tier:${tiers[tierInt[0]].short}..${tiers[tierInt[1]].short}`;
+const tierRangeString = (tierInt: [number, number], selectedTags: string[]) => {
+    return `tier:${tiers[tierInt[0]].short}..${tiers[tierInt[1]].short} ${selectedTags.map(tag => `#${tag} `).join(' ')}`;
 }
 
 const SetRoomQuery = ({
@@ -14,15 +14,15 @@ const SetRoomQuery = ({
     queryValue: string;
     queryProps: any;
 }) => {
-    const [tierRange, setTierRange] = useState<[number, number]>([6, 11]);
+    const [tierRange, setTierRange] = useState<[number, number]>([1, 16]);
     const [fixedQuery, setFixedQuery] = useState<string>('');
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
     useEffect(() => {
-        const updatedQuery = tierRangeString(tierRange);
+        const updatedQuery = tierRangeString(tierRange, selectedTags);
         setFixedQuery(updatedQuery);
         console.log(selectedTags);
-    }, [tierRange]);
+    }, [tierRange, selectedTags]);
 
     return (
         <Stack>

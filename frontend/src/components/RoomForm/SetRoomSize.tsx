@@ -7,6 +7,7 @@ const SetRoomSize = ({sizeProps}: {
 
     return (
         <Select
+            required
             label="크기"
             data={sizeOptions.map((size) => ({value: size.toString(), label: `${size}문제`}))}
             defaultValue="19"

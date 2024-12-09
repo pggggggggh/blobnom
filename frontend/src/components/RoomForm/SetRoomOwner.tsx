@@ -14,6 +14,7 @@ const SetRoomOwner = ({
                     {...ownerProps}
                     label="방장 핸들"
                     placeholder="핸들"
+                    required
                 />
             </Grid.Col>
 
@@ -23,6 +24,7 @@ const SetRoomOwner = ({
                     label="방 수정 비밀번호"
                     placeholder="비밀번호"
                     type="password"
+                    required
                 />
             </Grid.Col>
         </Grid>

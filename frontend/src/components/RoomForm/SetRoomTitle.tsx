@@ -1,8 +1,8 @@
-import { TextInput } from '@mantine/core';
+import {TextInput} from '@mantine/core';
 
-const SetRoomTitle = ({ titleProps }: { titleProps: any }) => {
+const SetRoomTitle = ({titleProps}: { titleProps: any }) => {
     return (
-        <TextInput {...titleProps} label="방제" placeholder="방 제목" />
+        <TextInput {...titleProps} label="방제" placeholder="방 제목" required/>
     );
 };
 

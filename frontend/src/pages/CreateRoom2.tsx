@@ -1,14 +1,12 @@
 // src/pages/CreateRoom2.tsx
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import {useForm} from '@mantine/form';
-import {Box, Button, Stack, Title} from '@mantine/core';
+import {Button, Stack, Title} from '@mantine/core';
 import {RoomForm} from '../types/RoomForm';
 import {SetRoomOwner, SetRoomPin, SetRoomQuery, SetRoomSize, SetRoomTitle, TeamSelector,} from '../components/RoomForm';
 
 
 function CreateRoom2() {
-    const boxStyles = {width: '50%', minWidth: '400px', margin: '0'};
-
     const form = useForm<RoomForm>({
         initialValues: {
             owner: '',
@@ -23,9 +21,16 @@ function CreateRoom2() {
             ends_at: '',
             entry_pin: '',
         },
+        validate: {
+            owner: (value) => (value.trim() === '' ? '방장은 필수 항목입니다.' : null),
+            edit_password: (value) =>
+                value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null,
+            title: (value) => (value.trim() === '' ? '방 제목은 필수 항목입니다.' : null),
+            entry_pin: (value, values) => (values.is_private ? (
+                value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null
+            ) : null)
+        },
     });
-
-    const [submittedValues, setSubmittedValues] = useState<typeof form.values | null>(null);
 
     useEffect(() => {
         console.log(form.values);
@@ -34,16 +39,18 @@ function CreateRoom2() {
     return (
         <form
             style={{maxWidth: '1000px', margin: '0 auto'}}
-            onSubmit={(e) => {
-                e.preventDefault();
-                setSubmittedValues(form.values);
-            }}
+            onSubmit={form.onSubmit((values) => console.log(values))}
         >
             <Stack py="md">
                 <Title size="h1" className="font-light">
                     방 만들기
                 </Title>
                 <SetRoomTitle titleProps={form.getInputProps('title')}/>
+                <SetRoomPin
+                    isPrivateProps={form.getInputProps('is_private', {type: 'checkbox'})}
+                    entryPinProps={form.getInputProps('entry_pin')}
+                    onClearPin={() => form.setFieldValue('entry_pin', '')}
+                />
                 <SetRoomOwner
                     ownerProps={form.getInputProps('owner')}
                     passwordProps={form.getInputProps('edit_password')}
@@ -51,19 +58,9 @@ function CreateRoom2() {
                 <SetRoomQuery queryValue={form.values.query} queryProps={form.getInputProps('query')}/>
                 <SetRoomSize sizeProps={form.getInputProps('size')}/>
                 <TeamSelector/>
-                <SetRoomPin
-                    isPrivateProps={form.getInputProps('is_private', {type: 'checkbox'})}
-                    entryPinProps={form.getInputProps('entry_pin')}
-                    onClearPin={() => form.setFieldValue('entry_pin', '')}
-                />
+
                 <Button type="submit">생성</Button>
             </Stack>
-            {submittedValues && (
-                <Box mt="md">
-                    <Title order={3}>제출된 값</Title>
-                    <pre>{JSON.stringify(submittedValues, null, 2)}</pre>
-                </Box>
-            )}
         </form>
     );
 }

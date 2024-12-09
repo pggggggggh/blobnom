@@ -1,8 +1,6 @@
 // src/components/TeamSelector.tsx
 import React, {ChangeEvent, useState} from 'react';
 import {Box, Button, Card, Flex, Group, Input, Switch, TagsInput, Text} from '@mantine/core';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
 import {Option, Team} from '../types';
 
 const MAX_TEAMS = 4;
@@ -124,9 +122,8 @@ const TeamSelector = () => {
                 </Card>
             ) : (
                 <Box>
-                    <Group mb="sm">
+                    <Group mt="xs" mb="sm">
                         <Button
-                            leftIcon={<AddIcon/>}
                             onClick={addTeam}
                             disabled={teams.length >= MAX_TEAMS}
                             variant="outline"
@@ -136,7 +133,6 @@ const TeamSelector = () => {
                             팀 추가
                         </Button>
                         <Button
-                            leftIcon={<RemoveIcon/>}
                             onClick={removeTeam}
                             disabled={teams.length <= MIN_TEAMS}
                             variant="outline"
@@ -158,7 +154,7 @@ const TeamSelector = () => {
                                     boxSizing: 'border-box',
                                 }}
                             >
-                                <Group position="apart" mb="sm">
+                                <Group mb="sm">
                                     <Text>팀 {index + 1}</Text>
                                 </Group>
                                 <TagsInput

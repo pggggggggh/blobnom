@@ -26,28 +26,22 @@ const SetRoomPin = ({
 
     return (
         <Grid
-            gutter="sx"
+            gutter="lg"
             align="center"
-            style={{width: '40%', minWidth: '400px'}}
         >
-            <Grid.Col span={4}>
+            <Grid.Col span={6}>
                 <Checkbox
                     label="비밀방 설정"
                     checked={isPrivateProps.checked}
                     onChange={handleCheckboxChange}
                 />
             </Grid.Col>
-            <Grid.Col span={7}>
+            <Grid.Col span={6}>
                 <TextInput
                     {...entryPinProps}
                     placeholder="입장 비밀번호"
                     type="password"
                     disabled={!isPrivateProps.checked}
-                    styles={{
-                        input: {
-                            height: '38px',
-                        },
-                    }}
                 />
             </Grid.Col>
         </Grid>
