@@ -26,6 +26,7 @@ async def room_list(db: Session = Depends(get_db)):
         .options(joinedload(Room.missions))
         .options(joinedload(Room.owner))
         .order_by(desc(Room.updated_at))
+        .limit(20)
         .all()
     )
 

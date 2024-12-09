@@ -7,18 +7,18 @@ from fastapi import HTTPException
 from sqlalchemy.orm import joinedload
 
 from src.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
-from src.core.models import Room, RoomPlayer, RoomMission
+from src.core.models import Room, RoomMission, RoomPlayer
 
 
 async def update_score(room_id, db):
-    room = db.query(Room).filter(Room.id == room_id).first()
+    room = (db.query(Room)
+            .options(joinedload(Room.players)
+                     .joinedload(RoomPlayer.user))
+            .filter(Room.id == room_id).first())
     if not room:
         return
+    room_players = room.players
 
-    room_players = (
-        db.query(RoomPlayer)
-        .options(joinedload(RoomPlayer.user))
-    )
     missions = db.query(RoomMission).filter(RoomMission.room_id == room_id).all()
     num_mission = len(missions)
     board_width = ((3 + int(math.sqrt(12 * num_mission - 3))) // 6 - 1) * 2 + 1
@@ -82,13 +82,17 @@ async def update_score(room_id, db):
             adjacent_solved_count_list[solved_team_index[i]],
             adjacent_count
         )
+
     for player in room_players:
+        print(player.user.name)
+        print(player.team_index)
         player.adjacent_solved_count = adjacent_solved_count_list[player.team_index]
         player.total_solved_count = total_solved_count_list[player.team_index]
         player.last_solved_at = last_solved_at_list[player.team_index]
         player.indiv_solved_count = indiv_solved_count_list[player.player_index]
         db.add(player)
     db.commit()
+
     sorted_players = sorted(
         room_players,
         key=lambda player: (
