@@ -33,27 +33,10 @@ const SetRoomQuery = ({
                     value={(queryValue ? `${queryValue} ` : "") + fixedQuery}
                     label="solved.ac 고급 쿼리"
                     readOnly
-                    styles={{
-                        input: {
-                            backgroundColor: '#1e1e1e',
-                            borderColor: '#333',
-                            color: '#555',
-                            borderBottomLeftRadius: 0,
-                            borderBottomRightRadius: 0,
-                        },
-                    }}
+                    disabled
                 />
                 <TextInput
                     {...queryProps}
-                    styles={{
-                        label: {marginBottom: '8px'},
-                        input: {
-                            backgroundColor: '#1e1e1e',
-                            borderColor: '#555',
-                            borderTopLeftRadius: 0,
-                            borderTopRightRadius: 0,
-                        },
-                    }}
                 />
             </Stack>
         </Stack>

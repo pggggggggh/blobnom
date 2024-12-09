@@ -1,9 +1,9 @@
 import {api} from "./instance.tsx";
 import {RoomDetail} from "../types/RoomDetail.tsx";
-import {RoomSummary} from "../types/RoomSummary.tsx";
+import {MainData} from "../types/RoomSummary.tsx";
 
-export const fetchRoomList = async (): Promise<RoomSummary[]> => {
-    const response = await api.get('/');
+export const fetchMainData = async (page: number): Promise<MainData> => {
+    const response = await api.get(`/?page=${page}`);
     console.log(response)
     return response.data;
 };

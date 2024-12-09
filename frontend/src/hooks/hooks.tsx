@@ -1,15 +1,15 @@
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {RoomDetail} from "../types/RoomDetail.tsx";
-import {fetchRoomDetail, fetchRoomList, postJoinRoom, postSolveProblem} from "../api/api.tsx";
-import {RoomSummary} from "../types/RoomSummary.tsx";
+import {fetchMainData, fetchRoomDetail, postJoinRoom, postSolveProblem} from "../api/api.tsx";
 import {modals} from "@mantine/modals";
 import ErrorModal from "../components/Modals/ErrorModal.tsx";
+import {MainData} from "../types/RoomSummary.tsx";
 
-export const useRoomList = () => {
-    return useQuery<RoomSummary[], Error>({
-        queryKey: ['roomList'],
-        queryFn: fetchRoomList,
-        initialData: []
+export const useRoomList = (page: number) => {
+    return useQuery<MainData, Error>({
+        queryKey: ['roomList', page],
+        queryFn: () => fetchMainData(page),
+        initialData: {"room_list": [], "total_pages": 0}
     });
 };
 

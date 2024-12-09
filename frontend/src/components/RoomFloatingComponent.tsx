@@ -36,8 +36,8 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     return (
         <>
             <Box className="absolute ">
-                <Text className="text-5xl font-extrabold text-zinc-50">{roomDetail.name}</Text>
-                <Text className="text-2xl font-extrabold text-zinc-50">{timeLeft}</Text>
+                <Text className="text-3xl font-extralight text-zinc-50 ">{roomDetail.name}</Text>
+                <Text className="text-lg font-extralight text-zinc-50">{timeLeft}</Text>
             </Box>
 
             {!roomDetail.is_private && roomDetail.mode_type === "land_grab_solo" &&

@@ -13,15 +13,6 @@ const SetRoomSize = ({sizeProps}: {
             defaultValue="19"
             value={sizeProps.value ? sizeProps.value.toString() : undefined}
             onChange={(val) => sizeProps.onChange(Number(val))}
-            styles={{
-                input: {
-                    backgroundColor: '#1e1e1e',
-                    borderColor: '#555',
-                },
-                dropdown: {
-                    backgroundColor: '#1e1e1e',
-                },
-            }}
         />
     );
 };

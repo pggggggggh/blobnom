@@ -1,3 +1,8 @@
+export interface MainData {
+    total_pages: number;
+    room_list: RoomSummary[];
+}
+
 export interface RoomSummary {
     id: number;
     name: string;

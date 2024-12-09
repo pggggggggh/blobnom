@@ -5,7 +5,20 @@ export const userColorsFill = [
     "fill-purple-600",
     "fill-orange-600",
     "fill-pink-600",
-    "fill-indigo-600"
+    "fill-indigo-600",
+    "fill-green-600",
+    "fill-teal-600",
+    "fill-cyan-600",
+    "fill-lime-600",
+    "fill-emerald-600",
+    "fill-rose-600",
+    "fill-violet-600",
+    "fill-sky-600",
+    "fill-amber-600",
+    "fill-fuchsia-600",
+    "fill-gray-600",
+    "fill-stone-600",
+    "fill-neutral-600"
 ];
 
 export const userColorsBg = [
@@ -15,5 +28,18 @@ export const userColorsBg = [
     "bg-purple-600",
     "bg-orange-600",
     "bg-pink-600",
-    "bg-indigo-600"
+    "bg-indigo-600",
+    "bg-green-600",
+    "bg-teal-600",
+    "bg-cyan-600",
+    "bg-lime-600",
+    "bg-emerald-600",
+    "bg-rose-600",
+    "bg-violet-600",
+    "bg-sky-600",
+    "bg-amber-600",
+    "bg-fuchsia-600",
+    "bg-gray-600",
+    "bg-stone-600",
+    "bg-neutral-600"
 ];

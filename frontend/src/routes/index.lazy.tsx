@@ -4,15 +4,23 @@ import {useRoomList} from "../hooks/hooks.tsx";
 import SearchIcon from '@mui/icons-material/Search';
 import RoomListComponent from '../components/RoomListComponent.tsx'
 import dayjs from "dayjs";
+import {useState} from "react";
 
 export const Route = createLazyFileRoute('/')({
     component: Index,
 })
 
 function Index() {
-    const {data: rooms, isLoading, error} = useRoomList();
+    const [page, setPage] = useState(1);
+    const {data, isLoading, error} = useRoomList(page - 1);
+
     const date = dayjs().utc();
     if (isLoading || error) return (<div></div>);
+
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+    };
+
     return (
         <Container size="lg">
             <Group justify="space-between" mb="md">
@@ -23,9 +31,13 @@ function Index() {
                     />
                 </Group>
             </Group>
-            <RoomListComponent rooms={rooms} cur_datetime={date}/>
+            <RoomListComponent rooms={data["room_list"]} cur_datetime={date}/>
             <Group justify="center" mt="xl">
-                <Pagination total={10}/>
+                <Pagination
+                    total={data["total_pages"]}
+                    value={page}
+                    onChange={handlePageChange}
+                />
             </Group>
         </Container>
     );

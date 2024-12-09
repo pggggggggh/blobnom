@@ -15,7 +15,7 @@ const HeaderComponent = () => {
             />
             <Image py="sm" h="100%" src={logo}/>
             <a href="/" className="no-underline text-white">
-                <Title order={4}>Blobnom</Title>
+                <Title className="font-extralight" order={4}>Blobnom</Title>
             </a>
         </Group>
     );
