@@ -1,3 +1,4 @@
+import math
 import random
 from datetime import datetime
 
@@ -12,20 +13,21 @@ from src.core.enums import ModeType
 from src.core.models import User, Room, RoomPlayer, RoomMission
 from src.core.schemas import RoomCreateRequest
 from src.core.services import get_room_summary, get_room_detail
-from src.core.utils import update_score, update_solver, get_solved_problem_list
+from src.core.utils import update_score, update_solver, get_solved_problem_list, update_all_rooms
 from src.database import get_db
 
 router = APIRouter()
 
 
 @router.get("/")
-async def room_list(db: Session = Depends(get_db)):
+async def room_list(page: int, db: Session = Depends(get_db)):
     rooms = (
         db.query(Room)
         .options(joinedload(Room.players))
         .options(joinedload(Room.missions))
         .options(joinedload(Room.owner))
-        .order_by(desc(Room.updated_at))
+        .order_by(desc(Room.starts_at))
+        .offset(20 * page)
         .limit(20)
         .all()
     )
@@ -35,7 +37,7 @@ async def room_list(db: Session = Depends(get_db)):
         room_data = get_room_summary(room)
         room_list.append(room_data)
 
-    return room_list
+    return {"room_list": room_list, "total_pages": math.ceil(len(db.query(Room).all()) / 20)}
 
 
 @router.get("/rooms/detail/{id}")
@@ -49,7 +51,7 @@ async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_
         room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
         if not room:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
-        if room.mode_type == ModeType.LAND_GRAB_MULT:
+        if room.mode_type == ModeType.LAND_GRAB_TEAM:
             raise HTTPException(status_code=400, detail="팀전에는 참여할 수 없습니다.")
 
         room_players = (
@@ -209,3 +211,8 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
         await update_score(room.id, db)
 
         return {"success": True, "roomId": room.id}
+
+
+@router.get("/temp")
+async def update_all(db: Session = Depends(get_db)):
+    await update_all_rooms(db)

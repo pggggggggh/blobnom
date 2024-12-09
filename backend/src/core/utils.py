@@ -17,6 +17,7 @@ async def update_score(room_id, db):
             .filter(Room.id == room_id).first())
     if not room:
         return
+    print(str(room.id) + "doing")
     room_players = room.players
 
     missions = db.query(RoomMission).filter(RoomMission.room_id == room_id).all()
@@ -84,8 +85,6 @@ async def update_score(room_id, db):
         )
 
     for player in room_players:
-        print(player.user.name)
-        print(player.team_index)
         player.adjacent_solved_count = adjacent_solved_count_list[player.team_index]
         player.total_solved_count = total_solved_count_list[player.team_index]
         player.last_solved_at = last_solved_at_list[player.team_index]
@@ -154,3 +153,9 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
     db.commit()
     db.refresh(mission)
     return
+
+
+async def update_all_rooms(db):
+    rooms = db.query(Room).all()
+    for room in rooms:
+        await update_score(room.id, db)
