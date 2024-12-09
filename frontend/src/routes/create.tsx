@@ -1,18 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Container } from '@mantine/core'
-import RoomFormComponent from '../components/RoomFormComponent.tsx'
+import CreateRoom2 from '../pages/CreateRoom2'
 
-export const Route = createFileRoute('/create')({
-  component: Index,
+export const Create2Route = createFileRoute('/create')({
+  component: CreateRoom2,
 })
 
-function Index() {
-  // const { data: rooms, isLoading, error } = useRoomList()
-  // const date = dayjs().utc()
-  // if (isLoading || error) return <div></div>
-  return (
-    <Container size="lg">
-      <RoomFormComponent />
-    </Container>
-  )
-}
+export const Route = Create2Route

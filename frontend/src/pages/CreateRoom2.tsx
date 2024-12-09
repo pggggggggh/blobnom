@@ -1,20 +1,13 @@
 // src/pages/CreateRoom2.tsx
-import { useEffect, useState } from 'react';
-import { useForm } from '@mantine/form';
-import { Box, Title, Stack, Button } from '@mantine/core';
-import { RoomForm } from '../types/RoomForm';
-import {
-    SetRoomSize,
-    SetRoomPin,
-    SetRoomTitle,
-    SetRoomOwner,
-    SetRoomQuery,
-    TeamSelector,
-} from '../components/RoomForm';
+import {useEffect, useState} from 'react';
+import {useForm} from '@mantine/form';
+import {Box, Button, Stack, Title} from '@mantine/core';
+import {RoomForm} from '../types/RoomForm';
+import {SetRoomOwner, SetRoomPin, SetRoomQuery, SetRoomSize, SetRoomTitle, TeamSelector,} from '../components/RoomForm';
 
 
 function CreateRoom2() {
-    const boxStyles = { width: '50%', minWidth: '400px', margin: '0' };
+    const boxStyles = {width: '50%', minWidth: '400px', margin: '0'};
 
     const form = useForm<RoomForm>({
         initialValues: {
@@ -40,30 +33,26 @@ function CreateRoom2() {
 
     return (
         <form
-            style={{ maxWidth: '1000px', margin: '0 auto' }}
+            style={{maxWidth: '1000px', margin: '0 auto'}}
             onSubmit={(e) => {
                 e.preventDefault();
                 setSubmittedValues(form.values);
             }}
         >
-            <Stack py="md" >
-                <Title size="h1" py="xl">
+            <Stack py="md">
+                <Title size="h1" className="font-light">
                     방 만들기
                 </Title>
-                <SetRoomTitle titleProps={form.getInputProps('title')} />
-                <Box pb="xl" style={boxStyles}>
-                    <SetRoomOwner
-                        ownerProps={form.getInputProps('owner')}
-                        passwordProps={form.getInputProps('edit_password')}
-                    />
-                </Box>
-
-
-                <SetRoomQuery queryValue={form.values.query} queryProps={form.getInputProps('query')} />
-                <SetRoomSize sizeProps={form.getInputProps('size')} />
-                <TeamSelector />
+                <SetRoomTitle titleProps={form.getInputProps('title')}/>
+                <SetRoomOwner
+                    ownerProps={form.getInputProps('owner')}
+                    passwordProps={form.getInputProps('edit_password')}
+                />
+                <SetRoomQuery queryValue={form.values.query} queryProps={form.getInputProps('query')}/>
+                <SetRoomSize sizeProps={form.getInputProps('size')}/>
+                <TeamSelector/>
                 <SetRoomPin
-                    isPrivateProps={form.getInputProps('is_private', { type: 'checkbox' })}
+                    isPrivateProps={form.getInputProps('is_private', {type: 'checkbox'})}
                     entryPinProps={form.getInputProps('entry_pin')}
                     onClearPin={() => form.setFieldValue('entry_pin', '')}
                 />

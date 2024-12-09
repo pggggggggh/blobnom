@@ -1,24 +1,15 @@
 // src/components/TeamSelector.tsx
-import React, { useState, ChangeEvent } from 'react';
-import {
-    Switch,
-    Group,
-    Text,
-    Button,
-    Box,
-    Card,
-    Flex,
-    TagsInput,
-} from '@mantine/core';
+import React, {ChangeEvent, useState} from 'react';
+import {Box, Button, Card, Flex, Group, Input, Switch, TagsInput, Text} from '@mantine/core';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { Option, Team } from '../types';
+import {Option, Team} from '../types';
 
 const MAX_TEAMS = 4;
 const MIN_TEAMS = 2;
 
 const transformToOptions = (items: string[]): Option[] =>
-    items.map((item) => ({ value: item, label: item }));
+    items.map((item) => ({value: item, label: item}));
 
 const TeamSelector = () => {
     const [isTeamMode, setIsTeamMode] = useState<boolean>(false);
@@ -58,7 +49,7 @@ const TeamSelector = () => {
     };
 
     const toggleMode = (event: ChangeEvent<HTMLInputElement>) => {
-        const { checked } = event.target;
+        const {checked} = event.target;
         setIsTeamMode(checked);
         if (checked) {
             setIndividualParticipants([]);
@@ -90,19 +81,19 @@ const TeamSelector = () => {
     };
 
     return (
-        <Box p="md">
-            <Group position="apart" mb="md">
-                <Text size="lg">모드 전환</Text>
+        <Box>
+            <Input.Label className="flex items-center gap-2">
+                모드 변경
                 <Switch
                     checked={isTeamMode}
                     onChange={toggleMode}
                     label={isTeamMode ? '팀전' : '개인전'}
                     aria-label="팀 모드와 개인 모드 전환"
                 />
-            </Group>
+            </Input.Label>
 
             {!isTeamMode ? (
-                <Card shadow="sm" padding="lg" sx={{ minHeight: '200px', minWidth: '400px' }}>
+                <Card shadow="sm" sx={{minHeight: '200px', minWidth: '400px'}}>
                     <Text mb="sm">참가자 닉네임:</Text>
                     <TagsInput
                         data={transformToOptions(individualParticipants)}
@@ -120,7 +111,7 @@ const TeamSelector = () => {
                         searchable
                         clearable
                         styles={{
-                            input: { width: '100%' },
+                            input: {width: '100%'},
                             tag: (theme) => ({
                                 backgroundColor: theme.colors.blue[6],
                                 color: theme.white,
@@ -133,9 +124,9 @@ const TeamSelector = () => {
                 </Card>
             ) : (
                 <Box>
-                    <Group position="right" mb="sm">
+                    <Group mb="sm">
                         <Button
-                            leftIcon={<AddIcon />}
+                            leftIcon={<AddIcon/>}
                             onClick={addTeam}
                             disabled={teams.length >= MAX_TEAMS}
                             variant="outline"
@@ -145,7 +136,7 @@ const TeamSelector = () => {
                             팀 추가
                         </Button>
                         <Button
-                            leftIcon={<RemoveIcon />}
+                            leftIcon={<RemoveIcon/>}
                             onClick={removeTeam}
                             disabled={teams.length <= MIN_TEAMS}
                             variant="outline"
@@ -190,7 +181,7 @@ const TeamSelector = () => {
                                     searchable
 
                                     styles={{
-                                        input: { width: '100%' },
+                                        input: {width: '100%'},
                                         tag: (theme) => ({
                                             backgroundColor: theme.colors.green[6],
                                             color: theme.white,
@@ -206,7 +197,7 @@ const TeamSelector = () => {
                 </Box>
             )}
 
-            <Box mt="md">
+            <Box>
                 {!validateTeams() && (
                     <Text color="red" size="sm">
                         {isTeamMode

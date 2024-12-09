@@ -15,6 +15,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import "dayjs/locale/ko";
 import utc from 'dayjs/plugin/utc';
 import {ModalsProvider} from "@mantine/modals";
+import Theme from "./constants/Theme.tsx";
 
 // Create a new router instance
 const router = createRouter({routeTree})
@@ -43,9 +44,7 @@ if (!rootElement.innerHTML) {
             <QueryClientProvider client={queryClient}>
                 <ColorSchemeScript forceColorScheme="dark"/>
                 <MantineProvider forceColorScheme="dark"
-                                 theme={{
-                                     fontFamily: 'Noto Sans KR, sans-serif',
-                                 }}>
+                                 theme={Theme}>
                     <ModalsProvider>
 
                         <RouterProvider router={router}/>

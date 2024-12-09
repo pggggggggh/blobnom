@@ -1,9 +1,9 @@
-import { TextInput, Grid } from '@mantine/core';
+import {Grid, TextInput} from '@mantine/core';
 
 const SetRoomOwner = ({
-    ownerProps,
-    passwordProps,
-}: {
+                          ownerProps,
+                          passwordProps,
+                      }: {
     ownerProps: any;
     passwordProps: any;
 }) => {
@@ -13,7 +13,7 @@ const SetRoomOwner = ({
                 <TextInput
                     {...ownerProps}
                     label="방장 핸들"
-                    placeholder="handle"
+                    placeholder="핸들"
                 />
             </Grid.Col>
 
@@ -21,7 +21,7 @@ const SetRoomOwner = ({
                 <TextInput
                     {...passwordProps}
                     label="방 수정 비밀번호"
-                    placeholder="edit password"
+                    placeholder="비밀번호"
                     type="password"
                 />
             </Grid.Col>

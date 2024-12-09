@@ -1,11 +1,10 @@
-import { TextInput, Grid, Checkbox } from '@mantine/core';
-import { useEffect } from 'react';
+import {Checkbox, Grid, TextInput} from '@mantine/core';
 
 const SetRoomPin = ({
-    isPrivateProps,
-    entryPinProps,
-    onClearPin,
-}: {
+                        isPrivateProps,
+                        entryPinProps,
+                        onClearPin,
+                    }: {
     isPrivateProps: {
         checked?: boolean;
         onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -27,10 +26,9 @@ const SetRoomPin = ({
 
     return (
         <Grid
-            py="lg"
             gutter="sx"
             align="center"
-            style={{ width: '40%', minWidth: '400px' }}
+            style={{width: '40%', minWidth: '400px'}}
         >
             <Grid.Col span={4}>
                 <Checkbox

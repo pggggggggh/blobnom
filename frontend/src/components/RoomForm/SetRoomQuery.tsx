@@ -1,16 +1,16 @@
-import { TextInput, Stack } from '@mantine/core';
-import { useEffect, useState } from 'react';
-import { SetTierRange, SetAlgorithmTag } from './';
-import { tiers } from '../../constants/tierdata';
+import {Stack, TextInput} from '@mantine/core';
+import {useEffect, useState} from 'react';
+import {SetAlgorithmTag, SetTierRange} from './';
+import {tiers} from '../../constants/tierdata';
 
 const tierRangeString = (tierInt: [number, number]) => {
     return `tier:${tiers[tierInt[0]].short}..${tiers[tierInt[1]].short}`;
 }
 
 const SetRoomQuery = ({
-    queryValue,
-    queryProps,
-}: {
+                          queryValue,
+                          queryProps,
+                      }: {
     queryValue: string;
     queryProps: any;
 }) => {
@@ -26,15 +26,14 @@ const SetRoomQuery = ({
 
     return (
         <Stack>
-            <SetAlgorithmTag selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
-            <SetTierRange value={tierRange} onChange={setTierRange} />
-            <Stack style={{ gap: '0px' }}>
+            <SetAlgorithmTag selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
+            <SetTierRange value={tierRange} onChange={setTierRange}/>
+            <Stack style={{gap: '0px'}}>
                 <TextInput
                     value={(queryValue ? `${queryValue} ` : "") + fixedQuery}
-                    label="solved.ac Query"
+                    label="solved.ac 고급 쿼리"
                     readOnly
                     styles={{
-                        label: { marginBottom: '8px' },
                         input: {
                             backgroundColor: '#1e1e1e',
                             borderColor: '#333',
@@ -47,7 +46,7 @@ const SetRoomQuery = ({
                 <TextInput
                     {...queryProps}
                     styles={{
-                        label: { marginBottom: '8px' },
+                        label: {marginBottom: '8px'},
                         input: {
                             backgroundColor: '#1e1e1e',
                             borderColor: '#555',
