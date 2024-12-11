@@ -43,7 +43,6 @@ export const useJoinRoom = () => {
             const detailMessage = error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
             modals.open(
                 {
-                    title: "에러",
                     children: <ErrorModal detailMessage={detailMessage}/>
                 }
             )
@@ -65,7 +64,6 @@ export const useCreateRoom = () => {
                 });
             } else {
                 modals.open({
-                    // title: "에러",
                     children: <ErrorModal detailMessage="알 수 없는 에러가 발생했습니다."/>
                 });
             }
@@ -75,7 +73,6 @@ export const useCreateRoom = () => {
             const detailMessage = error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
             modals.open(
                 {
-                    // title: "에러",
                     children: <ErrorModal detailMessage={detailMessage}/>
                 }
             )

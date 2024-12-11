@@ -30,7 +30,7 @@ function Index() {
                     leftSection={<SearchIcon/>}
                 />
                 <Link to="/create">
-                    <Button variant="default" leftSection={<AddIcon/>}>
+                    <Button leftSection={<AddIcon/>}>
                         방 만들기
                     </Button>
                 </Link>

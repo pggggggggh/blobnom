@@ -1,14 +1,14 @@
-import {MissionInfo} from "../types/RoomDetail.tsx";
+import {RoomDetail} from "../types/RoomDetail.tsx";
 import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "react-hexgrid";
 import {Box, Button, Center, HoverCard, Text} from "@mantine/core";
 import {useSolveProblem} from "../hooks/hooks.tsx";
 import {userColorsFill} from "../constants/UserColorsFill.tsx";
 import dayjs from "dayjs";
 
-export const HexComponent = ({roomId, missions}: { roomId: number, missions: MissionInfo[] }) => {
+export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
+    const missions = roomDetail.mission_info;
     const width: number = (3 + Math.sqrt(12 * missions.length - 3)) / 6 - 1;
     const hexagons = GridGenerator.hexagon(width);
-
     const mutation = useSolveProblem();
 
     return (
@@ -56,11 +56,12 @@ export const HexComponent = ({roomId, missions}: { roomId: number, missions: Mis
                                             </Text>
                                         </HoverCard.Dropdown>
                                         :
-                                        <HoverCard.Dropdown className="p-0 ">
+                                        dayjs(roomDetail.ends_at).isAfter(dayjs()) &&
+                                        <HoverCard.Dropdown className="p-0  ">
                                             <Button
                                                 variant="default"
                                                 onClick={() => mutation.mutate({
-                                                    roomId,
+                                                    roomId: roomDetail.id,
                                                     problemId: missions[i].problem_id
                                                 })}
                                                 loading={mutation.isPending}

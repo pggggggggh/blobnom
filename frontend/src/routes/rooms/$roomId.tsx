@@ -19,7 +19,7 @@ function RouteComponent() {
     return (
         <Box className="relative">
             <RoomFloatingComponent roomDetail={roomDetail}/>
-            <HexComponent roomId={roomDetail.id} missions={roomDetail.mission_info}/>
+            <HexComponent roomDetail={roomDetail}/>
 
 
         </Box>

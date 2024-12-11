@@ -25,18 +25,18 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                             <Group>
                                 <Group gap="xs" visibleFrom="sm">
                                     {
-                                        dayjs.utc(room.starts_at).isBefore(cur_datetime) ? (
-                                            dayjs.utc(room.ends_at).isBefore(cur_datetime) ?
+                                        dayjs(room.starts_at).isBefore(cur_datetime) ? (
+                                            dayjs(room.ends_at).isBefore(cur_datetime) ?
                                                 <Badge className="font-medium" color="blue">
-                                                    {dayjs.utc(room.ends_at).to(cur_datetime, true)} 전 종료
+                                                    {dayjs(room.ends_at).to(cur_datetime, true)} 전 종료
                                                 </Badge>
                                                 :
                                                 <Badge className="font-medium" color="green">
-                                                    {dayjs.utc(room.ends_at).to(cur_datetime, true)} 후 종료
+                                                    {dayjs(room.ends_at).to(cur_datetime, true)} 후 종료
                                                 </Badge>
                                         ) : (
                                             <Badge className="font-medium" color="red">
-                                                {dayjs.utc(room.starts_at).to(cur_datetime, true)} 후 시작
+                                                {dayjs(room.starts_at).to(cur_datetime, true)} 후 시작
                                             </Badge>
                                         )
                                     }
@@ -64,7 +64,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                         roomId: room.id.toString()
                                     }}
                                 >
-                                    <Button variant="default">
+                                    <Button variant="light">
                                         참여하기
                                     </Button>
                                 </Link>

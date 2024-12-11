@@ -1,9 +1,9 @@
-import { Button, Group, Image, TextInput } from "@mantine/core";
-import blobaww from "../../assets/blobnom.png"
-import { useForm } from "@mantine/form";
-import { useJoinRoom } from "../../hooks/hooks.tsx";
+import {Button, Group, Image, TextInput} from "@mantine/core";
+import blobaww from "../../assets/blobaww.webp"
+import {useForm} from "@mantine/form";
+import {useJoinRoom} from "../../hooks/hooks.tsx";
 
-const RoomJoinModal = ({ roomId }: { roomId: number }) => {
+const RoomJoinModal = ({roomId}: { roomId: number }) => {
     const mutation = useJoinRoom();
 
     const form = useForm({
@@ -23,7 +23,7 @@ const RoomJoinModal = ({ roomId }: { roomId: number }) => {
 
     const handleSubmit = (values: { handle: string; }) => {
         mutation.mutate(
-            { roomId, handle: values.handle },
+            {roomId, handle: values.handle},
         );
     };
 
@@ -32,9 +32,9 @@ const RoomJoinModal = ({ roomId }: { roomId: number }) => {
             <Group
                 className="w-full justify-center"
             >
-                <Image w="64px" src={blobaww} />
+                <Image w="64px" src={blobaww}/>
                 <TextInput
-                    {...form.getInputProps('handle')} label="핸들을 입력해주세요!" placeholder="" data-autofocus />
+                    {...form.getInputProps('handle')} label="핸들을 입력해주세요!" placeholder="" data-autofocus/>
                 <Button type="submit" mt="md" loading={mutation.isPending}>
                     입장하기
                 </Button>
