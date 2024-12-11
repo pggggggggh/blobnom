@@ -1,5 +1,5 @@
 // src/components/TeamSelector.tsx
-import React, {ChangeEvent, useState} from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import {Box, Button, Card, Flex, Group, Input, Switch, TagsInput, Text} from '@mantine/core';
 import {Option, Team} from '../types';
 
@@ -9,21 +9,28 @@ const MIN_TEAMS = 2;
 const transformToOptions = (items: string[]): Option[] =>
     items.map((item) => ({value: item, label: item}));
 
-const TeamSelector = () => {
-    const [isTeamMode, setIsTeamMode] = useState<boolean>(false);
+const TeamSelector = ({handleProps, teamModeProps}: {
+    handleProps: {
+        value: { [key: string]: number };
+        onChange: (value: { [key: string]: number }) => void;
+        error: string;
+    },
+    teamModeProps: {
+        value: boolean;
+        onChange: (value: boolean) => void;
+    };
+}) => {
     const [individualParticipants, setIndividualParticipants] = useState<string[]>([]);
     const [teams, setTeams] = useState<Team[]>([[], []]);
 
     const handleIndividualChange = (tags: string[]) => {
         setIndividualParticipants(tags);
-        console.log('개인 참가자:', tags);
     };
 
     const handleTeamChange = (index: number, tags: string[]) => {
         setTeams((prevTeams) => {
             const updatedTeams = [...prevTeams];
             updatedTeams[index] = tags;
-            console.log(`업데이트된 팀들:`, updatedTeams);
             return updatedTeams;
         });
     };
@@ -48,7 +55,7 @@ const TeamSelector = () => {
 
     const toggleMode = (event: ChangeEvent<HTMLInputElement>) => {
         const {checked} = event.target;
-        setIsTeamMode(checked);
+        teamModeProps.onChange(checked);
         if (checked) {
             setIndividualParticipants([]);
             setTeams([[], []]);
@@ -58,12 +65,22 @@ const TeamSelector = () => {
         }
     };
 
-    const validateTeams = (): boolean => {
-        if (isTeamMode) {
-            return teams.every((team) => team.length > 0);
+    useEffect(() => {
+        const handleTeam: { [key: string]: number } = {};
+        if (teamModeProps.value) {
+            teams.map((teams: string[], idx: number) => {
+                teams.forEach((handle: string) => {
+                    handleTeam[handle] = idx;
+                })
+            });
+            handleProps.onChange(handleTeam);
+        } else {
+            individualParticipants.map((handle: string, idx: number) => {
+                handleTeam[handle] = idx;
+            })
+            handleProps.onChange(handleTeam);
         }
-        return individualParticipants.length > 0;
-    };
+    }, [individualParticipants, teamModeProps.value, teams]);
 
     const getTeamWidth = (count: number): string => {
         switch (count) {
@@ -83,14 +100,14 @@ const TeamSelector = () => {
             <Input.Label className="flex items-center gap-2">
                 모드 변경
                 <Switch
-                    checked={isTeamMode}
+                    checked={teamModeProps.value}
                     onChange={toggleMode}
-                    label={isTeamMode ? '팀전' : '개인전'}
+                    label={teamModeProps.value ? '팀전' : '개인전'}
                     aria-label="팀 모드와 개인 모드 전환"
                 />
             </Input.Label>
 
-            {!isTeamMode ? (
+            {!teamModeProps.value ? (
                 <Card shadow="sm" sx={{minHeight: '200px', minWidth: '400px'}}>
                     <Text mb="sm">참가자 닉네임:</Text>
                     <TagsInput
@@ -98,7 +115,6 @@ const TeamSelector = () => {
                         value={individualParticipants}
                         onChange={handleIndividualChange}
                         placeholder="닉네임 입력"
-                        creatable
                         variant="unstyled"
                         getCreateLabel={(query: string) => `+ Create "${query}"`}
                         onCreate={(query: string) => {
@@ -108,16 +124,6 @@ const TeamSelector = () => {
                         splitChars={[',', ' ', '|']}
                         searchable
                         clearable
-                        styles={{
-                            input: {width: '100%'},
-                            tag: (theme) => ({
-                                backgroundColor: theme.colors.blue[6],
-                                color: theme.white,
-                                '&:hover': {
-                                    backgroundColor: theme.colors.blue[7],
-                                },
-                            }),
-                        }}
                     />
                 </Card>
             ) : (
@@ -175,33 +181,15 @@ const TeamSelector = () => {
                                         return query;
                                     }}
                                     searchable
-
-                                    styles={{
-                                        input: {width: '100%'},
-                                        tag: (theme) => ({
-                                            backgroundColor: theme.colors.green[6],
-                                            color: theme.white,
-                                            '&:hover': {
-                                                backgroundColor: theme.colors.green[7],
-                                            },
-                                        }),
-                                    }}
                                 />
                             </Card>
                         ))}
                     </Flex>
                 </Box>
             )}
-
-            <Box>
-                {!validateTeams() && (
-                    <Text color="red" size="sm">
-                        {isTeamMode
-                            ? '모든 팀에 최소 하나 이상의 참가자가 필요합니다.'
-                            : '적어도 하나의 참가자가 필요합니다.'}
-                    </Text>
-                )}
-            </Box>
+            <Input.Error>
+                {handleProps.error}
+            </Input.Error>
         </Box>
     );
 };

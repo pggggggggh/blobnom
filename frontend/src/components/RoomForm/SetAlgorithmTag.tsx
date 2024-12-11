@@ -12,9 +12,9 @@ const SetAlgorithmTag: React.FC<SetAlgorithmTagProps> = ({selectedTags, setSelec
     const data: TagOption[] = useMemo(() => {
         if (!tags || !tags.items) return [];
         return tags.items.map((tag: TagItem) => ({
-            value: tag.displayNames.find(name => name.language === 'en')?.short || tag.key,
+            value: tag.key,
             label: tag.displayNames.find(name => name.language === 'ko')?.name || tag.key,
-            aliases: tag.aliases?.map(aliasObj => aliasObj.alias) || [],
+            aliases: [tag.key, ...(tag.aliases?.map(aliasObj => aliasObj.alias) || [])],
         }));
     }, []);
 
@@ -32,12 +32,11 @@ const SetAlgorithmTag: React.FC<SetAlgorithmTagProps> = ({selectedTags, setSelec
             data={data}
             value={selectedTags}
             onChange={setSelectedTags}
-            placeholder="태그를 검색하고 선택하세요"
+            placeholder="태그 선택"
             searchable
             clearable
             nothingFound="태그를 찾을 수 없습니다"
             filter={filter}
-            limit={6}
             withinPortal
             multiple
         />

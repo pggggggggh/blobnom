@@ -1,7 +1,9 @@
 export interface RoomForm {
-    owner: string;
+    owner_handle: string;
     edit_password: string;
-    handles: string;
+    handles: { [key: string]: number };
+    is_teammode: boolean;
+    mode: string;
     title: string;
     query: string;
     size: number;

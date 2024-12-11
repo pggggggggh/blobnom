@@ -16,6 +16,7 @@ import "dayjs/locale/ko";
 import utc from 'dayjs/plugin/utc';
 import {ModalsProvider} from "@mantine/modals";
 import Theme from "./constants/Theme.tsx";
+import {Notifications} from "@mantine/notifications";
 
 // Create a new router instance
 const router = createRouter({routeTree})
@@ -46,7 +47,7 @@ if (!rootElement.innerHTML) {
                 <MantineProvider forceColorScheme="dark"
                                  theme={Theme}>
                     <ModalsProvider>
-
+                        <Notifications/>
                         <RouterProvider router={router}/>
 
                     </ModalsProvider>

@@ -1,10 +1,11 @@
-import {createLazyFileRoute} from '@tanstack/react-router';
-import {Container, Group, Pagination, TextInput} from "@mantine/core";
+import {createLazyFileRoute, Link} from '@tanstack/react-router';
+import {Button, Container, Group, Pagination, TextInput} from "@mantine/core";
 import {useRoomList} from "../hooks/hooks.tsx";
 import SearchIcon from '@mui/icons-material/Search';
 import RoomListComponent from '../components/RoomListComponent.tsx'
 import dayjs from "dayjs";
-import {useState} from "react";
+import React, {useState} from "react";
+import AddIcon from '@mui/icons-material/Add';
 
 export const Route = createLazyFileRoute('/')({
     component: Index,
@@ -24,12 +25,15 @@ function Index() {
     return (
         <Container size="lg">
             <Group justify="space-between" mb="md">
-                <Group>
-                    <TextInput
-                        placeholder="방 검색..."
-                        leftSection={<SearchIcon/>}
-                    />
-                </Group>
+                <TextInput
+                    placeholder="방 검색..."
+                    leftSection={<SearchIcon/>}
+                />
+                <Link to="/create">
+                    <Button variant="default" leftSection={<AddIcon/>}>
+                        방 만들기
+                    </Button>
+                </Link>
             </Group>
             <RoomListComponent rooms={data["room_list"]} cur_datetime={date}/>
             <Group justify="center" mt="xl">

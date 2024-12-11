@@ -3,6 +3,7 @@ import {Link} from "@tanstack/react-router";
 import {RoomSummary} from "../types/RoomSummary.tsx";
 import TokenOutlinedIcon from '@mui/icons-material/TokenOutlined';
 import PersonIcon from '@mui/icons-material/Person';
+import LockIcon from '@mui/icons-material/Lock';
 import dayjs, {Dayjs} from "dayjs";
 
 const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_datetime: Dayjs }) => {
@@ -13,7 +14,8 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                     <Card key={room.id} withBorder shadow="sm">
                         <Group justify="space-between">
                             <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
-                                <Text fw={500} size="lg" truncate>
+                                <Text fw={500} size="lg">
+                                    {room.is_private && <LockIcon fontSize={"inherit"} className="mr-1 "/>}
                                     {room.name}
                                 </Text>
                                 <Text size="sm" c="dimmed">
@@ -25,15 +27,15 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                     {
                                         dayjs.utc(room.starts_at).isBefore(cur_datetime) ? (
                                             dayjs.utc(room.ends_at).isBefore(cur_datetime) ?
-                                                <Badge color="blue">
+                                                <Badge className="font-medium" color="blue">
                                                     {dayjs.utc(room.ends_at).to(cur_datetime, true)} 전 종료
                                                 </Badge>
                                                 :
-                                                <Badge color="green">
+                                                <Badge className="font-medium" color="green">
                                                     {dayjs.utc(room.ends_at).to(cur_datetime, true)} 후 종료
                                                 </Badge>
                                         ) : (
-                                            <Badge color="red">
+                                            <Badge className="font-medium" color="red">
                                                 {dayjs.utc(room.starts_at).to(cur_datetime, true)} 후 시작
                                             </Badge>
                                         )
@@ -62,7 +64,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                         roomId: room.id.toString()
                                     }}
                                 >
-                                    <Button variant="filled">
+                                    <Button variant="default">
                                         참여하기
                                     </Button>
                                 </Link>

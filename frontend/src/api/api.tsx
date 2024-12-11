@@ -1,6 +1,7 @@
 import {api} from "./instance.tsx";
 import {RoomDetail} from "../types/RoomDetail.tsx";
 import {MainData} from "../types/RoomSummary.tsx";
+import {RoomForm} from "../types/RoomForm.tsx";
 
 export const fetchMainData = async (page: number): Promise<MainData> => {
     const response = await api.get(`/?page=${page}`);
@@ -22,6 +23,12 @@ export const postSolveProblem = async (data: { roomId: number; problemId: number
 
 export const postJoinRoom = async (data: { roomId: number; handle: string }) => {
     const response = await api.post(`/rooms/join/${data.roomId}`, data.handle);
+    console.log(response)
+    return response.data;
+}
+
+export const postCreateRoom = async (data: RoomForm) => {
+    const response = await api.post(`/rooms/create`, data);
     console.log(response)
     return response.data;
 }

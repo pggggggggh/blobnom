@@ -48,10 +48,10 @@ export const HexComponent = ({roomId, missions}: { roomId: number, missions: Mis
                                 {
                                     missions[i].solved_at ?
                                         <HoverCard.Dropdown p="xs" className="text-center">
-                                            <Text>
+                                            <Text size="sm">
                                                 Solved by <strong>{missions[i].solved_user_name}</strong>
                                             </Text>
-                                            <Text>
+                                            <Text size="sm">
                                                 {dayjs(missions[i].solved_at).format("YYYY/MM/DD HH:MM:ss")}
                                             </Text>
                                         </HoverCard.Dropdown>

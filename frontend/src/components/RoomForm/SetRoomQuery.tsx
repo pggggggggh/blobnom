@@ -4,25 +4,35 @@ import {SetAlgorithmTag, SetTierRange} from './';
 import {tiers} from '../../constants/tierdata';
 
 const tierRangeString = (tierInt: [number, number], selectedTags: string[]) => {
-    return `tier:${tiers[tierInt[0]].short}..${tiers[tierInt[1]].short} ${selectedTags.map(tag => `#${tag} `).join(' ')}`;
+    return `tier:${tiers[tierInt[0]].short}..${tiers[tierInt[1]].short} ${selectedTags.length > 0 ? `(${selectedTags.map(tag => `#${tag}`).join('|')})` : ''}`;
 }
 
 const SetRoomQuery = ({
                           queryValue,
                           queryProps,
+                          handleValue
                       }: {
     queryValue: string;
     queryProps: any;
+    handleValue: { [key: string]: number };
 }) => {
     const [tierRange, setTierRange] = useState<[number, number]>([1, 16]);
     const [fixedQuery, setFixedQuery] = useState<string>('');
+    const [addedQuery, setAddedQuery] = useState<string>('');
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
     useEffect(() => {
         const updatedQuery = tierRangeString(tierRange, selectedTags);
-        setFixedQuery(updatedQuery);
+        const exclude = Object.keys(handleValue)
+            .map(key => `!@${key}`)
+            .join(' ');
+        setFixedQuery(updatedQuery + exclude)
         console.log(selectedTags);
-    }, [tierRange, selectedTags]);
+    }, [tierRange, selectedTags, handleValue]);
+
+    useEffect(() => {
+        queryProps.onChange(fixedQuery + addedQuery)
+    }, [fixedQuery, addedQuery]);
 
     return (
         <Stack>
@@ -30,13 +40,14 @@ const SetRoomQuery = ({
             <SetTierRange value={tierRange} onChange={setTierRange}/>
             <Stack style={{gap: '0px'}}>
                 <TextInput
-                    value={(queryValue ? `${queryValue} ` : "") + fixedQuery}
+                    value={fixedQuery}
                     label="solved.ac 고급 쿼리"
                     readOnly
                     disabled
                 />
                 <TextInput
-                    {...queryProps}
+                    value={addedQuery}
+                    onChange={(e) => setAddedQuery(e.target.value)}
                 />
             </Stack>
         </Stack>
