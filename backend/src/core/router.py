@@ -190,7 +190,8 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
             db.add(mission)
             db.flush()
 
-        for idx, (username, team_idx) in enumerate(room_request.players.items()):
+        for idx, (username, team_idx) in enumerate(room_request.handles.items()):
+            print(username, team_idx)
             user = db.query(User).filter(User.name == username).first()
             if not user:
                 user = User(name=username)
@@ -205,10 +206,13 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
             )
             room.players.append(room_player)
             db.add(room_player)
+            db.flush()
         db.commit()
 
         await update_solver(room.id, room.missions, room.players, db, client, True)
         await update_score(room.id, db)
+
+        print("fin")
 
         return {"success": True, "roomId": room.id}
 

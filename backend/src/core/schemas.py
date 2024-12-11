@@ -8,7 +8,7 @@ from src.core.enums import ModeType
 
 class RoomCreateRequest(BaseModel):
     owner_handle: str
-    players: Dict[str, int]
+    handles: Dict[str, int]
     title: str
     query: str
     size: int
