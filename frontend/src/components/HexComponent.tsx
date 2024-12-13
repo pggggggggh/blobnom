@@ -40,7 +40,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 `${userColorsFill[missions[i].solved_team_index]}` : "fill-zinc-950 hover:fill-zinc-600 active:fill-zinc-700"}`}
                                         >
                                             <SVGText fontSize="5"
-                                                     className="fill-zinc-100 font-sans font-extralight stroke-0 ">
+                                                     className="fill-zinc-100 font-sans font-light stroke-0 ">
                                                 {missions[i].problem_id}
                                             </SVGText>
                                         </Hexagon>

@@ -89,7 +89,12 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                         <span key={user.name}>
                                     <span
                                         className={team.users.length > 1 && user.indiv_solved_cnt > 0 && idx === 0 ? "font-bold" : ""}>
+                                        <a href={`https://www.acmicpc.net/status?user_id=${user.name}`}
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           className="no-underline text-white">
                                         {user.name}
+                                        </a>
                                     </span>
                                             {team.users.length > 1 && `(${user.indiv_solved_cnt})`}
                                             {idx < team.users.length - 1 && ", "}
