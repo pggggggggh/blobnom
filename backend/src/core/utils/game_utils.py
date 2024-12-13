@@ -2,12 +2,67 @@ import math
 from collections import deque
 from datetime import datetime
 
+import httpx
 import pytz
 from fastapi import HTTPException
 from sqlalchemy.orm import joinedload
 
 from src.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
 from src.core.models import Room, RoomMission, RoomPlayer
+
+
+async def handle_room_start(room_id: int, db):
+    print(f"{room_id} starting")
+
+    try:
+        room = (
+            db.query(Room)
+            .options(
+                joinedload(Room.players),
+                joinedload(Room.missions)
+            )
+            .filter(Room.id == room_id)
+            .first()
+        )
+        if not room:
+            print(f"Room with id {room_id} not found.")
+            return
+
+        async with httpx.AsyncClient() as client:
+            for player in room.players:
+                room.query += f" !@{player.user.name}"
+            db.add(room)
+            db.flush()
+            problem_ids = await fetch_problems(room.query, client)
+            problem_ids = problem_ids[:room.num_mission]
+
+            for idx, problem_id in enumerate(problem_ids):
+                mission = RoomMission(problem_id=problem_id, room_id=room.id, index_in_room=idx)
+                room.missions.append(mission)
+                db.add(mission)
+                db.flush()
+            await update_solver(room.id, room.missions, room.players, db, client, True)
+            await update_score(room.id, db)
+            room.is_started = True
+            db.add(room)
+            db.commit()
+
+            print(f"Room {room_id} has started successfully.")
+
+    except Exception as e:
+        print(f"Error starting room {room_id}: {e}")
+
+
+async def fetch_problems(query, client):
+    problem_ids = []
+    for _ in range(4):
+        response = await client.get("https://solved.ac/api/v3/search/problem",
+                                    params={"query": query, "sort": "random", "page": 1})
+        tmp = response.json()["items"]
+        for item in tmp:
+            if item["problemId"] not in problem_ids:
+                problem_ids.append(item["problemId"])
+    return problem_ids
 
 
 async def update_score(room_id, db):
@@ -156,6 +211,9 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
 
 
 async def update_all_rooms(db):
-    rooms = db.query(Room).all()
+    rooms = (db.query(Room)
+             .options(joinedload(Room.missions))
+             .all())
     for room in rooms:
         await update_score(room.id, db)
+        room.num_mission = len(room.missions)

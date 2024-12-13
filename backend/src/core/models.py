@@ -23,10 +23,14 @@ class Room(TimestampMixin, Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True)
     query = Column(String)
+    num_mission = Column(Integer)  # needed to show roomsummary for rooms before start
 
-    password = Column(String)
+    edit_pwd = Column(String)
+    entry_pwd = Column(String)
+
     starts_at = Column(DateTime(timezone=True))
     ends_at = Column(DateTime(timezone=True))
+    is_started = Column(Boolean, nullable=False)
 
     max_players = Column(Integer, default=MAX_TEAM_PER_ROOM)
     is_private = Column(Boolean)

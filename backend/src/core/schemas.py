@@ -15,6 +15,8 @@ class RoomCreateRequest(BaseModel):
     mode: ModeType
     is_private: bool
     max_players: int
+    edit_password: str
+    entry_pin: str
     starts_at: datetime
     ends_at: datetime
 
@@ -66,6 +68,7 @@ class RoomDetail(BaseModel):
     name: str
     is_private: bool
     num_missions: int
+    is_started: bool
     mode_type: ModeType
     team_info: List[RoomTeamInfo]
     mission_info: List[RoomMissionInfo]

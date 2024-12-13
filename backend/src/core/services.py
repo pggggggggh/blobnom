@@ -19,7 +19,7 @@ def get_room_summary(room: Room) -> RoomSummary:
         owner=room.owner.name if room.owner else "",
         num_players=len(room.players),
         max_players=room.max_players,
-        num_missions=len(room.missions),
+        num_missions=room.num_mission,
         num_solved_missions=len([mission for mission in room.missions if mission.solved_at is not None]),
         winner=winner,
         is_private=room.is_private,
@@ -80,9 +80,10 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
         name=room.name,
         is_private=room.is_private,
         mode_type=room.mode_type,
-        num_missions=len(missions),
+        num_missions=room.num_mission,
         team_info=room_team_info,
-        mission_info=room_mission_info
+        mission_info=room_mission_info,
+        is_started=room.is_started,
     )
 
     return room_detail
