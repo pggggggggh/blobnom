@@ -21,6 +21,10 @@ class RoomCreateRequest(BaseModel):
     ends_at: datetime
 
 
+class DeleteRoomRequest(BaseModel):
+    password: str
+
+
 class RoomTeamInfo(BaseModel):
     users: List[Dict]
     team_index: int

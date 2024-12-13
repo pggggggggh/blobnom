@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session, joinedload
 from src.core.constants import MAX_TEAM_PER_ROOM
 from src.core.enums import ModeType
 from src.core.models import User, Room, RoomPlayer, RoomMission
-from src.core.schemas import RoomCreateRequest
+from src.core.schemas import RoomCreateRequest, DeleteRoomRequest
 from src.core.services import get_room_summary, get_room_detail
 from src.core.utils.game_utils import update_score, update_solver, get_solved_problem_list, update_all_rooms, \
     handle_room_start, fetch_problems
@@ -23,14 +23,21 @@ router = APIRouter()
 
 
 @router.get("/")
-async def room_list(page: int, db: Session = Depends(get_db)):
-    rooms = (
+async def room_list(page: int, search: str = "", db: Session = Depends(get_db)):
+    # 쿼리에 검색 필터 추가
+    query = (
         db.query(Room)
         .options(joinedload(Room.players))
         .options(joinedload(Room.missions))
         .options(joinedload(Room.owner))
+        .filter(Room.name.ilike(f"%{search}%"))
+        .filter(Room.is_deleted == False)
         .order_by(desc(Room.starts_at))
-        .offset(20 * page)
+    )
+
+    total_rooms = query.count()
+    rooms = (
+        query.offset(20 * page)
         .limit(20)
         .all()
     )
@@ -40,12 +47,31 @@ async def room_list(page: int, db: Session = Depends(get_db)):
         room_data = get_room_summary(room)
         room_list.append(room_data)
 
-    return {"room_list": room_list, "total_pages": math.ceil(len(db.query(Room).all()) / 20)}
+    return {"room_list": room_list, "total_pages": math.ceil(total_rooms / 20)}
 
 
 @router.get("/rooms/detail/{id}")
 async def room_detail(id: int, db: Session = Depends(get_db)):
     return get_room_detail(room_id=id, db=db)
+
+
+@router.post("/rooms/delete/{id}")
+async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends(get_db)):
+    room = db.query(Room).options(joinedload(Room.players)).filter(Room.id == id).first()
+    if not room:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+    if room.is_private and verify_password(request.password, room.edit_pwd) is False:
+        raise HTTPException(status_code=400, detail="비밀번호가 틀립니다.")
+
+    total_indiv_solved_count = sum(player.indiv_solved_count for player in room.players)
+    if total_indiv_solved_count > 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="두 문제 이상 풀렸으므로 삭제할 수 없습니다."
+        )
+    room.is_deleted = True
+    db.commit()
+    return {"message": "Room deleted successfully"}
 
 
 @router.post("/rooms/join/{id}")
@@ -66,7 +92,7 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
             .all()
         )
 
-        if len(room_players) >= MAX_TEAM_PER_ROOM:
+        if len(room_players) >= room.max_players:
             raise HTTPException(status_code=400, detail="인원이 가득 찼습니다.")
 
         if any(player.user.name == handle for player in room_players):
@@ -168,7 +194,6 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
 
         if len(problem_ids) < num_mission:
             raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 너무 적습니다.")
-        problem_ids = problem_ids[:num_mission]
 
         room = Room(
             name=room_request.title,

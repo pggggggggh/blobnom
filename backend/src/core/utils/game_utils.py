@@ -1,4 +1,5 @@
 import math
+import os
 from collections import deque
 from datetime import datetime
 
@@ -9,6 +10,13 @@ from sqlalchemy.orm import joinedload
 
 from src.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
 from src.core.models import Room, RoomMission, RoomPlayer
+from src.core.utils.security_utils import hash_password
+
+
+async def check_unstarted_rooms(db):
+    rooms = db.query(Room).filter(Room.is_started == False).all()
+    for room in rooms:
+        await handle_room_start(room.id, db)
 
 
 async def handle_room_start(room_id: int, db):
@@ -215,5 +223,10 @@ async def update_all_rooms(db):
              .options(joinedload(Room.missions))
              .all())
     for room in rooms:
+        if room.id is not 256: continue
         await update_score(room.id, db)
         room.num_mission = len(room.missions)
+        if room.is_private and room.entry_pwd is None:
+            room.entry_pwd = hash_password(os.environ.get("DEFAULT_PWD"))
+        if room.edit_pwd is None:
+            room.edit_pwd = hash_password(os.environ.get("DEFAULT_PWD"))

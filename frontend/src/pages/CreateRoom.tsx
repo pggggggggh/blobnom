@@ -1,17 +1,17 @@
 import React from 'react';
-import { useForm } from '@mantine/form';
-import { Button, Container, Stack, Title } from '@mantine/core';
-import { RoomForm } from '../types/RoomForm';
+import {useForm} from '@mantine/form';
+import {Button, Container, Stack, Title} from '@mantine/core';
+import {RoomForm} from '../types/RoomForm';
 import {
     SetRoomOwner,
     SetRoomPin,
     SetRoomQuery,
     SetRoomSize,
+    SetRoomTime,
     SetRoomTitle,
-    TeamSelector,
-    SetRoomTime
+    TeamSelector
 } from '../components/RoomForm';
-import { useCreateRoom } from '../hooks/hooks';
+import {useCreateRoom} from '../hooks/hooks';
 
 function CreateRoom() {
     const now = new Date();
@@ -89,10 +89,10 @@ function CreateRoom() {
                         방 만들기
                     </Title>
 
-                    <SetRoomTitle titleProps={form.getInputProps('title')} />
+                    <SetRoomTitle titleProps={form.getInputProps('title')}/>
 
                     <SetRoomPin
-                        isPrivateProps={form.getInputProps('is_private', { type: 'checkbox' })}
+                        isPrivateProps={form.getInputProps('is_private', {type: 'checkbox'})}
                         entryPinProps={form.getInputProps('entry_pin')}
                         onClearPin={() => form.setFieldValue('entry_pin', '')}
                     />
@@ -108,16 +108,16 @@ function CreateRoom() {
                         handleValue={form.values.handles}
                     />
 
-                    <SetRoomSize sizeProps={form.getInputProps('size')} />
+                    <SetRoomSize sizeProps={form.getInputProps('size')}/>
 
                     <TeamSelector
                         handleProps={form.getInputProps('handles')}
                         teamModeProps={form.getInputProps('is_teammode')}
                     />
 
-                    <SetRoomTime form={form} />
+                    <SetRoomTime form={form}/>
 
-                    <Button type="submit" loading={mutation.isLoading}>
+                    <Button type="submit" loading={mutation.isPending}>
                         생성
                     </Button>
                 </Stack>

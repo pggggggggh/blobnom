@@ -33,7 +33,7 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
                      .joinedload(RoomPlayer.user))
             .options(joinedload(Room.players))
             .first())
-    if not room:
+    if not room or room.is_deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
     players = room.players

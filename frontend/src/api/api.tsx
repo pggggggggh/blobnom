@@ -3,8 +3,12 @@ import {RoomDetail} from "../types/RoomDetail.tsx";
 import {MainData} from "../types/RoomSummary.tsx";
 import {RoomForm} from "../types/RoomForm.tsx";
 
-export const fetchMainData = async (page: number): Promise<MainData> => {
-    const response = await api.get(`/?page=${page}`);
+export const fetchMainData = async (page: number, search: string): Promise<MainData> => {
+    const response = await api.get(`/`, {
+        params: {
+            page: page, search: search
+        }
+    });
     console.log(response)
     return response.data;
 };
@@ -32,3 +36,9 @@ export const postCreateRoom = async (data: RoomForm) => {
     console.log(response)
     return response.data;
 }
+
+export const deleteRoom = async (data: { roomId: number; password: string }) => {
+    const response = await api.post(`/rooms/delete/${data.roomId}`, {roomId: data.roomId, password: data.password});
+    console.log(response)
+    return response.data;
+};

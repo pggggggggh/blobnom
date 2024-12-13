@@ -27,6 +27,7 @@ class Room(TimestampMixin, Base):
 
     edit_pwd = Column(String)
     entry_pwd = Column(String)
+    is_deleted = Column(Boolean, default=False)
 
     starts_at = Column(DateTime(timezone=True))
     ends_at = Column(DateTime(timezone=True))

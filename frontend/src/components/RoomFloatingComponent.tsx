@@ -1,4 +1,4 @@
-import {Box, Button, Text} from "@mantine/core";
+import {ActionIcon, Box, Button, Text} from "@mantine/core";
 import {RoomDetail} from "../types/RoomDetail.tsx";
 import {userColorsBg} from "../constants/UserColorsFill.tsx";
 import RoomJoinModal from "./Modals/RoomJoinModal.tsx";
@@ -6,6 +6,8 @@ import {modals} from "@mantine/modals";
 import {useEffect, useState} from "react";
 import {getDiffTime} from "../utils.tsx";
 import dayjs from "dayjs";
+import DeleteIcon from '@mui/icons-material/Delete';
+import RoomDeleteModal from "./Modals/RemoveModal.tsx";
 
 const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const [timeLeft, setTimeLeft] = useState<string>("");
@@ -33,6 +35,15 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                         ? timeLeft
                         : `${dayjs(roomDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ ${dayjs(roomDetail.ends_at).format('YYYY-MM-DD HH:mm')}, ${roomDetail.num_missions}문항`}
                 </Text>
+                <ActionIcon variant="transparent" color="white"
+                            onClick={() => {
+                                modals.open({
+                                    title: "방 삭제하기",
+                                    children: <RoomDeleteModal roomId={roomDetail.id}/>
+                                });
+                            }}>
+                    <DeleteIcon/>
+                </ActionIcon>
             </Box>
 
             {!roomDetail.is_started &&
@@ -50,7 +61,7 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                 </Box>
             }
 
-            {roomDetail.mode_type === "land_grab_solo" &&
+            {roomDetail.mode_type === "land_grab_solo" && new Date(roomDetail.ends_at) > new Date() &&
                 <div
                     className="p-2 fixed bottom-4 left-4">
                     <Button

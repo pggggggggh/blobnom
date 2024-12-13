@@ -3,7 +3,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 import src.core.models as models
 from src.core.router import router as core_router
-from src.database import engine
+from src.core.utils.game_utils import check_unstarted_rooms
+from src.database import engine, SessionLocal
 
 try:
     models.Base.metadata.create_all(bind=engine)
@@ -26,5 +27,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 app.include_router(core_router)
+
+
+async def startup_event():
+    db = SessionLocal()
+    try:
+        await check_unstarted_rooms(db)
+    finally:
+        db.close()
+
+
+app.add_event_handler('startup', startup_event)

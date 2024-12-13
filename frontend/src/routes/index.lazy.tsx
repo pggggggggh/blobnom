@@ -6,17 +6,25 @@ import RoomListComponent from '../components/RoomListComponent.tsx'
 import dayjs from "dayjs";
 import React, {useState} from "react";
 import AddIcon from '@mui/icons-material/Add';
+import {useDebouncedValue} from "@mantine/hooks";
 
 export const Route = createLazyFileRoute('/')({
     component: Index,
-})
+});
 
 function Index() {
     const [page, setPage] = useState(1);
-    const {data, isLoading, error} = useRoomList(page - 1);
+    const [search, setSearch] = useState("");
+    const [debouncedSearch] = useDebouncedValue(search, 300);
+    const {data, isLoading, error} = useRoomList(page - 1, debouncedSearch);
 
     const date = dayjs().utc();
     if (isLoading || error) return (<div></div>);
+
+    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(event.target.value);
+        setPage(1);
+    };
 
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
@@ -28,6 +36,8 @@ function Index() {
                 <TextInput
                     placeholder="방 검색..."
                     leftSection={<SearchIcon/>}
+                    value={search}
+                    onChange={handleSearchChange}
                 />
                 <Link to="/create">
                     <Button leftSection={<AddIcon/>}>

@@ -2,10 +2,10 @@ import os
 from datetime import datetime
 
 import pytz
-from sqlalchemy import create_engine, Column, DateTime, func
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, Column, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -15,8 +15,10 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autoflush=False, bind=engine)
 Base = declarative_base()
 
+
 def utcnow():
     return datetime.now(pytz.utc)
+
 
 class TimestampMixin:
     created_at = Column(
@@ -30,6 +32,7 @@ class TimestampMixin:
         onupdate=utcnow,
         nullable=False
     )
+
 
 def get_db():
     db = SessionLocal()
