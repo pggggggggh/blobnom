@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.core.router import router as core_router
 import src.core.models as models
-from src.core.config import engine
+from src.core.router import router as core_router
+from src.core.utils.game_utils import check_unstarted_rooms
+from src.database import engine, SessionLocal
 
 try:
     models.Base.metadata.create_all(bind=engine)
@@ -11,13 +12,14 @@ except:
     pass
 
 origins = [
-    "https://b5m.netlify.app",
     "http://localhost:5173",
+    "http://121.189.148.34:5173",
     "https://blobnom.netlify.app",
+    "https://b5m.netlify.app",
     "http://blobnom.xyz",
     "https://blobnom.xyz",
 ]
-app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -25,5 +27,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 app.include_router(core_router)
+
+
+async def startup_event():
+    db = SessionLocal()
+    try:
+        await check_unstarted_rooms(db)
+    finally:
+        db.close()
+
+
+app.add_event_handler('startup', startup_event)

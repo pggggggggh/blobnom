@@ -1,263 +1,247 @@
+import math
 import random
 from datetime import datetime
 
 import httpx
-from fastapi import Body, HTTPException, Depends, APIRouter
-from sqlalchemy import func
+import pytz
+from fastapi import Body, HTTPException, Depends, APIRouter, status
+from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.core.constants import MAX_USER_PER_ROOM
-from src.core.config import SessionLocal
-from src.core.models import Problem, User, ProblemRoom, UserRoom, Room
-from src.core.utils import update_solver
-import pytz
-
-korea_tz = pytz.timezone('Asia/Seoul')
+from src.core.constants import MAX_TEAM_PER_ROOM
+from src.core.enums import ModeType
+from src.core.models import User, Room, RoomPlayer, RoomMission
+from src.core.schemas import RoomCreateRequest, DeleteRoomRequest
+from src.core.services import get_room_summary, get_room_detail
+from src.core.utils.game_utils import update_score, update_solver, get_solved_problem_list, update_all_rooms, \
+    handle_room_start, fetch_problems
+from src.core.utils.scheduler import add_job
+from src.core.utils.security_utils import hash_password, verify_password
+from src.database import get_db
 
 router = APIRouter()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get("/")
-async def room_info(db: Session = Depends(get_db)):
-    rooms = (db.query(Room)
-             .outerjoin(ProblemRoom)
-             .group_by(Room.id)
-             .order_by(func.greatest(
-        Room.begin,
-        func.coalesce(func.max(ProblemRoom.solved_at), Room.begin)
-    ).desc())
-             .options(joinedload(Room.user_associations).joinedload(UserRoom.user))
-             .limit(120)
-             .all())
+async def room_list(page: int, search: str = "", db: Session = Depends(get_db)):
+    # 쿼리에 검색 필터 추가
+    query = (
+        db.query(Room)
+        .options(joinedload(Room.players))
+        .options(joinedload(Room.missions))
+        .options(joinedload(Room.owner))
+        .filter(Room.name.ilike(f"%{search}%"))
+        .filter(Room.is_deleted == False)
+        .order_by(desc(Room.starts_at))
+    )
 
-    public_rooms = []
-    private_rooms = []
+    total_rooms = query.count()
+    rooms = (
+        query.offset(20 * page)
+        .limit(20)
+        .all()
+    )
 
+    room_list = []
     for room in rooms:
-        room_data = {
-            "id": room.id,
-            "name": room.name,
-            "size": room.size,
-            "begin": room.begin,
-            "end": room.end,
-            "public": room.public,
-            "users": len(room.users),
-            "top_user": max(
-                (
-                    {"name": assoc.user.name, "score": assoc.score, "score2": assoc.score2}
-                    for assoc in room.user_associations
-                ),
-                key=lambda x: (x["score"], x["score2"]),
-                default={"name": None, "score": 0}
-            )
-        }
+        room_data = get_room_summary(room)
+        room_list.append(room_data)
 
-        if room.public:
-            public_rooms.append(room_data)
-        else:
-            private_rooms.append(room_data)
-
-    return {
-        "publicroom": public_rooms,
-        "privateroom": private_rooms
-    }
+    return {"room_list": room_list, "total_pages": math.ceil(total_rooms / 20)}
 
 
-@router.get("/room/info/{id}")
-async def room_info(id: int, db: Session = Depends(get_db)):
-    room = db.query(Room).filter(Room.id == id).options(
-        joinedload(Room.user_associations).joinedload(UserRoom.user),
-        joinedload(Room.problem_associations).joinedload(ProblemRoom.problem)
-    ).first()
-    return room
+@router.get("/rooms/detail/{id}")
+async def room_detail(id: int, db: Session = Depends(get_db)):
+    return get_room_detail(room_id=id, db=db)
 
 
-@router.post("/room/join/{id}")
-async def room_join(id: int, handle: str = Body(...), db: Session = Depends(get_db)):
+@router.post("/rooms/delete/{id}")
+async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends(get_db)):
+    room = db.query(Room).options(joinedload(Room.players)).filter(Room.id == id).first()
+    if not room:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+    if room.is_private and verify_password(request.password, room.edit_pwd) is False:
+        raise HTTPException(status_code=400, detail="비밀번호가 틀립니다.")
+
+    total_indiv_solved_count = sum(player.indiv_solved_count for player in room.players)
+    if total_indiv_solved_count > 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="두 문제 이상 풀렸으므로 삭제할 수 없습니다."
+        )
+    room.is_deleted = True
+    db.commit()
+    return {"message": "Room deleted successfully"}
+
+
+@router.post("/rooms/join/{id}")
+async def room_join(id: int, handle: str = Body(...), password: str = Body(None), db: Session = Depends(get_db)):
     async with httpx.AsyncClient() as client:
-        users = db.query(UserRoom).filter(UserRoom.room_id == id).all()
-        if len(users) >= MAX_USER_PER_ROOM:
+        room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
+        if not room:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+        if room.mode_type == ModeType.LAND_GRAB_TEAM:
+            raise HTTPException(status_code=400, detail="팀전에는 참여할 수 없습니다.")
+        if room.is_private and verify_password(password, room.entry_pwd) is False:
+            raise HTTPException(status_code=400, detail="비밀번호가 틀립니다.")
+
+        room_players = (
+            db.query(RoomPlayer)
+            .options(joinedload(RoomPlayer.user))
+            .filter(RoomPlayer.room_id == id)
+            .all()
+        )
+
+        if len(room_players) >= room.max_players:
             raise HTTPException(status_code=400, detail="인원이 가득 찼습니다.")
 
-        if not db.query(User).filter(User.name == handle).first():
-            user = User(name=handle)
-            db.add(user)
-            db.commit()
-            db.refresh(user)
-        else:
-            user = db.query(User).filter(User.name == handle).first()
-            if db.query(UserRoom).filter(UserRoom.room_id == id, UserRoom.user_id == user.id).first():
-                raise HTTPException(status_code=400, detail="이미 존재하는 유저입니다.")
+        if any(player.user.name == handle for player in room_players):
+            raise HTTPException(status_code=400, detail="이미 존재하는 유저입니다.")
 
         query = "@" + handle
         response = await client.get("https://solved.ac/api/v3/search/problem",
                                     params={"query": query})
+
         if len(response.json()["items"]) == 0:
             raise HTTPException(status_code=400, detail="유효하지 않은 핸들입니다.")
 
-        vis = [0 for _ in range(100)]
-        for u in users:
-            vis[u.index_in_room] = 1
+        if not db.query(User).filter(User.name == handle).first():
+            user = User(name=handle)
+            db.add(user)
+            db.flush()
+        user = db.query(User).filter(User.name == handle).first()
 
-        idx = -1
-        for i in range(100):
-            if not vis[i]:
-                idx = i
-                break
+        if room.is_started:
+            unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
+            solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, handle, db, client)
+            if len(solved_mission_list) > 2:
+                raise HTTPException(status_code=400, detail="이미 해결한 문제가 2문제를 초과하여 참여할 수 없습니다.")
 
-        if idx == -1:
-            raise HTTPException(status_code=400)
+        # calculate mex
+        player_indices = {player.player_index for player in room_players}
+        player_index = next(i for i in range(len(player_indices) + 1) if i not in player_indices)
 
-        room = db.query(Room).filter(Room.id == id).first()
-        problemIds = [problem.id for problem in room.problems]
+        team_indices = {player.team_index for player in room_players}
+        team_index = next(i for i in range(len(team_indices) + 1) if i not in team_indices)
 
-        already_solved = []
-
-        for problemId in problemIds:
-            query = str(problemId) + " @" + handle
-            response = await client.get("https://solved.ac/api/v3/search/problem",
-                                        params={"query": query})
-            items = response.json()["items"]
-            for item in items:
-                already_solved.append(item["problemId"])
-
-        if len(already_solved) > 2:
-            raise HTTPException(status_code=400, detail="이미 해결한 문제가 2문제를 초과하여 참여할 수 없습니다.")
-
-        user_room = UserRoom(
+        player = RoomPlayer(
             user_id=user.id,
-            room_id=id,
-            index_in_room=idx,
-            score=0,
+            room_id=room.id,
+            player_index=player_index,
+            team_index=team_index,
+            last_solved_at=room.starts_at
         )
-        db.add(user_room)
+        room.players.append(player)
+        db.add(player)
+        db.flush()
+
+        if room.is_started:
+            missions = db.query(RoomMission).filter(
+                RoomMission.problem_id.in_(solved_mission_list),
+                RoomMission.room_id == id
+            ).all()
+            for mission in missions:
+                mission.solved_at = room.starts_at
+                mission.solved_room_player_id = player.id
+                mission.solved_team_index = team_index
+                mission.solved_user = user
+            await update_score(id, db)
         db.commit()
 
-        for problemId in already_solved:
-            problem_room = db.query(ProblemRoom).filter(
-                ProblemRoom.problem_id == problemId,
-                ProblemRoom.room_id == id
-            ).first()
-            if problem_room is not None and problem_room.solved_at is None:
-                problem_room.solved_at = room.begin
-                problem_room.solved_by = user_room.index_in_room
-                db.add(user_room)
-                db.add(problem_room)
-                db.commit()
-                db.refresh(problem_room)
-
-        await update_solver(id, db)
         return {"success": True}
 
 
-@router.post("/room/solved/")
-async def room_refresh(roomId: int = Body(...), problemId: int = Body(...), db: Session = Depends(get_db)):
-    room = db.query(Room).filter(Room.id == roomId).first()
+@router.post("/rooms/solved/")
+async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db: Session = Depends(get_db)):
+    room = (db.query(Room)
+            .options(joinedload(Room.players))
+            .options(joinedload(Room.missions))
+            .filter(Room.id == room_id)
+            .first())
+
     if not room:
-        raise HTTPException(status_code=400)
-    if datetime.now(korea_tz).replace(tzinfo=None) > room.end:
-        raise HTTPException(status_code=400)
-    users = room.users
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+    if datetime.now(tz=pytz.UTC) > room.ends_at:
+        raise HTTPException(status_code=400, detail="The room has already ended")
+
+    mission = None
+    for m in room.missions:
+        if m.problem_id == problem_id:
+            mission = m
+            break
 
     async with httpx.AsyncClient() as client:
-        random.shuffle(users)
-        for user in users:
-            username = user.name
-            query = str(problemId) + " @" + username
-            response = await client.get("https://solved.ac/api/v3/search/problem",
-                                        params={"query": query})
-            items = response.json()["items"]
-            for item in items:
-                print(item["problemId"])
-                problem_room = db.query(ProblemRoom).filter(
-                    ProblemRoom.problem_id == item["problemId"],
-                    ProblemRoom.room_id == roomId
-                ).first()
-                if problem_room is not None and problem_room.solved_at is None:
-                    user_room = db.query(UserRoom).filter(
-                        UserRoom.user_id == user.id,
-                        UserRoom.room_id == roomId
-                    ).first()
-                    problem_room.solved_at = datetime.now(korea_tz)
-                    problem_room.solved_by = user_room.index_in_room
-                    db.add(problem_room)
-                    db.commit()
-                    db.refresh(problem_room)
-        await update_solver(roomId, db)
+        room_players = room.players
+        random.shuffle(room_players)
+        await update_solver(room_id, [mission], room_players, db, client)
+        await update_score(room_id, db)
 
 
-@router.post("/room/create")
-async def create_room(db: Session = Depends(get_db),
-                      handles: str = Body(...),
-                      title: str = Body(...),
-                      query: str = Body(...),
-                      size: int = Body(...),
-                      public: bool = Body(...),
-                      end: int = Body(...)):
+@router.post("/rooms/create")
+async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get_db), ):
+    if room_request.max_players > MAX_TEAM_PER_ROOM:
+        raise HTTPException(status_code=400)
+
+    owner = db.query(User).filter(User.name == room_request.owner_handle).first()
+    if not owner:
+        owner = User(name=room_request.owner_handle)
+        db.add(owner)
+        db.flush()
+
     async with httpx.AsyncClient() as client:
-        handles = handles.split()
+        problem_ids = await fetch_problems(room_request.query, client)  # 방 생성 시 문제 모자란지 테스트
+        num_mission = 3 * room_request.size * (room_request.size + 1) + 1
 
-        items = []
-        ids = []
-        for page in range(1, 7):
-            response = await client.get("https://solved.ac/api/v3/search/problem",
-                                        params={"query": query, "sort": "random", "page": 1})
-            tmp = response.json()["items"]
-            for item in tmp:
-                if item["problemId"] not in ids:
-                    items.append(item)
-                    ids.append(item["problemId"])
-        n = 3 * size * (size + 1) + 1
-        if len(items) < n:
-            raise HTTPException(status_code=400, detail="Bad query")
-        items = items[:n]
-        ids = [item["problemId"] for item in items]
+        if len(problem_ids) < num_mission:
+            raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 너무 적습니다.")
+
         room = Room(
-            name=title, begin=datetime.now(korea_tz), end=datetime.fromtimestamp(end), size=size, public=public
+            name=room_request.title,
+            query=room_request.query,
+            owner=owner,
+            num_mission=num_mission,
+            entry_pwd=hash_password(room_request.entry_pin) if room_request.entry_pin else None,
+            edit_pwd=hash_password(room_request.edit_password) if room_request.edit_password else None,
+            mode_type=room_request.mode,
+            max_players=room_request.max_players,
+            is_started=False,
+            starts_at=room_request.starts_at,
+            ends_at=room_request.ends_at,
+            is_private=room_request.is_private
         )
         db.add(room)
-        db.commit()
-        db.refresh(room)
+        db.flush()
 
-        for i in range(n):
-            if not db.query(Problem).filter(Problem.id == ids[i]).first():
-                problem = Problem(id=ids[i])
-                db.add(problem)
-                db.commit()
-                db.refresh(problem)
-            else:
-                problem = db.query(Problem).filter(Problem.id == ids[i]).first()
-            problem_room = ProblemRoom(
-                problem_id=problem.id,
-                room_id=room.id,
-                index_in_room=i
-            )
-            db.add(problem_room)
-            db.commit()
-        db.commit()
+        add_job(
+            handle_room_start,
+            run_date=room_request.starts_at,
+            args=[room.id, db],
+        )
 
-        for i in range(len(handles)):
-            if not db.query(User).filter(User.name == handles[i]).first():
-                user = User(name=handles[i])
+        for idx, (username, team_idx) in enumerate(room_request.handles.items()):
+            print(username, team_idx)
+            user = db.query(User).filter(User.name == username).first()
+            if not user:
+                user = User(name=username)
                 db.add(user)
-                db.commit()
-                db.refresh(user)
-            else:
-                user = db.query(User).filter(User.name == handles[i]).first()
-            user_room = UserRoom(
+                db.flush()
+            room_player = RoomPlayer(
                 user_id=user.id,
                 room_id=room.id,
-                index_in_room=i,
-                score=0,
+                player_index=idx,
+                team_index=team_idx,
+                last_solved_at=room_request.starts_at
             )
-            db.add(user_room)
-            db.commit()
+            room.players.append(room_player)
+            db.add(room_player)
+            db.flush()
         db.commit()
 
+        print("fin")
+
         return {"success": True, "roomId": room.id}
+
+
+@router.get("/temp")
+async def update_all(db: Session = Depends(get_db)):
+    await update_all_rooms(db)

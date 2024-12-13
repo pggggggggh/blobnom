@@ -1,3 +1,9 @@
 /*@tailwind base;*/
 @tailwind components;
 @tailwind utilities;
+
+
+.mantine-InputWrapper-label {
+    @apply font-light;
+    @apply pb-1;
+}

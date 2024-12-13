@@ -13,9 +13,12 @@ uvicorn = "^0.32.1"
 httpx = "0.24.0"
 sqlalchemy = "2.0.21"
 starlette = "^0.41.3"
-psycopg2-binary = "2.9.7"
 pytz = "2023.3"
 python-dotenv = "1.0.0"
+psycopg2-binary = "^2.9.10"
+passlib = "^1.7.4"
+bcrypt = "4.0.1"
+apscheduler = "^3.11.0"
 
 
 [build-system]

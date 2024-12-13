@@ -17,7 +17,6 @@ export const Route = createRootRoute({
                         <Outlet/>
                     </AppShell.Main>
                 </AppShell>
-                {/*<TanStackRouterDevtools/>*/}
             </>);
     },
 })
