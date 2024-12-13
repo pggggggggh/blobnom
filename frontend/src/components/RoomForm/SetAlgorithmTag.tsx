@@ -1,14 +1,14 @@
-import React, {useMemo} from 'react';
-import {MultiSelect} from '@mantine/core';
-import {tags} from '../../constants/solvedtag';
-import {TagItem, TagOption} from '../../types/SolvedTag';
+import React, { useMemo } from 'react';
+import { MultiSelect } from '@mantine/core';
+import { tags } from '../../constants/solvedtag';
+import { TagItem, TagOption } from '../../types/SolvedTag';
 
 interface SetAlgorithmTagProps {
     selectedTags: string[];
     setSelectedTags: (tags: string[]) => void;
 }
 
-const SetAlgorithmTag: React.FC<SetAlgorithmTagProps> = ({selectedTags, setSelectedTags}) => {
+const SetAlgorithmTag = ({ selectedTags, setSelectedTags }) => {
     const data: TagOption[] = useMemo(() => {
         if (!tags || !tags.items) return [];
         return tags.items.map((tag: TagItem) => ({
@@ -18,7 +18,7 @@ const SetAlgorithmTag: React.FC<SetAlgorithmTagProps> = ({selectedTags, setSelec
         }));
     }, []);
 
-    const filter = ({options, search, limit}: { options: TagOption[]; search: string; limit: number }) => {
+    const filter = ({ options, search, limit }: { options: TagOption[]; search: string; limit: number }) => {
         const searchLower = search.toLowerCase();
         return options.filter(option => (
             option.label.toLowerCase().includes(searchLower) ||

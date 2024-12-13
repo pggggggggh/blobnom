@@ -6,3 +6,4 @@ export { default as SetRoomOwner } from './SetRoomOwner';
 export { default as SetTierRange } from './SetTierRange';
 export { default as TeamSelector } from './TeamSelector';
 export { default as SetAlgorithmTag } from './SetAlgorithmTag';
+export { default as SetRoomTime } from './SetRoomTime';

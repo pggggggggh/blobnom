@@ -1,15 +1,23 @@
+import React from 'react';
 import { useForm } from '@mantine/form';
 import { Button, Container, Stack, Title } from '@mantine/core';
-import { RoomForm } from '../types/RoomForm.tsx';
-import { SetRoomOwner, SetRoomPin, SetRoomQuery, SetRoomSize, SetRoomTitle, TeamSelector, } from '../components/RoomForm/index.tsx';
-import { useCreateRoom } from "../hooks/hooks.tsx";
-
+import { RoomForm } from '../types/RoomForm';
+import {
+    SetRoomOwner,
+    SetRoomPin,
+    SetRoomQuery,
+    SetRoomSize,
+    SetRoomTitle,
+    TeamSelector,
+    SetRoomTime
+} from '../components/RoomForm';
+import { useCreateRoom } from '../hooks/hooks';
 
 function CreateRoom() {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 5);
-    const threeDaysLater = new Date(now);
-    threeDaysLater.setDate(now.getDate() + 3); // for test!!!
+
+    const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
 
     const form = useForm<RoomForm>({
         initialValues: {
@@ -17,14 +25,14 @@ function CreateRoom() {
             edit_password: '',
             handles: {},
             is_teammode: false,
-            mode: "land_grab_solo",
+            mode: 'land_grab_solo',
             title: '',
             query: '',
             size: 2,
             is_private: false,
             max_players: 20,
             starts_at: now.toISOString(),
-            ends_at: threeDaysLater.toISOString(),
+            ends_at: twoHoursLater.toISOString(),
             entry_pin: '',
         },
         validate: {
@@ -32,20 +40,16 @@ function CreateRoom() {
             edit_password: (value) =>
                 value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null,
             title: (value) => (value.trim() === '' ? '방 제목은 필수 항목입니다.' : null),
-            entry_pin: (value, values) => (values.is_private ? (
-                value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null
-            ) : null),
+            entry_pin: (value, values) =>
+                values.is_private ? (value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null) : null,
             handles: (value, values) => {
-                console.log(value)
                 if (values.is_teammode) {
-                    const isTeamsValid = (value: Record<string, number>): boolean => {
-                        const values = Array.from(new Set(Object.values(value))).sort((a, b) => a - b);
-                        if (values.length <= 1) return false;
-                        if (values[0] !== 0) return false;
-                        for (let i = 1; i < values.length; i++) {
-                            if (values[i] !== values[i - 1] + 1) {
-                                return false;
-                            }
+                    const isTeamsValid = (handles: Record<string, number>): boolean => {
+                        const teamNumbers = Array.from(new Set(Object.values(handles))).sort((a, b) => a - b);
+                        if (teamNumbers.length < 2) return false;
+                        if (teamNumbers[0] !== 0) return false;
+                        for (let i = 1; i < teamNumbers.length; i++) {
+                            if (teamNumbers[i] !== teamNumbers[i - 1] + 1) return false;
                         }
                         return true;
                     };
@@ -54,6 +58,12 @@ function CreateRoom() {
                     return Object.keys(value).length > 0 ? null : '적어도 하나의 참가자가 필요합니다.';
                 }
             },
+            starts_at: (value) =>
+                new Date(value) < new Date() ? '시작 시간은 현재 시간 이후여야 합니다.' : null,
+            ends_at: (value, values) =>
+                new Date(value) <= new Date(values.starts_at)
+                    ? '종료 시간은 시작 시간보다 늦어야 합니다.'
+                    : null,
         },
     });
 
@@ -69,8 +79,8 @@ function CreateRoom() {
         <Container size="md">
             <form
                 onSubmit={form.onSubmit((values) => {
-                    values.mode = values.is_teammode ? "land_grab_team" : "land_grab_solo";
-                    return mutation.mutate(values)
+                    values.mode = values.is_teammode ? 'land_grab_team' : 'land_grab_solo';
+                    return mutation.mutate(values);
                 })}
                 onKeyDown={handleKeyDown}
             >
@@ -78,23 +88,38 @@ function CreateRoom() {
                     <Title size="h1" className="font-light">
                         방 만들기
                     </Title>
+
                     <SetRoomTitle titleProps={form.getInputProps('title')} />
+
                     <SetRoomPin
                         isPrivateProps={form.getInputProps('is_private', { type: 'checkbox' })}
                         entryPinProps={form.getInputProps('entry_pin')}
                         onClearPin={() => form.setFieldValue('entry_pin', '')}
                     />
+
                     <SetRoomOwner
                         ownerProps={form.getInputProps('owner_handle')}
                         passwordProps={form.getInputProps('edit_password')}
                     />
-                    <SetRoomQuery queryValue={form.values.query} queryProps={form.getInputProps('query')}
-                        handleValue={form.values.handles} />
-                    <SetRoomSize sizeProps={form.getInputProps('size')} />
-                    <TeamSelector handleProps={form.getInputProps('handles')}
-                        teamModeProps={form.getInputProps('is_teammode')} />
 
-                    <Button type="submit" loading={mutation.isPending}>생성</Button>
+                    <SetRoomQuery
+                        queryValue={form.values.query}
+                        queryProps={form.getInputProps('query')}
+                        handleValue={form.values.handles}
+                    />
+
+                    <SetRoomSize sizeProps={form.getInputProps('size')} />
+
+                    <TeamSelector
+                        handleProps={form.getInputProps('handles')}
+                        teamModeProps={form.getInputProps('is_teammode')}
+                    />
+
+                    <SetRoomTime form={form} />
+
+                    <Button type="submit" loading={mutation.isLoading}>
+                        생성
+                    </Button>
                 </Stack>
             </form>
         </Container>
