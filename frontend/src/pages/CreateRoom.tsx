@@ -1,7 +1,7 @@
 import { useForm } from '@mantine/form';
 import { Button, Container, Stack, Title } from '@mantine/core';
-import { RoomForm } from '../types/RoomForm';
-import { SetRoomOwner, SetRoomPin, SetRoomQuery, SetRoomSize, SetRoomTitle, TeamSelector, } from '../components/RoomForm';
+import { RoomForm } from '../types/RoomForm.tsx';
+import { SetRoomOwner, SetRoomPin, SetRoomQuery, SetRoomSize, SetRoomTitle, TeamSelector, } from '../components/RoomForm/index.tsx';
 import { useCreateRoom } from "../hooks/hooks.tsx";
 
 
