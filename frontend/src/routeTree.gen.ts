@@ -13,7 +13,6 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as Create2Import } from './routes/create2'
 import { Route as CreateImport } from './routes/create'
 import { Route as RoomsRoomIdImport } from './routes/rooms/$roomId'
 
@@ -22,12 +21,6 @@ import { Route as RoomsRoomIdImport } from './routes/rooms/$roomId'
 const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
-
-const Create2Route = Create2Import.update({
-  id: '/create2',
-  path: '/create2',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const CreateRoute = CreateImport.update({
   id: '/create',
@@ -65,13 +58,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateImport
       parentRoute: typeof rootRoute
     }
-    '/create2': {
-      id: '/create2'
-      path: '/create2'
-      fullPath: '/create2'
-      preLoaderRoute: typeof Create2Import
-      parentRoute: typeof rootRoute
-    }
     '/rooms/$roomId': {
       id: '/rooms/$roomId'
       path: '/rooms/$roomId'
@@ -87,14 +73,12 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/create': typeof CreateRoute
-  '/create2': typeof Create2Route
   '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/create': typeof CreateRoute
-  '/create2': typeof Create2Route
   '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 
@@ -102,30 +86,27 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
   '/create': typeof CreateRoute
-  '/create2': typeof Create2Route
   '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create' | '/create2' | '/rooms/$roomId'
+  fullPaths: '/' | '/create' | '/rooms/$roomId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create' | '/create2' | '/rooms/$roomId'
-  id: '__root__' | '/' | '/create' | '/create2' | '/rooms/$roomId'
+  to: '/' | '/create' | '/rooms/$roomId'
+  id: '__root__' | '/' | '/create' | '/rooms/$roomId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   CreateRoute: typeof CreateRoute
-  Create2Route: typeof Create2Route
   RoomsRoomIdRoute: typeof RoomsRoomIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   CreateRoute: CreateRoute,
-  Create2Route: Create2Route,
   RoomsRoomIdRoute: RoomsRoomIdRoute,
 }
 
@@ -141,7 +122,6 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/create",
-        "/create2",
         "/rooms/$roomId"
       ]
     },
@@ -150,9 +130,6 @@ export const routeTree = rootRoute
     },
     "/create": {
       "filePath": "create.tsx"
-    },
-    "/create2": {
-      "filePath": "create2.tsx"
     },
     "/rooms/$roomId": {
       "filePath": "rooms/$roomId.tsx"

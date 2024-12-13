@@ -1,12 +1,11 @@
-// src/pages/CreateRoom2.tsx
-import {useForm} from '@mantine/form';
-import {Button, Container, Stack, Title} from '@mantine/core';
-import {RoomForm} from '../types/RoomForm';
-import {SetRoomOwner, SetRoomPin, SetRoomQuery, SetRoomSize, SetRoomTitle, TeamSelector,} from '../components/RoomForm';
-import {useCreateRoom} from "../hooks/hooks.tsx";
+import { useForm } from '@mantine/form';
+import { Button, Container, Stack, Title } from '@mantine/core';
+import { RoomForm } from '../types/RoomForm';
+import { SetRoomOwner, SetRoomPin, SetRoomQuery, SetRoomSize, SetRoomTitle, TeamSelector, } from '../components/RoomForm';
+import { useCreateRoom } from "../hooks/hooks.tsx";
 
 
-function CreateRoom2() {
+function CreateRoom() {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 5);
     const threeDaysLater = new Date(now);
@@ -79,9 +78,9 @@ function CreateRoom2() {
                     <Title size="h1" className="font-light">
                         방 만들기
                     </Title>
-                    <SetRoomTitle titleProps={form.getInputProps('title')}/>
+                    <SetRoomTitle titleProps={form.getInputProps('title')} />
                     <SetRoomPin
-                        isPrivateProps={form.getInputProps('is_private', {type: 'checkbox'})}
+                        isPrivateProps={form.getInputProps('is_private', { type: 'checkbox' })}
                         entryPinProps={form.getInputProps('entry_pin')}
                         onClearPin={() => form.setFieldValue('entry_pin', '')}
                     />
@@ -90,10 +89,10 @@ function CreateRoom2() {
                         passwordProps={form.getInputProps('edit_password')}
                     />
                     <SetRoomQuery queryValue={form.values.query} queryProps={form.getInputProps('query')}
-                                  handleValue={form.values.handles}/>
-                    <SetRoomSize sizeProps={form.getInputProps('size')}/>
+                        handleValue={form.values.handles} />
+                    <SetRoomSize sizeProps={form.getInputProps('size')} />
                     <TeamSelector handleProps={form.getInputProps('handles')}
-                                  teamModeProps={form.getInputProps('is_teammode')}/>
+                        teamModeProps={form.getInputProps('is_teammode')} />
 
                     <Button type="submit" loading={mutation.isPending}>생성</Button>
                 </Stack>
@@ -102,4 +101,4 @@ function CreateRoom2() {
     );
 }
 
-export default CreateRoom2;
+export default CreateRoom;
