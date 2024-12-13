@@ -21,8 +21,6 @@ function RouteComponent() {
         <Box className="relative">
             <RoomFloatingComponent roomDetail={roomDetail}/>
             {roomDetail.is_started && <HexComponent roomDetail={roomDetail}/>}
-
-
         </Box>
     );
 }
