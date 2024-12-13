@@ -35,7 +35,7 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                         ? timeLeft
                         : `${dayjs(roomDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ ${dayjs(roomDetail.ends_at).format('YYYY-MM-DD HH:mm')}, ${roomDetail.num_missions}문항`}
                 </Text>
-                <ActionIcon variant="transparent" color="white"
+                <ActionIcon mt="5" variant="transparent" color="white"
                             onClick={() => {
                                 modals.open({
                                     title: "방 삭제하기",
