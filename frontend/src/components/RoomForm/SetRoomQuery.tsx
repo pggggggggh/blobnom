@@ -23,10 +23,10 @@ const SetRoomQuery = ({
 
     useEffect(() => {
         const updatedQuery = tierRangeString(tierRange, selectedTags);
-        const exclude = Object.keys(handleValue)
-            .map(key => `!@${key}`)
-            .join(' ');
-        setFixedQuery(updatedQuery + exclude)
+        // const exclude = Object.keys(handleValue)
+        //     .map(key => `!@${key}`)
+        //     .join(' ');
+        setFixedQuery(updatedQuery)
         console.log(selectedTags);
     }, [tierRange, selectedTags, handleValue]);
 

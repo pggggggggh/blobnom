@@ -4,50 +4,60 @@ import {userColorsBg} from "../constants/UserColorsFill.tsx";
 import RoomJoinModal from "./Modals/RoomJoinModal.tsx";
 import {modals} from "@mantine/modals";
 import {useEffect, useState} from "react";
+import {getDiffTime} from "../utils.tsx";
 import dayjs from "dayjs";
 
 const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const [timeLeft, setTimeLeft] = useState<string>("");
+    const [timeBefore, setTimeBefore] = useState<string>("");
 
     useEffect(() => {
-        if (!roomDetail || !roomDetail.ends_at) return;
+        if (!roomDetail) return;
 
-        const updateTimer = () => {
-            const now = dayjs();
-            const end = dayjs(roomDetail.ends_at);
-            const diff = end.diff(now, 'second');
-
-            if (diff <= 0) {
-                setTimeLeft("00:00:00");
-            } else {
-                const hours = Math.floor(diff / 3600);
-                const minutes = Math.floor((diff % 3600) / 60);
-                const seconds = diff % 60;
-                setTimeLeft(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-            }
-        };
-
-        updateTimer(); // 초기값 설정
-        const interval = setInterval(updateTimer, 1000);
-
-        return () => clearInterval(interval); // 컴포넌트 언마운트 시 인터벌 정리
+        const startInterval = setInterval(() => setTimeBefore(getDiffTime(new Date(roomDetail.starts_at))), 1000);
+        if (roomDetail.is_started) {
+            clearInterval(startInterval);
+            setTimeLeft(getDiffTime(new Date(roomDetail.ends_at)))
+            setInterval(() => setTimeLeft(getDiffTime(new Date(roomDetail.ends_at))), 1000);
+        } else {
+            setTimeBefore(getDiffTime(new Date(roomDetail.starts_at)))
+        }
     }, [roomDetail]);
 
     return (
         <>
             <Box className="absolute ">
                 <Text className="text-3xl font-extralight text-zinc-50 ">{roomDetail.name}</Text>
-                <Text className="text-lg font-extralight text-zinc-50">{timeLeft}</Text>
+                <Text className="text-lg font-extralight text-zinc-50">
+                    {roomDetail.is_started
+                        ? timeLeft
+                        : `${dayjs(roomDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ ${dayjs(roomDetail.ends_at).format('YYYY-MM-DD HH:mm')}, ${roomDetail.num_missions}문항`}
+                </Text>
             </Box>
 
-            {!roomDetail.is_private && roomDetail.mode_type === "land_grab_solo" &&
+            {!roomDetail.is_started &&
+                <Box
+                    style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                    }}
+                >
+                    <Text className="text-5xl font-extrabold">
+                        {timeBefore}
+                    </Text>
+                </Box>
+            }
+
+            {roomDetail.mode_type === "land_grab_solo" &&
                 <div
                     className="p-2 fixed bottom-4 left-4">
                     <Button
                         onClick={() => {
                             modals.open({
                                 title: "입장하기",
-                                children: <RoomJoinModal roomId={roomDetail.id}/>
+                                children: <RoomJoinModal roomId={roomDetail.id} is_private={roomDetail.is_private}/>
                             });
                         }}
                     >

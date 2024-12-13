@@ -1,6 +1,7 @@
 export interface RoomDetail {
     id: number;
     name: string;
+    is_started: boolean;
     starts_at: string;
     ends_at: string;
     owner: string;

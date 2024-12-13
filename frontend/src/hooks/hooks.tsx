@@ -40,6 +40,7 @@ export const useJoinRoom = () => {
             window.location.reload();
         },
         onError: (error: any) => {
+            console.log(error)
             const detailMessage = error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
             modals.open(
                 {

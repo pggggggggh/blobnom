@@ -8,6 +8,7 @@ import {useCreateRoom} from "../hooks/hooks.tsx";
 
 function CreateRoom2() {
     const now = new Date();
+    now.setMinutes(now.getMinutes() + 5);
     const threeDaysLater = new Date(now);
     threeDaysLater.setDate(now.getDate() + 3); // for test!!!
 

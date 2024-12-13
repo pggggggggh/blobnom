@@ -13,7 +13,8 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
 
     return (
         <Center h="calc(100vh - var(--app-shell-header-height, 0px) - 32px)">
-            <Box w="100%" h="100%">
+            <Box w="100%" h="100%" className="flex items-center justify-center">
+
                 <HexGrid
                     className="mx-auto"
                     width="100%"

@@ -1,15 +1,16 @@
-import {Button, Group, Image, TextInput} from "@mantine/core";
+import {Button, Image, Stack, TextInput} from "@mantine/core";
 import blobaww from "../../assets/blobaww.webp"
 import {useForm} from "@mantine/form";
 import {useJoinRoom} from "../../hooks/hooks.tsx";
 
-const RoomJoinModal = ({roomId}: { roomId: number }) => {
+const RoomJoinModal = ({roomId, is_private}: { roomId: number, is_private: boolean }) => {
     const mutation = useJoinRoom();
 
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
-            handle: ''
+            handle: '',
+            password: '',
         },
         validate: {
             handle: (value) => {
@@ -21,24 +22,34 @@ const RoomJoinModal = ({roomId}: { roomId: number }) => {
         },
     });
 
-    const handleSubmit = (values: { handle: string; }) => {
+    const handleSubmit = (values: { handle: string; password: string; }) => {
         mutation.mutate(
-            {roomId, handle: values.handle},
+            {roomId, handle: values.handle, password: values.password},
         );
     };
 
     return (
         <form onSubmit={form.onSubmit(handleSubmit)}>
-            <Group
-                className="w-full justify-center"
-            >
+            <Stack align="center">
                 <Image w="64px" src={blobaww}/>
                 <TextInput
-                    {...form.getInputProps('handle')} label="핸들을 입력해주세요!" placeholder="" data-autofocus/>
-                <Button type="submit" mt="md" loading={mutation.isPending}>
+                    {...form.getInputProps('handle')}
+                    label="핸들을 입력해주세요!"
+                    placeholder="핸들"
+                    data-autofocus
+                />
+                {is_private && (
+                    <TextInput
+                        {...form.getInputProps('password')}
+                        label="비밀번호를 입력해주세요!"
+                        placeholder="비밀번호"
+                        type="password"
+                    />
+                )}
+                <Button type="submit" loading={mutation.isPending}>
                     입장하기
                 </Button>
-            </Group>
+            </Stack>
         </form>
     );
 }
