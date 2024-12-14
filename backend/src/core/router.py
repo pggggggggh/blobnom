@@ -58,7 +58,7 @@ async def room_detail(id: int, db: Session = Depends(get_db)):
 @router.post("/rooms/delete/{id}")
 async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends(get_db)):
     room = db.query(Room).options(joinedload(Room.players)).filter(Room.id == id).first()
-    
+
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
     if verify_password(request.password, room.edit_pwd) is False:
@@ -112,7 +112,7 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
             db.flush()
         user = db.query(User).filter(User.name == handle).first()
 
-        if room.is_started:
+        if not room.is_private and room.is_started:
             unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
             solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, handle, db, client)
             if len(solved_mission_list) > 2:
@@ -206,7 +206,7 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
             mode_type=room_request.mode,
             max_players=room_request.max_players,
             is_started=False,
-            starts_at=room_request.starts_at,
+            starts_at=datetime.fromisoformat(room_request.starts_at),
             ends_at=room_request.ends_at,
             is_private=room_request.is_private
         )
@@ -215,7 +215,7 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
 
         add_job(
             handle_room_start,
-            run_date=room_request.starts_at,
+            run_date=datetime.fromisoformat(room_request.starts_at),
             args=[room.id, db],
         )
 
@@ -231,7 +231,7 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
                 room_id=room.id,
                 player_index=idx,
                 team_index=team_idx,
-                last_solved_at=room_request.starts_at
+                last_solved_at=datetime.fromisoformat(room_request.starts_at)
             )
             room.players.append(room_player)
             db.add(room_player)

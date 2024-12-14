@@ -208,13 +208,13 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
         solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.name, db, client)
         for mission in missions:
             if mission.problem_id in solved_problem_list:
-                mission.solved_at = datetime.now(tz=pytz.utc) if not initial else room.starts_at
+                mission.solved_at = datetime.now() if not initial else room.starts_at
                 mission.solved_user = player.user
                 mission.solved_room_player = player
                 mission.solved_team_index = player.team_index
+                db.add(mission)
 
     db.commit()
-    db.refresh(mission)
     return
 
 
