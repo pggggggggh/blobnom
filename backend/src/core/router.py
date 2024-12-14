@@ -58,6 +58,7 @@ async def room_detail(id: int, db: Session = Depends(get_db)):
 @router.post("/rooms/delete/{id}")
 async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends(get_db)):
     room = db.query(Room).options(joinedload(Room.players)).filter(Room.id == id).first()
+    
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
     if verify_password(request.password, room.edit_pwd) is False:
