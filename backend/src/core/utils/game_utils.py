@@ -32,6 +32,8 @@ async def handle_room_start(room_id: int, db):
             .filter(Room.id == room_id)
             .first()
         )
+        if datetime.now(pytz.utc) < room.starts_at:
+            return
         if not room:
             print(f"Room with id {room_id} not found.")
             return
