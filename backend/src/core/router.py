@@ -206,7 +206,7 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
             mode_type=room_request.mode,
             max_players=room_request.max_players,
             is_started=False,
-            starts_at=datetime.fromisoformat(room_request.starts_at),
+            starts_at=room_request.starts_at,
             ends_at=room_request.ends_at,
             is_private=room_request.is_private
         )
@@ -215,7 +215,7 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
 
         add_job(
             handle_room_start,
-            run_date=datetime.fromisoformat(room_request.starts_at),
+            run_date=room_request.starts_at,
             args=[room.id, db],
         )
 
@@ -231,7 +231,7 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
                 room_id=room.id,
                 player_index=idx,
                 team_index=team_idx,
-                last_solved_at=datetime.fromisoformat(room_request.starts_at)
+                last_solved_at=room_request.starts_at
             )
             room.players.append(room_player)
             db.add(room_player)
