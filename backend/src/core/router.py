@@ -60,7 +60,7 @@ async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends
     room = db.query(Room).options(joinedload(Room.players)).filter(Room.id == id).first()
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
-    if room.is_private and verify_password(request.password, room.edit_pwd) is False:
+    if verify_password(request.password, room.edit_pwd) is False:
         raise HTTPException(status_code=400, detail="비밀번호가 틀립니다.")
 
     total_indiv_solved_count = sum(player.indiv_solved_count for player in room.players)
