@@ -62,11 +62,11 @@ function Index() {
                 {showNotice && (
                     <Alert
                         title="공지"
-                        color="blue"
+                        color="red"
                         withCloseButton
                         onClose={() => setShowNotice(false)}
                     >
-                        Blobnom UI가 새롭게 업데이트되었습니다! 팀전, 시작 시간 예약 등 여러 기능도 추가되었습니다. 이용해주셔서 감사드립니다.
+                        Private Room에 새로운 유저의 입장이 되지 않는 현상이 있었고, 수정하였습니다. 불편을 드려 죄송합니다.
                     </Alert>
                 )}
                 <Group className="flex flex-wrap items-center justify-between">
