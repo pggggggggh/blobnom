@@ -44,6 +44,13 @@ async def handle_room_start(room_id: int, db):
             db.add(room)
             db.flush()
             problem_ids = await fetch_problems(room.query, client)
+            if len(problem_ids) < room.num_mission:
+                print(f"Room with id {room_id} has no sufficient problems.")
+                room.is_deleted = True
+                db.add(room)
+                db.flush()
+                db.commit()
+                return
             problem_ids = problem_ids[:room.num_mission]
 
             for idx, problem_id in enumerate(problem_ids):
