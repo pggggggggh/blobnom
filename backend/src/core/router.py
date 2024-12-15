@@ -23,7 +23,7 @@ router = APIRouter()
 
 
 @router.get("/")
-async def room_list(page: int, search: str = "", db: Session = Depends(get_db)):
+async def room_list(page: int, search: str = "", activeOnly: bool = False, db: Session = Depends(get_db)):
     # 쿼리에 검색 필터 추가
     query = (
         db.query(Room)
@@ -32,8 +32,14 @@ async def room_list(page: int, search: str = "", db: Session = Depends(get_db)):
         .options(joinedload(Room.owner))
         .filter(Room.name.ilike(f"%{search}%"))
         .filter(Room.is_deleted == False)
-        .order_by(desc(Room.starts_at))
+        .order_by(desc(Room.updated_at))
     )
+
+    if activeOnly:
+        query = (query
+                 .filter(Room.is_private == False)
+                 .filter(Room.ends_at > datetime.now(tz=pytz.UTC))
+                 )
 
     total_rooms = query.count()
     rooms = (
