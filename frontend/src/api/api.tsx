@@ -3,10 +3,10 @@ import {RoomDetail} from "../types/RoomDetail.tsx";
 import {MainData} from "../types/RoomSummary.tsx";
 import {RoomForm} from "../types/RoomForm.tsx";
 
-export const fetchMainData = async (page: number, search: string): Promise<MainData> => {
+export const fetchMainData = async (page: number, search: string, activeOnly: boolean): Promise<MainData> => {
     const response = await api.get(`/`, {
         params: {
-            page: page, search: search
+            page: page, search: search, activeOnly: activeOnly,
         }
     });
     console.log(response)

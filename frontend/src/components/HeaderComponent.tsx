@@ -13,7 +13,14 @@ const HeaderComponent = () => {
                 hiddenFrom="sm"
                 size="sm"
             />
-            <Image py="sm" h="100%" src={logo}/>
+
+            <a href="/" className="h-full">
+                <Image
+                    src={logo}
+                    alt="Logo"
+                    className="object-contain h-full py-2"
+                />
+            </a>
             <a href="/" className="no-underline text-white">
                 <Title className="font-extralight" order={4}>Blobnom</Title>
             </a>

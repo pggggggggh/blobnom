@@ -13,10 +13,10 @@ import ErrorModal from "../components/Modals/ErrorModal.tsx";
 import {MainData} from "../types/RoomSummary.tsx";
 import {useRouter} from "@tanstack/react-router";
 
-export const useRoomList = (page: number, search: string) => {
+export const useRoomList = (page: number, search: string, activeOnly: boolean) => {
     return useQuery<MainData, Error>({
-        queryKey: ['roomList', page, search],
-        queryFn: () => fetchMainData(page, search),
+        queryKey: ['roomList', page, search, activeOnly],
+        queryFn: () => fetchMainData(page, search, activeOnly),
         initialData: {"room_list": [], "total_pages": 0}
     });
 };

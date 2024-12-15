@@ -1,11 +1,11 @@
-import { RoomDetail } from "../types/RoomDetail.tsx";
-import { GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText } from "react-hexgrid";
-import { Box, Button, Center, HoverCard, Text } from "@mantine/core";
-import { useSolveProblem } from "../hooks/hooks.tsx";
-import { userColorsFill } from "../constants/UserColorsFill.tsx";
+import {RoomDetail} from "../types/RoomDetail.tsx";
+import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "react-hexgrid";
+import {Box, Button, Center, HoverCard, Text} from "@mantine/core";
+import {useSolveProblem} from "../hooks/hooks.tsx";
+import {userColorsFill} from "../constants/UserColorsFill.tsx";
 import dayjs from "dayjs";
 
-export const HexComponent = ({ roomDetail }: { roomDetail: RoomDetail }) => {
+export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const missions = roomDetail.mission_info;
     const width: number = (3 + Math.sqrt(12 * missions.length - 3)) / 6 - 1;
     const hexagons = GridGenerator.hexagon(width);
@@ -24,8 +24,8 @@ export const HexComponent = ({ roomDetail }: { roomDetail: RoomDetail }) => {
                     <Layout spacing={1.05}>
                         {hexagons.map((hex: Hex, i: number) => (
                             <HoverCard key={`hex${i}`} shadow="md" withArrow position="bottom" offset={-10}
-                                openDelay={mutation.isPending ? 100000 : 0}
-                                closeDelay={mutation.isPending ? 100000 : 0}>
+                                       openDelay={mutation.isPending ? 100000 : 0}
+                                       closeDelay={mutation.isPending ? 100000 : 0}>
                                 <HoverCard.Target>
                                     <a
                                         href={`https://www.acmicpc.net/problem/${missions[i].problem_id}`}
@@ -40,7 +40,7 @@ export const HexComponent = ({ roomDetail }: { roomDetail: RoomDetail }) => {
                                                 `${userColorsFill[missions[i].solved_team_index]}` : "fill-zinc-950 hover:fill-zinc-600 active:fill-zinc-700"}`}
                                         >
                                             <SVGText fontSize="5"
-                                                className="fill-zinc-100 font-sans font-light stroke-0 ">
+                                                     className="fill-zinc-100 font-sans font-light stroke-0 ">
                                                 {missions[i].problem_id}
                                             </SVGText>
                                         </Hexagon>
@@ -49,10 +49,10 @@ export const HexComponent = ({ roomDetail }: { roomDetail: RoomDetail }) => {
                                 {
                                     missions[i].solved_at ?
                                         <HoverCard.Dropdown p="xs" className="text-center">
-                                            <Text size="sm">
+                                            <Text size="xs">
                                                 Solved by <strong>{missions[i].solved_user_name}</strong>
                                             </Text>
-                                            <Text size="sm">
+                                            <Text size="xs">
                                                 {dayjs(missions[i].solved_at).format("YYYY/MM/DD HH:mm:ss")}
                                             </Text>
                                         </HoverCard.Dropdown>
@@ -61,6 +61,7 @@ export const HexComponent = ({ roomDetail }: { roomDetail: RoomDetail }) => {
                                         <HoverCard.Dropdown className="p-0  ">
                                             <Button
                                                 variant="default"
+                                                className="border-0"
                                                 onClick={() => mutation.mutate({
                                                     roomId: roomDetail.id,
                                                     problemId: missions[i].problem_id
