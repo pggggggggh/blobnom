@@ -118,11 +118,10 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
             db.flush()
         user = db.query(User).filter(User.name == handle).first()
 
-        solved_mission_list = []
-        if not room.is_private and room.is_started:
+        if room.is_started:
             unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
             solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, handle, db, client)
-            if len(solved_mission_list) > 2:
+            if not room.is_private and len(solved_mission_list) > 2:
                 raise HTTPException(status_code=400, detail="이미 해결한 문제가 2문제를 초과하여 참여할 수 없습니다.")
 
         # calculate mex
