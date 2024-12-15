@@ -2,8 +2,8 @@ import {RoomDetail} from "../types/RoomDetail.tsx";
 import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "react-hexgrid";
 import {Box, Button, Center, HoverCard, Text} from "@mantine/core";
 import {useSolveProblem} from "../hooks/hooks.tsx";
-import {userColorsFill} from "../constants/UserColorsFill.tsx";
 import dayjs from "dayjs";
+import {gradientNull, gradientUser} from "../constants/UserColorsFill.tsx";
 
 export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const missions = roomDetail.mission_info;
@@ -21,9 +21,37 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                     height="97%"
                     viewBox="-105 -120 210 240"
                 >
-                    <Layout spacing={1.05}>
+                    <defs>
+                        <linearGradient
+                            id={`gradient-null`}
+                            key={`gradient-null`}
+                            x1="0%"
+                            y1="0%"
+                            x2="100%"
+                            y2="100%"
+                        >
+                            <stop offset="0%" style={{stopColor: gradientNull[1], stopOpacity: 1}}/>
+                            <stop offset="100%" style={{stopColor: gradientNull[0], stopOpacity: 1}}/>
+                        </linearGradient>
+                        {gradientUser.map((g, i) => (
+                            <linearGradient
+                                id={`gradient-${i}`}
+                                key={`gradient-${i}`}
+                                x1="0%"
+                                y1="0%"
+                                x2="100%"
+                                y2="100%"
+                            >
+                                <stop offset="0%"
+                                      style={{stopColor: g[0], stopOpacity: 1}}/>
+                                <stop offset="100%"
+                                      style={{stopColor: g[1], stopOpacity: 1}}/>
+                            </linearGradient>
+                        ))}
+                    </defs>
+                    <Layout spacing={1.03}>
                         {hexagons.map((hex: Hex, i: number) => (
-                            <HoverCard key={`hex${i}`} shadow="md" withArrow position="bottom" offset={-10}
+                            <HoverCard key={`hex${i}`} shadow="lg" position="bottom" offset={-15}
                                        openDelay={mutation.isPending ? 100000 : 0}
                                        closeDelay={mutation.isPending ? 100000 : 0}>
                                 <HoverCard.Target>
@@ -36,11 +64,16 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                             q={hex.q}
                                             r={hex.r}
                                             s={hex.s}
-                                            className={`transition ${missions[i].solved_at ?
-                                                `${userColorsFill[missions[i].solved_team_index]}` : "fill-zinc-950 hover:fill-zinc-600 active:fill-zinc-700"}`}
+                                            className="stroke-2"
+                                            style={!missions[i].solved_at ? {fill: `url(#gradient-null)`} : {fill: `url(#gradient-${missions[i].solved_team_index})`}} // solved_at이 false일 때만 스타일 적용
+                                            // className={`transition ${
+                                            //     missions[i].solved_at
+                                            //         ? `${userColorsFill[missions[i].solved_team_index]}`
+                                            //         : "fill-zinc-950 hover:fill-zinc-600 active:fill-zinc-700"
+                                            // }`}
                                         >
                                             <SVGText fontSize="5"
-                                                     className="fill-zinc-100 font-sans font-light stroke-0 ">
+                                                     className="fill-zinc-100 font-light stroke-0 ">
                                                 {missions[i].problem_id}
                                             </SVGText>
                                         </Hexagon>
@@ -48,9 +81,12 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                 </HoverCard.Target>
                                 {
                                     missions[i].solved_at ?
-                                        <HoverCard.Dropdown p="xs" className="text-center">
+                                        <HoverCard.Dropdown p="xs"
+                                                            className={`text-center bg-zinc-900`}>
                                             <Text size="xs">
-                                                Solved by <strong>{missions[i].solved_user_name}</strong>
+                                                Solved by &nbsp;
+                                                <strong
+                                                    className={``}>{missions[i].solved_user_name}</strong>
                                             </Text>
                                             <Text size="xs">
                                                 {dayjs(missions[i].solved_at).format("YYYY/MM/DD HH:mm:ss")}
@@ -58,10 +94,11 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                         </HoverCard.Dropdown>
                                         :
                                         dayjs(roomDetail.ends_at).isAfter(dayjs()) &&
-                                        <HoverCard.Dropdown className="p-0  ">
+                                        <HoverCard.Dropdown className="p-0 bg-zinc-900">
                                             <Button
                                                 variant="default"
-                                                className="border-0"
+                                                size=""
+                                                className="border-0 bg-inherit"
                                                 onClick={() => mutation.mutate({
                                                     roomId: roomDetail.id,
                                                     problemId: missions[i].problem_id
