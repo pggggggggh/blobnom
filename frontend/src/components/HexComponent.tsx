@@ -51,7 +51,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                     </defs>
                     <Layout spacing={1.03}>
                         {hexagons.map((hex: Hex, i: number) => (
-                            <HoverCard key={`hex${i}`} shadow="lg" position="bottom" offset={-15}
+                            <HoverCard key={`hex${i}`} shadow="lg" position="bottom" offset={-12}
                                        openDelay={mutation.isPending ? 100000 : 0}
                                        closeDelay={mutation.isPending ? 100000 : 0}>
                                 <HoverCard.Target>
@@ -101,7 +101,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 className="border-0 bg-inherit"
                                                 onClick={() => mutation.mutate({
                                                     roomId: roomDetail.id,
-                                                    
+
                                                     problemId: missions[i].problem_id
                                                 })}
                                                 loading={mutation.isPending}
