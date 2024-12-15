@@ -1,5 +1,5 @@
 import {createLazyFileRoute, Link, useNavigate, useSearch} from '@tanstack/react-router';
-import {Alert, Button, Checkbox, Container, Group, Pagination, Stack, TextInput} from "@mantine/core";
+import {Button, Checkbox, Container, Group, Pagination, Stack, TextInput} from "@mantine/core";
 import {useRoomList} from "../hooks/hooks.tsx";
 import SearchIcon from '@mui/icons-material/Search';
 import RoomListComponent from '../components/RoomListComponent.tsx'
@@ -59,16 +59,16 @@ function Index() {
     return (
         <Container size="lg">
             <Stack>
-                {showNotice && (
-                    <Alert
-                        title="공지"
-                        color="red"
-                        withCloseButton
-                        onClose={() => setShowNotice(false)}
-                    >
-                        Private Room에 새로운 유저의 입장이 되지 않는 현상이 있었고, 수정하였습니다. 불편을 드려 죄송합니다.
-                    </Alert>
-                )}
+                {/*{showNotice && (*/}
+                {/*    <Alert*/}
+                {/*        title="공지"*/}
+                {/*        color="red"*/}
+                {/*        withCloseButton*/}
+                {/*        onClose={() => setShowNotice(false)}*/}
+                {/*    >*/}
+                {/*        Private Room에 새로운 유저의 입장이 되지 않는 현상이 있었고, 수정하였습니다. 불편을 드려 죄송합니다.*/}
+                {/*    </Alert>*/}
+                {/*)}*/}
                 <Group className="flex flex-wrap items-center justify-between">
                     <TextInput
                         placeholder="방 검색..."
