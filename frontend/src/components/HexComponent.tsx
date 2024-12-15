@@ -65,15 +65,27 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                             r={hex.r}
                                             s={hex.s}
                                             className="stroke-2"
-                                            style={!missions[i].solved_at ? {fill: `url(#gradient-null)`} : {fill: `url(#gradient-${missions[i].solved_team_index})`}} // solved_at이 false일 때만 스타일 적용
-                                            // className={`transition ${
-                                            //     missions[i].solved_at
-                                            //         ? `${userColorsFill[missions[i].solved_team_index]}`
-                                            //         : "fill-zinc-950 hover:fill-zinc-600 active:fill-zinc-700"
-                                            // }`}
+                                            style={
+                                                !missions[i].solved_at
+                                                    ? {fill: `url(#gradient-null)`}
+                                                    : {fill: `url(#gradient-${missions[i].solved_team_index})`}
+                                            }
                                         >
-                                            <SVGText fontSize="5"
-                                                     className="fill-zinc-100 font-light stroke-0 ">
+                                            <SVGText
+                                                fontSize="5"
+                                                className={`fill-zinc-200 stroke-0 ${
+                                                    missions[i].solved_at &&
+                                                    roomDetail.team_info.find(
+                                                        (team) =>
+                                                            team.team_index === missions[i].solved_team_index &&
+                                                            team.last_solved_at &&
+                                                            new Date(missions[i].solved_at).getTime() ===
+                                                            new Date(team.last_solved_at).getTime()
+                                                    )
+                                                        ? "font-bold"
+                                                        : "font-light"
+                                                }`}
+                                            >
                                                 {missions[i].problem_id}
                                             </SVGText>
                                         </Hexagon>
