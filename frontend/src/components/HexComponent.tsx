@@ -101,6 +101,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 className="border-0 bg-inherit"
                                                 onClick={() => mutation.mutate({
                                                     roomId: roomDetail.id,
+                                                    
                                                     problemId: missions[i].problem_id
                                                 })}
                                                 loading={mutation.isPending}
