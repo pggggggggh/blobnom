@@ -118,6 +118,7 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
             db.flush()
         user = db.query(User).filter(User.name == handle).first()
 
+        solved_mission_list = []
         if not room.is_private and room.is_started:
             unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
             solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, handle, db, client)
