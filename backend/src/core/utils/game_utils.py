@@ -10,6 +10,7 @@ from sqlalchemy.orm import joinedload
 
 from src.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
 from src.core.models import Room, RoomMission, RoomPlayer
+from src.core.router_ws import manager
 from src.core.utils.security_utils import hash_password
 
 
@@ -213,17 +214,30 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
             raise HTTPException(status_code=400, detail="Such problem does not exist")
         problem_id_list.append(mission.problem_id)
 
+    newly_solved_problems = []
     for player in room_players:
         solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.name, db, client)
         for mission in missions:
             if mission.problem_id in solved_problem_list:
+                newly_solved_problems.append(
+                    {
+                        "pid": mission.problem_id,
+                        "username": player.user.name,
+                    }
+                )
                 mission.solved_at = datetime.now(pytz.utc) if not initial else room.starts_at
                 mission.solved_user = player.user
                 mission.solved_room_player = player
                 mission.solved_team_index = player.team_index
                 db.add(mission)
-
     db.commit()
+
+    for problem in newly_solved_problems:
+        await manager.broadcast({
+            "type": "problem_solved",
+            "problem_id": problem["pid"],
+            "username": problem["username"],
+        }, room_id)
     return
 
 
@@ -232,7 +246,6 @@ async def update_all_rooms(db):
              .options(joinedload(Room.missions))
              .all())
     for room in rooms:
-        if room.id is not 256: continue
         await update_score(room.id, db)
         room.num_mission = len(room.missions)
         if room.is_private and room.entry_pwd is None:
