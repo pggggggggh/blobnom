@@ -3,7 +3,7 @@ import {RoomDetail} from "../types/RoomDetail.tsx";
 import RoomJoinModal from "./Modals/RoomJoinModal.tsx";
 import {modals} from "@mantine/modals";
 import {useEffect, useState} from "react";
-import {getDiffTime} from "../utils.tsx";
+import {getDiffTime} from "../utils/TimeUtils.tsx";
 import dayjs from "dayjs";
 import DeleteIcon from '@mui/icons-material/Delete';
 import RoomDeleteModal from "./Modals/RemoveModal.tsx";

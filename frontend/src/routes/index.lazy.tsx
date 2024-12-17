@@ -1,12 +1,13 @@
 import {createLazyFileRoute, Link, useNavigate, useSearch} from '@tanstack/react-router';
-import {Button, Checkbox, Container, Group, Pagination, Stack, TextInput} from "@mantine/core";
+import {Alert, Button, Checkbox, Container, Group, Pagination, Stack, TextInput} from "@mantine/core";
 import {useRoomList} from "../hooks/hooks.tsx";
 import SearchIcon from '@mui/icons-material/Search';
 import RoomListComponent from '../components/RoomListComponent.tsx'
 import dayjs from "dayjs";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import AddIcon from '@mui/icons-material/Add';
 import {useDebouncedValue} from "@mantine/hooks";
+import {requestNotificationPermission} from "../utils/NotificationUtils.tsx";
 
 
 export const Route = createLazyFileRoute('/')({
@@ -19,8 +20,12 @@ function Index() {
     const debouncedSearch = useDebouncedValue(search, 300)[0] || search;
     const {data, isLoading, error} = useRoomList(page - 1, debouncedSearch, activeOnly);
     const [showNotice, setShowNotice] = useState(true);
-
     const date = dayjs().utc();
+
+    useEffect(() => {
+        requestNotificationPermission()
+    }, []);
+
     if (isLoading || error) return (<div></div>);
 
     const handleSearchChange = (search: string) => {
@@ -59,16 +64,15 @@ function Index() {
     return (
         <Container size="lg">
             <Stack>
-                {/*{showNotice && (*/}
-                {/*    <Alert*/}
-                {/*        title="공지"*/}
-                {/*        color="red"*/}
-                {/*        withCloseButton*/}
-                {/*        onClose={() => setShowNotice(false)}*/}
-                {/*    >*/}
-                {/*        Private Room에 새로운 유저의 입장이 되지 않는 현상이 있었고, 수정하였습니다. 불편을 드려 죄송합니다.*/}
-                {/*    </Alert>*/}
-                {/*)}*/}
+                {showNotice && (
+                    <Alert
+                        title="공지"
+                        withCloseButton
+                        onClose={() => setShowNotice(false)}
+                    >
+                        이제 브라우저 상단에서 '알림 권한'을 '허용'으로 놓으시면, 같은 방의 문제 해결 시 알림을 받아보실 수 있습니다!
+                    </Alert>
+                )}
                 <Group className="flex flex-wrap items-center justify-between">
                     <TextInput
                         placeholder="방 검색..."

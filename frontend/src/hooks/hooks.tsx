@@ -32,7 +32,6 @@ export const useSolveProblem = () => {
     return useMutation({
         mutationFn: postSolveProblem,
         onSuccess: () => {
-            window.location.reload();
         },
         onError: (error) => {
             console.log(error)
