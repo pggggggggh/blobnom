@@ -3,7 +3,7 @@ import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "rea
 import {Box, Button, Center, HoverCard, Text} from "@mantine/core";
 import {useSolveProblem} from "../hooks/hooks.tsx";
 import dayjs from "dayjs";
-import {gradientNull, gradientUser} from "../constants/UserColorsFill.tsx";
+import {gradientNull, userColors} from "../constants/UserColorsFill.tsx";
 
 export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const missions = roomDetail.mission_info;
@@ -33,7 +33,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                             <stop offset="0%" style={{stopColor: gradientNull[1], stopOpacity: 1}}/>
                             <stop offset="100%" style={{stopColor: gradientNull[0], stopOpacity: 1}}/>
                         </linearGradient>
-                        {gradientUser.map((g, i) => (
+                        {userColors.map((g, i) => (
                             <linearGradient
                                 id={`gradient-${i}`}
                                 key={`gradient-${i}`}
@@ -64,7 +64,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                             q={hex.q}
                                             r={hex.r}
                                             s={hex.s}
-                                            className="stroke-2"
+                                            className=" "
                                             style={
                                                 !missions[i].solved_at
                                                     ? {fill: `url(#gradient-null)`}
@@ -73,7 +73,15 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                         >
                                             <SVGText
                                                 fontSize="5"
-                                                className={`fill-zinc-200 stroke-0 ${
+                                                className={`
+                                                ${
+                                                    missions[i].solved_at ?
+                                                        missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-zinc-200"
+                                                        :
+                                                        "fill-zinc-200"
+                                                }
+                                                stroke-0
+                                                ${
                                                     missions[i].solved_at &&
                                                     roomDetail.team_info.find(
                                                         (team) =>
@@ -83,7 +91,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                             new Date(team.last_solved_at).getTime()
                                                     )
                                                         ? "font-bold"
-                                                        : "font-light"
+                                                        : "font-normal"
                                                 }`}
                                             >
                                                 {missions[i].problem_id}

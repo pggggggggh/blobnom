@@ -1,6 +1,5 @@
 import {ActionIcon, Box, Button, Text} from "@mantine/core";
 import {RoomDetail} from "../types/RoomDetail.tsx";
-import {userColorsBg} from "../constants/UserColorsFill.tsx";
 import RoomJoinModal from "./Modals/RoomJoinModal.tsx";
 import {modals} from "@mantine/modals";
 import {useEffect, useState} from "react";
@@ -8,6 +7,7 @@ import {getDiffTime} from "../utils.tsx";
 import dayjs from "dayjs";
 import DeleteIcon from '@mui/icons-material/Delete';
 import RoomDeleteModal from "./Modals/RemoveModal.tsx";
+import {userColors} from "../constants/UserColorsFill.tsx";
 
 const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const [timeLeft, setTimeLeft] = useState<string>("");
@@ -82,7 +82,8 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                 {roomDetail.team_info.map((team, i) => {
                     return (
                         <Box key={i} className="flex items-center gap-2">
-                            <Box className={`${userColorsBg[team.team_index]} w-4 h-4 rounded-sm`}></Box>
+                            <Box style={{backgroundColor: userColors[team.team_index][0]}}
+                                 className={`w-4 h-4 rounded-sm`}></Box>
                             <Text className="font-light">
                                 {team.users
                                     .map((user, idx) => (
