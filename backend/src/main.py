@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 import src.models.models as models
-from src.api.router import router as core_router
-from src.api.router_ws import router as ws_router
+from src.api.member_router import router as member_router
+from src.api.room_router import router as room_router
+from src.api.websocket_router import router as ws_router
 from src.database.database import engine, SessionLocal
 from src.services.room_services import check_unstarted_rooms
 
@@ -28,7 +29,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(core_router)
+
+app.include_router(room_router)
+app.include_router(member_router)
 app.include_router(ws_router)
 
 

@@ -10,11 +10,20 @@ class User(TimestampMixin, Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String, index=True)
+    handle = Column("name", String, index=True)
 
     owned_rooms = relationship("Room", back_populates="owner", foreign_keys="[Room.owner_id]")
     user_rooms = relationship("RoomPlayer", back_populates="user")
     solved_missions = relationship("RoomMission", back_populates="solved_user")
+
+
+class Member(TimestampMixin, Base):
+    __tablename__ = "members"
+
+    id = Column(Integer, primary_key=True)
+    handle = Column(String, index=True)
+    email = Column(String)
+    password = Column(String, nullable=False)
 
 
 class Room(TimestampMixin, Base):
@@ -88,9 +97,9 @@ class RoomPlayer(TimestampMixin, Base):
     solved_missions = relationship("RoomMission", back_populates="solved_room_player")
 
 
-class SolvedacTokens(TimestampMixin, Base):
+class SolvedacToken(TimestampMixin, Base):
     __tablename__ = "solvedac_tokens"
 
     id = Column(Integer, primary_key=True)
-    token = Column(String, primary_key=True)
-    expires = Column(DateTime(timezone=True), nullable=False)
+    token = Column(String)
+    expires_at = Column(DateTime(timezone=True), nullable=False)

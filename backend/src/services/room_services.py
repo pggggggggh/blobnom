@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 from starlette import status
 
-from src.api.router_ws import manager
+from src.api.websocket_router import manager
 from src.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
 from src.models.models import Room, RoomMission, RoomPlayer
 from src.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
@@ -17,7 +17,7 @@ from src.utils.solvedac_utils import fetch_problems, get_solved_problem_list
 
 def get_room_summary(room: Room) -> RoomSummary:
     winner_team_index = room.winning_team_index
-    winner_dict = [player.user.name for player in room.players if player.team_index == winner_team_index]
+    winner_dict = [player.user.handle for player in room.players if player.team_index == winner_team_index]
     winner = ", ".join(winner_dict)
 
     return RoomSummary(
@@ -25,7 +25,7 @@ def get_room_summary(room: Room) -> RoomSummary:
         name=room.name,
         starts_at=room.starts_at,
         ends_at=room.ends_at,
-        owner=room.owner.name if room.owner else "",
+        owner=room.owner.handle if room.owner else "",
         num_players=len(room.players),
         max_players=room.max_players,
         num_missions=room.num_mission,
@@ -57,7 +57,8 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
         team_adj_solved_count_list[player.team_index] = player.adjacent_solved_count
         team_total_solved_count_list[player.team_index] = player.total_solved_count
         team_last_solved_at_list[player.team_index] = player.last_solved_at
-        team_users[player.team_index].append({"name": player.user.name, "indiv_solved_cnt": player.indiv_solved_count})
+        team_users[player.team_index].append(
+            {"name": player.user.handle, "indiv_solved_cnt": player.indiv_solved_count})
 
     room_team_info = sorted([
         RoomTeamInfo(
@@ -77,7 +78,7 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
             solved_at=mission.solved_at,
             solved_player_index=mission.solved_room_player.player_index if mission.solved_at else None,
             solved_team_index=mission.solved_room_player.team_index if mission.solved_at else None,
-            solved_user_name=mission.solved_room_player.user.name if mission.solved_at else None
+            solved_user_name=mission.solved_room_player.user.handle if mission.solved_at else None
         )
         for mission in sorted(missions, key=lambda m: m.index_in_room)
     ]
@@ -125,7 +126,7 @@ async def handle_room_start(room_id: int, db: Session):
 
         async with httpx.AsyncClient() as client:
             for player in room.players:
-                room.query += f" !@{player.user.name}"
+                room.query += f" !@{player.user.handle}"
             db.add(room)
             db.flush()
             problem_ids = await fetch_problems(room.query, client)
@@ -169,13 +170,13 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
 
     newly_solved_problems = []
     for player in room_players:
-        solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.name, db, client)
+        solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.handle, db, client)
         for mission in missions:
             if not mission.solved_at and mission.problem_id in solved_problem_list:
                 newly_solved_problems.append(
                     {
                         "pid": mission.problem_id,
-                        "username": player.user.name,
+                        "username": player.user.handle,
                     }
                 )
                 mission.solved_at = datetime.now(pytz.utc) if not initial else room.starts_at
