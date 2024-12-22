@@ -21,7 +21,10 @@ async def create_solvedac_token(db: Session):
     db.add(token)
     db.flush()
     db.commit()
-    return token_str
+    return {
+        "token": token_str,
+        "expires_at": token.expires_at.isoformat()
+    }
 
 
 async def register(register_request: RegisterRequest, db: Session):

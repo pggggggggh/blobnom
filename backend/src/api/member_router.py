@@ -11,8 +11,8 @@ router = APIRouter()
 
 @router.get('/auth/solvedac_token')
 async def solvedac_token(db: Session = Depends(get_db)):
-    token_str = await create_solvedac_token(db=db)
-    return {"token": token_str}
+    response = await create_solvedac_token(db=db)
+    return response
 
 
 @router.post('/auth/register')
