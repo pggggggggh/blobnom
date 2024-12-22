@@ -4,7 +4,7 @@ import {SetAlgorithmTag, SetTierRange} from './';
 import {tiers} from '../../constants/tierdata';
 
 const tierRangeString = (tierInt: [number, number], selectedTags: string[]) => {
-    return `tier:${tiers[tierInt[0]].short}..${tiers[tierInt[1]].short} ${selectedTags.length > 0 ? `(${selectedTags.map(tag => `#${tag}`).join('|')})` : ''}`;
+    return `solvable:true tier:${tiers[tierInt[0]].short}..${tiers[tierInt[1]].short} ${selectedTags.length > 0 ? `(${selectedTags.map(tag => `#${tag}`).join('|')})` : ''}`;
 }
 
 const SetRoomQuery = ({
