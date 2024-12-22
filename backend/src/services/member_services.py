@@ -41,7 +41,7 @@ async def register(register_request: RegisterRequest, db: Session):
     bio = user_info["bio"]
     solvedac_token = db.query(SolvedacToken).filter(SolvedacToken.token == bio).first()
     if solvedac_token is None or solvedac_token.expires_at < datetime.now(pytz.utc) or solvedac_token.is_used:
-        raise HTTPException(status_code=404, detail="Token validation failed")
+        raise HTTPException(status_code=400, detail="Token validation failed")
 
     member = Member(
         handle=register_request.handle,
