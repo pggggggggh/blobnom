@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 
 from src.core.constants import MAX_TEAM_PER_ROOM
 from src.core.enums import ProblemType, ModeType
-from src.database import Base, TimestampMixin
+from src.database.database import Base, TimestampMixin
 
 
 class User(TimestampMixin, Base):
@@ -86,3 +86,11 @@ class RoomPlayer(TimestampMixin, Base):
     room = relationship("Room", back_populates="players", foreign_keys=[room_id])
 
     solved_missions = relationship("RoomMission", back_populates="solved_room_player")
+
+
+class SolvedacTokens(TimestampMixin, Base):
+    __tablename__ = "solvedac_tokens"
+
+    id = Column(Integer, primary_key=True)
+    token = Column(String, primary_key=True)
+    expires = Column(DateTime(timezone=True), nullable=False)

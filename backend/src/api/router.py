@@ -10,14 +10,15 @@ from sqlalchemy.orm import Session, joinedload
 
 from src.core.constants import MAX_TEAM_PER_ROOM
 from src.core.enums import ModeType
-from src.core.models import User, Room, RoomPlayer, RoomMission
-from src.core.schemas import RoomCreateRequest, DeleteRoomRequest
-from src.core.services import get_room_summary, get_room_detail
-from src.core.utils.game_utils import update_score, update_solver, get_solved_problem_list, update_all_rooms, \
+from src.database.database import get_db
+from src.models.models import User, Room, RoomPlayer, RoomMission
+from src.schemas.schemas import RoomCreateRequest, DeleteRoomRequest
+from src.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
+    get_solved_problem_list, \
     handle_room_start, fetch_problems
-from src.core.utils.scheduler import add_job
-from src.core.utils.security_utils import hash_password, verify_password
-from src.database import get_db
+from src.utils.misc_utils import update_all_rooms
+from src.utils.scheduler import add_job
+from src.utils.security_utils import hash_password, verify_password
 
 router = APIRouter()
 
@@ -159,7 +160,7 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
 
 
 @router.post("/rooms/solved/")
-async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db: Session = Depends(get_db)):
+async def room_solved(room_id: int = Body(...), problem_id: int = Body(...), db: Session = Depends(get_db)):
     room = (db.query(Room)
             .options(joinedload(Room.players))
             .options(joinedload(Room.missions))

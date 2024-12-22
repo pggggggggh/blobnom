@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-import src.core.models as models
-from src.core.router import router as core_router
-from src.core.router_ws import router as ws_router
-from src.core.utils.game_utils import check_unstarted_rooms
-from src.database import engine, SessionLocal
+import src.models.models as models
+from src.api.router import router as core_router
+from src.api.router_ws import router as ws_router
+from src.database.database import engine, SessionLocal
+from src.services.room_services import check_unstarted_rooms
 
 try:
     models.Base.metadata.create_all(bind=engine)

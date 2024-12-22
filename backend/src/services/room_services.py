@@ -1,26 +1,110 @@
 import math
-import os
 from collections import deque
 from datetime import datetime
 
 import httpx
 import pytz
 from fastapi import HTTPException
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import Session, joinedload
+from starlette import status
 
+from src.api.router_ws import manager
 from src.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
-from src.core.models import Room, RoomMission, RoomPlayer
-from src.core.router_ws import manager
-from src.core.utils.security_utils import hash_password
+from src.models.models import Room, RoomMission, RoomPlayer
+from src.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
+from src.utils.solvedac_utils import fetch_problems, get_solved_problem_list
 
 
-async def check_unstarted_rooms(db):
+def get_room_summary(room: Room) -> RoomSummary:
+    winner_team_index = room.winning_team_index
+    winner_dict = [player.user.name for player in room.players if player.team_index == winner_team_index]
+    winner = ", ".join(winner_dict)
+
+    return RoomSummary(
+        id=room.id,
+        name=room.name,
+        starts_at=room.starts_at,
+        ends_at=room.ends_at,
+        owner=room.owner.name if room.owner else "",
+        num_players=len(room.players),
+        max_players=room.max_players,
+        num_missions=room.num_mission,
+        num_solved_missions=len([mission for mission in room.missions if mission.solved_at is not None]),
+        winner=winner,
+        is_private=room.is_private,
+    )
+
+
+def get_room_detail(room_id: int, db: Session) -> RoomDetail:
+    room = (db.query(Room).filter(Room.id == room_id)
+            .options(joinedload(Room.missions)
+                     .joinedload(RoomMission.solved_room_player)
+                     .joinedload(RoomPlayer.user))
+            .options(joinedload(Room.players))
+            .first())
+    if not room or room.is_deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+
+    players = room.players
+    team_users = [[] for _ in range(MAX_TEAM_PER_ROOM)]  # 닉네임, indiv_solved_count
+    team_adj_solved_count_list = [0 for _ in range(MAX_TEAM_PER_ROOM)]
+    team_total_solved_count_list = [0 for _ in range(MAX_TEAM_PER_ROOM)]
+    team_last_solved_at_list = [None for _ in range(MAX_TEAM_PER_ROOM)]
+
+    team_indexes = set()
+    for player in players:
+        team_indexes.add(player.team_index)
+        team_adj_solved_count_list[player.team_index] = player.adjacent_solved_count
+        team_total_solved_count_list[player.team_index] = player.total_solved_count
+        team_last_solved_at_list[player.team_index] = player.last_solved_at
+        team_users[player.team_index].append({"name": player.user.name, "indiv_solved_cnt": player.indiv_solved_count})
+
+    room_team_info = sorted([
+        RoomTeamInfo(
+            users=sorted(team_users[team_index], key=lambda x: (-x["indiv_solved_cnt"])),
+            team_index=team_index,
+            adjacent_solved_count=team_adj_solved_count_list[team_index],
+            total_solved_count=team_total_solved_count_list[team_index],
+            last_solved_at=team_last_solved_at_list[team_index]
+        ) for team_index in team_indexes],
+        key=lambda x: (-x.adjacent_solved_count, -x.total_solved_count, x.last_solved_at))
+
+    missions = room.missions
+    room_mission_info = [
+        RoomMissionInfo(
+            problem_id=mission.problem_id,
+            index_in_room=mission.index_in_room,
+            solved_at=mission.solved_at,
+            solved_player_index=mission.solved_room_player.player_index if mission.solved_at else None,
+            solved_team_index=mission.solved_room_player.team_index if mission.solved_at else None,
+            solved_user_name=mission.solved_room_player.user.name if mission.solved_at else None
+        )
+        for mission in sorted(missions, key=lambda m: m.index_in_room)
+    ]
+
+    room_detail = RoomDetail(
+        starts_at=room.starts_at,
+        ends_at=room.ends_at,
+        id=room.id,
+        name=room.name,
+        is_private=room.is_private,
+        mode_type=room.mode_type,
+        num_missions=room.num_mission,
+        team_info=room_team_info,
+        mission_info=room_mission_info,
+        is_started=room.is_started,
+    )
+
+    return room_detail
+
+
+async def check_unstarted_rooms(db: Session):
     rooms = db.query(Room).filter(Room.is_started == False).all()
     for room in rooms:
         await handle_room_start(room.id, db)
 
 
-async def handle_room_start(room_id: int, db):
+async def handle_room_start(room_id: int, db: Session):
     print(f"{room_id} starting")
 
     try:
@@ -71,16 +155,43 @@ async def handle_room_start(room_id: int, db):
         print(f"Error starting room {room_id}: {e}")
 
 
-async def fetch_problems(query, client):
-    problem_ids = []
-    for _ in range(4):
-        response = await client.get("https://solved.ac/api/v3/search/problem",
-                                    params={"query": query, "sort": "random", "page": 1})
-        tmp = response.json()["items"]
-        for item in tmp:
-            if item["problemId"] not in problem_ids:
-                problem_ids.append(item["problemId"])
-    return problem_ids
+async def update_solver(room_id, missions, room_players, db, client, initial=False):
+    # initial이 True면 방 만들 때
+    room = db.query(Room).filter(Room.id == room_id).first()
+    if room is None:
+        raise HTTPException(status_code=400, detail="Such room does not exist")
+
+    problem_id_list = []
+    for mission in missions:
+        if mission is None:
+            raise HTTPException(status_code=400, detail="Such problem does not exist")
+        problem_id_list.append(mission.problem_id)
+
+    newly_solved_problems = []
+    for player in room_players:
+        solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.name, db, client)
+        for mission in missions:
+            if not mission.solved_at and mission.problem_id in solved_problem_list:
+                newly_solved_problems.append(
+                    {
+                        "pid": mission.problem_id,
+                        "username": player.user.name,
+                    }
+                )
+                mission.solved_at = datetime.now(pytz.utc) if not initial else room.starts_at
+                mission.solved_user = player.user
+                mission.solved_room_player = player
+                mission.solved_team_index = player.team_index
+                db.add(mission)
+    db.commit()
+
+    for problem in newly_solved_problems:
+        await manager.broadcast({
+            "type": "problem_solved",
+            "problem_id": problem["pid"],
+            "username": problem["username"],
+        }, room_id)
+    return
 
 
 async def update_score(room_id, db):
@@ -90,7 +201,6 @@ async def update_score(room_id, db):
             .filter(Room.id == room_id).first())
     if not room:
         return
-    print(str(room.id) + "doing")
     room_players = room.players
 
     missions = db.query(RoomMission).filter(RoomMission.room_id == room_id).all()
@@ -178,77 +288,3 @@ async def update_score(room_id, db):
     room.winning_team_index = sorted_players[0].team_index
     db.commit()
     return
-
-
-async def get_solved_problem_list(problem_ids, username, db, client):
-    paged_problem_ids = [problem_ids[i:i + 25] for i in range(0, len(problem_ids), 25)]
-
-    solved_problem_list = []
-
-    for problem_ids in paged_problem_ids:
-        query = "("
-        for problem_id in problem_ids:
-            if len(query) > 1:
-                query += "|"
-            query += "id:" + str(problem_id)
-        query += ") & @" + username
-        response = await client.get("https://solved.ac/api/v3/search/problem",
-                                    params={"query": query})
-        print(query)
-        items = response.json()["items"]
-        for item in items:
-            solved_problem_list.append(item["problemId"])
-
-    return solved_problem_list
-
-
-async def update_solver(room_id, missions, room_players, db, client, initial=False):
-    # initial이 True면 방 만들 때
-    room = db.query(Room).filter(Room.id == room_id).first()
-    if room is None:
-        raise HTTPException(status_code=400, detail="Such room does not exist")
-
-    problem_id_list = []
-    for mission in missions:
-        if mission is None:
-            raise HTTPException(status_code=400, detail="Such problem does not exist")
-        problem_id_list.append(mission.problem_id)
-
-    newly_solved_problems = []
-    for player in room_players:
-        solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.name, db, client)
-        for mission in missions:
-            if not mission.solved_at and mission.problem_id in solved_problem_list:
-                newly_solved_problems.append(
-                    {
-                        "pid": mission.problem_id,
-                        "username": player.user.name,
-                    }
-                )
-                mission.solved_at = datetime.now(pytz.utc) if not initial else room.starts_at
-                mission.solved_user = player.user
-                mission.solved_room_player = player
-                mission.solved_team_index = player.team_index
-                db.add(mission)
-    db.commit()
-
-    for problem in newly_solved_problems:
-        await manager.broadcast({
-            "type": "problem_solved",
-            "problem_id": problem["pid"],
-            "username": problem["username"],
-        }, room_id)
-    return
-
-
-async def update_all_rooms(db):
-    rooms = (db.query(Room)
-             .options(joinedload(Room.missions))
-             .all())
-    for room in rooms:
-        await update_score(room.id, db)
-        room.num_mission = len(room.missions)
-        if room.is_private and room.entry_pwd is None:
-            room.entry_pwd = hash_password(os.environ.get("DEFAULT_PWD"))
-        if room.edit_pwd is None:
-            room.edit_pwd = hash_password(os.environ.get("DEFAULT_PWD"))
