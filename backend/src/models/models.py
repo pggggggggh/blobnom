@@ -12,6 +12,9 @@ class User(TimestampMixin, Base):
     id = Column(Integer, primary_key=True)
     handle = Column("name", String, index=True)
 
+    member_id = Column(ForeignKey("members.id"), nullable=True)
+
+    member = relationship("Member")
     owned_rooms = relationship("Room", back_populates="owner", foreign_keys="[Room.owner_id]")
     user_rooms = relationship("RoomPlayer", back_populates="user")
     solved_missions = relationship("RoomMission", back_populates="solved_user")
@@ -102,4 +105,5 @@ class SolvedacToken(TimestampMixin, Base):
 
     id = Column(Integer, primary_key=True)
     token = Column(String)
+    is_used = Column(Boolean, default=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)

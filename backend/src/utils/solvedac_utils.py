@@ -8,6 +8,14 @@ async def search_problems(query):
         return response.json()["items"]
 
 
+async def fetch_user_info(handle):
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"https://solved.ac/api/v3/user/show?handle={handle}")
+        if response.status_code == 404:
+            return None
+        return response.json()
+
+
 async def fetch_problems(query):
     async with httpx.AsyncClient() as client:
         problem_ids = []

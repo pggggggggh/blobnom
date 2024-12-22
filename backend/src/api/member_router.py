@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from fastapi.params import Depends
+from fastapi.params import Depends, Body
 from sqlalchemy.orm import Session
 
 from src.database.database import get_db
@@ -16,5 +16,5 @@ async def solvedac_token(db: Session = Depends(get_db)):
 
 
 @router.post('/auth/register')
-async def post_register(register_request: RegisterRequest, db: Session = Depends(get_db)):
+async def post_register(register_request: RegisterRequest = Body(...), db: Session = Depends(get_db)):
     await register(register_request, db=db)
