@@ -1,4 +1,10 @@
 [[redirects]]
+from = "https://blobnom.netlify.app/*"
+to = "https://blobnom.xyz/:splat"
+status = 301
+force = true
+
+[[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
