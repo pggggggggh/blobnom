@@ -3,34 +3,42 @@ from datetime import datetime
 
 import httpx
 import pytz
-from fastapi import Body, HTTPException, Depends, APIRouter, status
+from fastapi import Body, HTTPException, Depends, APIRouter, status, Request
 from sqlalchemy.orm import Session, joinedload
 
 from src.app.core.constants import MAX_TEAM_PER_ROOM
 from src.app.core.enums import ModeType
 from src.app.db.models.room import User, Room, RoomPlayer, RoomMission
-from src.app.schemas.room import RoomCreateRequest, DeleteRoomRequest
+from src.app.schemas.room import RoomCreateRequest, RoomDeleteRequest
 from src.app.services.room_service import get_room_summary, get_room_detail
 from src.app.core.utils.game_utils import update_score, update_solver, get_solved_problem_list, update_all_rooms, \
     handle_room_start, fetch_problems
 from src.app.core.utils.scheduler import add_job
 from src.app.core.utils.security_utils import hash_password, verify_password
+from src.app.core.rate_limit import limiter
 from src.app.db.session import get_db
 
 router = APIRouter()
 
 @router.get("/detail/{id}")
-async def room_detail(id: int, db: Session = Depends(get_db)):
+@limiter.limit("20/minute")
+async def room_detail(request: Request, id: int, db: Session = Depends(get_db)):
     return get_room_detail(room_id=id, db=db)
 
 
 @router.post("/delete/{id}")
-async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def room_delete(
+    request: Request,
+    id: int,
+    room_delete_request: RoomDeleteRequest,
+    db: Session = Depends(get_db)
+):
     room = db.query(Room).options(joinedload(Room.players)).filter(Room.id == id).first()
 
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
-    if verify_password(request.password, room.edit_pwd) is False:
+    if verify_password(room_delete_request.password, room.edit_pwd) is False:
         raise HTTPException(status_code=400, detail="비밀번호가 틀립니다.")
 
     total_indiv_solved_count = sum(player.indiv_solved_count for player in room.players)
@@ -45,7 +53,13 @@ async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends
 
 
 @router.post("/join/{id}")
-async def room_join(id: int, handle: str = Body(...), password: str = Body(None), db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def room_join(
+    request: Request,
+    id: int, handle: str = Body(...),
+    password: str = Body(None),
+    db: Session = Depends(get_db)
+):
     async with httpx.AsyncClient() as client:
         room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
         if not room:
@@ -122,7 +136,13 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
 
 
 @router.post("/solved/")
-async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def room_refresh(
+    request: Request,
+    room_id: int = Body(...),
+    problem_id: int = Body(...),
+    db: Session = Depends(get_db)
+):
     room = (db.query(Room)
             .options(joinedload(Room.players))
             .options(joinedload(Room.missions))
@@ -148,47 +168,52 @@ async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db
 
 
 @router.post("/create")
-async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get_db), ):
-    if room_request.max_players > MAX_TEAM_PER_ROOM:
+@limiter.limit("5/minute")
+async def room_create(
+    request: Request,
+    room_create_request: RoomCreateRequest,
+    db: Session = Depends(get_db),
+):
+    if room_create_request.max_players > MAX_TEAM_PER_ROOM:
         raise HTTPException(status_code=400)
 
-    owner = db.query(User).filter(User.name == room_request.owner_handle).first()
+    owner = db.query(User).filter(User.name == room_create_request.owner_handle).first()
     if not owner:
-        owner = User(name=room_request.owner_handle)
+        owner = User(name=room_create_request.owner_handle)
         db.add(owner)
         db.flush()
 
     async with httpx.AsyncClient() as client:
-        problem_ids = await fetch_problems(room_request.query, client)  # 방 생성 시 문제 모자란지 테스트
-        num_mission = 3 * room_request.size * (room_request.size + 1) + 1
+        problem_ids = await fetch_problems(room_create_request.query, client)  # 방 생성 시 문제 모자란지 테스트
+        num_mission = 3 * room_create_request.size * (room_create_request.size + 1) + 1
 
         if len(problem_ids) < num_mission:
             raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 너무 적습니다.")
 
         room = Room(
-            name=room_request.title,
-            query=room_request.query,
+            name=room_create_request.title,
+            query=room_create_request.query,
             owner=owner,
             num_mission=num_mission,
-            entry_pwd=hash_password(room_request.entry_pin) if room_request.entry_pin else None,
-            edit_pwd=hash_password(room_request.edit_password) if room_request.edit_password else None,
-            mode_type=room_request.mode,
-            max_players=room_request.max_players,
+            entry_pwd=hash_password(room_create_request.entry_pin) if room_create_request.entry_pin else None,
+            edit_pwd=hash_password(room_create_request.edit_password) if room_create_request.edit_password else None,
+            mode_type=room_create_request.mode,
+            max_players=room_create_request.max_players,
             is_started=False,
-            starts_at=room_request.starts_at,
-            ends_at=room_request.ends_at,
-            is_private=room_request.is_private
+            starts_at=room_create_request.starts_at,
+            ends_at=room_create_request.ends_at,
+            is_private=room_create_request.is_private
         )
         db.add(room)
         db.flush()
 
         add_job(
             handle_room_start,
-            run_date=room_request.starts_at,
+            run_date=room_create_request.starts_at,
             args=[room.id, db],
         )
 
-        for idx, (username, team_idx) in enumerate(room_request.handles.items()):
+        for idx, (username, team_idx) in enumerate(room_create_request.handles.items()):
             print(username, team_idx)
             user = db.query(User).filter(User.name == username).first()
             if not user:
@@ -200,7 +225,7 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
                 room_id=room.id,
                 player_index=idx,
                 team_index=team_idx,
-                last_solved_at=room_request.starts_at
+                last_solved_at=room_create_request.starts_at
             )
             room.players.append(room_player)
             db.add(room_player)

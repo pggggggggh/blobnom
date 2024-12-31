@@ -21,7 +21,7 @@ class RoomCreateRequest(BaseModel):
     ends_at: datetime
 
 
-class DeleteRoomRequest(BaseModel):
+class RoomDeleteRequest(BaseModel):
     password: str
 
 

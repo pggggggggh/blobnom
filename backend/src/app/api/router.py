@@ -2,7 +2,7 @@ import math
 from datetime import datetime
 
 import pytz
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, Request
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
@@ -10,13 +10,21 @@ from src.app.db.models.room import Room
 from src.app.services.room_service import get_room_summary
 from src.app.core.utils.game_utils import update_all_rooms
 from src.app.api.endpoints import rooms
+from src.app.core.rate_limit import limiter
 from src.app.db.session import get_db
 
 router = APIRouter()
 
 
 @router.get("/")
-async def room_list(page: int, search: str = "", activeOnly: bool = False, db: Session = Depends(get_db)):
+@limiter.limit("20/minute")
+async def room_list(
+    request: Request,
+    page: int,
+    search: str = "",
+    activeOnly: bool = False,
+    db: Session = Depends(get_db)
+):
     # 쿼리에 검색 필터 추가
     query = (
         db.query(Room)
@@ -49,7 +57,8 @@ async def room_list(page: int, search: str = "", activeOnly: bool = False, db: S
     return {"room_list": room_list, "total_pages": math.ceil(total_rooms / 20)}
 
 @router.get("/temp")
-async def update_all(db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def update_all(request: Request, db: Session = Depends(get_db)):
     await update_all_rooms(db)
 
 
