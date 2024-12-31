@@ -1,9 +1,10 @@
 from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, Boolean, Enum
 from sqlalchemy.orm import relationship
 
-from src.core.constants import MAX_TEAM_PER_ROOM
-from src.core.enums import ProblemType, ModeType
-from src.database import Base, TimestampMixin
+from src.app.core.constants import MAX_TEAM_PER_ROOM
+from src.app.core.enums import ProblemType, ModeType
+from src.app.db.mixins import TimestampMixin
+from src.app.db.base import Base
 
 
 class User(TimestampMixin, Base):

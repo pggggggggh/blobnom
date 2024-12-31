@@ -1,9 +1,9 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
-from src.core.constants import MAX_TEAM_PER_ROOM
-from src.core.models import Room, RoomPlayer, RoomMission
-from src.core.schemas import RoomDetail, RoomSummary, RoomTeamInfo, RoomMissionInfo
+from src.app.core.constants import MAX_TEAM_PER_ROOM
+from src.app.db.models.room import Room, RoomPlayer, RoomMission
+from src.app.schemas.room import RoomDetail, RoomSummary, RoomTeamInfo, RoomMissionInfo
 
 
 def get_room_summary(room: Room) -> RoomSummary:

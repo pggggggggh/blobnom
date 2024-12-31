@@ -1,67 +1,30 @@
-import math
 import random
 from datetime import datetime
 
 import httpx
 import pytz
 from fastapi import Body, HTTPException, Depends, APIRouter, status
-from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.core.constants import MAX_TEAM_PER_ROOM
-from src.core.enums import ModeType
-from src.core.models import User, Room, RoomPlayer, RoomMission
-from src.core.schemas import RoomCreateRequest, DeleteRoomRequest
-from src.core.services import get_room_summary, get_room_detail
-from src.core.utils.game_utils import update_score, update_solver, get_solved_problem_list, update_all_rooms, \
+from src.app.core.constants import MAX_TEAM_PER_ROOM
+from src.app.core.enums import ModeType
+from src.app.db.models.room import User, Room, RoomPlayer, RoomMission
+from src.app.schemas.room import RoomCreateRequest, DeleteRoomRequest
+from src.app.services.room_service import get_room_summary, get_room_detail
+from src.app.core.utils.game_utils import update_score, update_solver, get_solved_problem_list, update_all_rooms, \
     handle_room_start, fetch_problems
-from src.core.utils.scheduler import add_job
-from src.core.utils.security_utils import hash_password, verify_password
-from src.database import get_db
+from src.app.core.utils.scheduler import add_job
+from src.app.core.utils.security_utils import hash_password, verify_password
+from src.app.db.session import get_db
 
 router = APIRouter()
 
-
-@router.get("/")
-async def room_list(page: int, search: str = "", activeOnly: bool = False, db: Session = Depends(get_db)):
-    # 쿼리에 검색 필터 추가
-    query = (
-        db.query(Room)
-        .options(joinedload(Room.players))
-        .options(joinedload(Room.missions))
-        .options(joinedload(Room.owner))
-        .filter(Room.name.ilike(f"%{search}%"))
-        .filter(Room.is_deleted == False)
-        .order_by(desc(Room.updated_at))
-    )
-
-    if activeOnly:
-        query = (query
-                 .filter(Room.is_private == False)
-                 .filter(Room.ends_at > datetime.now(tz=pytz.UTC))
-                 )
-
-    total_rooms = query.count()
-    rooms = (
-        query.offset(20 * page)
-        .limit(20)
-        .all()
-    )
-
-    room_list = []
-    for room in rooms:
-        room_data = get_room_summary(room)
-        room_list.append(room_data)
-
-    return {"room_list": room_list, "total_pages": math.ceil(total_rooms / 20)}
-
-
-@router.get("/rooms/detail/{id}")
+@router.get("/detail/{id}")
 async def room_detail(id: int, db: Session = Depends(get_db)):
     return get_room_detail(room_id=id, db=db)
 
 
-@router.post("/rooms/delete/{id}")
+@router.post("/delete/{id}")
 async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends(get_db)):
     room = db.query(Room).options(joinedload(Room.players)).filter(Room.id == id).first()
 
@@ -81,7 +44,7 @@ async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends
     return {"message": "Room deleted successfully"}
 
 
-@router.post("/rooms/join/{id}")
+@router.post("/join/{id}")
 async def room_join(id: int, handle: str = Body(...), password: str = Body(None), db: Session = Depends(get_db)):
     async with httpx.AsyncClient() as client:
         room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
@@ -158,7 +121,7 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
         return {"success": True}
 
 
-@router.post("/rooms/solved/")
+@router.post("/solved/")
 async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db: Session = Depends(get_db)):
     room = (db.query(Room)
             .options(joinedload(Room.players))
@@ -184,7 +147,7 @@ async def room_refresh(room_id: int = Body(...), problem_id: int = Body(...), db
         await update_score(room_id, db)
 
 
-@router.post("/rooms/create")
+@router.post("/create")
 async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get_db), ):
     if room_request.max_players > MAX_TEAM_PER_ROOM:
         raise HTTPException(status_code=400)
@@ -247,8 +210,3 @@ async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get
         print("fin")
 
         return {"success": True, "roomId": room.id}
-
-
-@router.get("/temp")
-async def update_all(db: Session = Depends(get_db)):
-    await update_all_rooms(db)

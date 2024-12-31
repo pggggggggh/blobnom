@@ -8,10 +8,10 @@ import pytz
 from fastapi import HTTPException
 from sqlalchemy.orm import joinedload
 
-from src.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
-from src.core.models import Room, RoomMission, RoomPlayer
-from src.core.router_ws import manager
-from src.core.utils.security_utils import hash_password
+from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
+from src.app.db.models.room import Room, RoomMission, RoomPlayer
+from src.app.api.router_ws import manager
+from src.app.core.utils.security_utils import hash_password
 
 
 async def check_unstarted_rooms(db):

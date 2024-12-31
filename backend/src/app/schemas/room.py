@@ -3,7 +3,7 @@ from typing import List, Optional, Dict
 
 from pydantic import BaseModel
 
-from src.core.enums import ModeType
+from src.app.core.enums import ModeType
 
 
 class RoomCreateRequest(BaseModel):
