@@ -1,5 +1,5 @@
-import {useMutation, useQuery} from '@tanstack/react-query';
-import {RoomDetail} from "../types/RoomDetail.tsx";
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { RoomDetail } from "../types/RoomDetail.tsx";
 import {
     deleteRoom,
     fetchMainData,
@@ -8,16 +8,15 @@ import {
     postJoinRoom,
     postSolveProblem
 } from "../api/api.tsx";
-import {modals} from "@mantine/modals";
+import { modals } from "@mantine/modals";
 import ErrorModal from "../components/Modals/ErrorModal.tsx";
-import {MainData} from "../types/RoomSummary.tsx";
-import {useRouter} from "@tanstack/react-router";
+import { MainData } from "../types/RoomSummary.tsx";
+import { useRouter } from "@tanstack/react-router";
 
 export const useRoomList = (page: number, search: string, activeOnly: boolean) => {
     return useQuery<MainData, Error>({
         queryKey: ['roomList', page, search, activeOnly],
         queryFn: () => fetchMainData(page, search, activeOnly),
-        initialData: {"room_list": [], "total_pages": 0}
     });
 };
 
@@ -50,7 +49,7 @@ export const useJoinRoom = () => {
             const detailMessage = error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
             modals.open(
                 {
-                    children: <ErrorModal detailMessage={detailMessage}/>
+                    children: <ErrorModal detailMessage={detailMessage} />
                 }
             )
         }
@@ -67,11 +66,11 @@ export const useCreateRoom = () => {
             if (roomId) {
                 router.navigate({
                     to: '/rooms/$roomId',
-                    params: {roomId: roomId}
+                    params: { roomId: roomId }
                 });
             } else {
                 modals.open({
-                    children: <ErrorModal detailMessage="알 수 없는 에러가 발생했습니다."/>
+                    children: <ErrorModal detailMessage="알 수 없는 에러가 발생했습니다." />
                 });
             }
         },
@@ -80,7 +79,7 @@ export const useCreateRoom = () => {
             const detailMessage = error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
             modals.open(
                 {
-                    children: <ErrorModal detailMessage={detailMessage}/>
+                    children: <ErrorModal detailMessage={detailMessage} />
                 }
             )
         }
@@ -100,7 +99,7 @@ export const useDeleteRoom = () => {
             const detailMessage = error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
             modals.open(
                 {
-                    children: <ErrorModal detailMessage={detailMessage}/>
+                    children: <ErrorModal detailMessage={detailMessage} />
                 }
             )
         }
