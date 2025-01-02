@@ -27,6 +27,12 @@ class RegisterRequest(BaseModel):
     password: str
 
 
+class LoginRequest(BaseModel):
+    handle: str
+    password: str
+    remember_me: bool
+
+
 class DeleteRoomRequest(BaseModel):
     password: str
 

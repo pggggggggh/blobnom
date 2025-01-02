@@ -7,8 +7,8 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from src.models.models import SolvedacToken, Member, User
-from src.schemas.schemas import RegisterRequest
-from src.utils.security_utils import hash_password
+from src.schemas.schemas import RegisterRequest, LoginRequest
+from src.utils.security_utils import hash_password, verify_password, create_access_token
 from src.utils.solvedac_utils import fetch_user_info
 
 
@@ -54,10 +54,25 @@ async def register(register_request: RegisterRequest, db: Session):
     db.flush()
 
     user = db.query(User).filter(User.handle == member.handle).first()
-    if user:
-        user.member = member
-        db.add(user)
-        db.flush()
+    if not user:
+        user = User(
+            handle=member.handle,
+        )
+    user.member = member
+    db.add(user)
+    db.flush()
 
     db.commit()
-    return {"message": "User registered"}
+    return {"result": "success"}
+
+
+async def login(login_request: LoginRequest, db: Session):
+    member = db.query(Member).filter(Member.handle == login_request.handle).first()
+    if member is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not verify_password(login_request.password, member.password):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    td = timedelta(minutes=60)
+    if login_request.remember_me:
+        td = timedelta(days=30)
+    return create_access_token(data={"sub": member.handle}, expires_delta=td)
