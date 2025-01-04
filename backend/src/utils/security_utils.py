@@ -4,11 +4,13 @@ from datetime import timedelta, datetime
 import jwt
 import pytz
 from fastapi import HTTPException
+from fastapi.params import Depends, Header
 from jwt import InvalidTokenError
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from starlette import status
 
+from src.database.database import get_db
 from src.models.models import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -33,7 +35,9 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-async def get_handle_by_token(token: str, db: Session):
+async def get_handle_by_token(token: str = Header(None), db: Session = Depends(get_db)):
+    if token is None:
+        return None
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

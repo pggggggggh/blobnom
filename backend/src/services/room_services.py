@@ -129,7 +129,7 @@ async def handle_room_start(room_id: int, db: Session):
                 room.query += f" !@{player.user.handle}"
             db.add(room)
             db.flush()
-            problem_ids = await fetch_problems(room.query, client)
+            problem_ids = await fetch_problems(room.query)
             if len(problem_ids) < room.num_mission:
                 print(f"Room with id {room_id} has no sufficient problems.")
                 room.is_deleted = True
@@ -170,7 +170,7 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
 
     newly_solved_problems = []
     for player in room_players:
-        solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.handle, db, client)
+        solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.handle)
         for mission in missions:
             if not mission.solved_at and mission.problem_id in solved_problem_list:
                 newly_solved_problems.append(

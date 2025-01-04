@@ -11,13 +11,13 @@ from sqlalchemy.orm import Session, joinedload
 from src.core.constants import MAX_TEAM_PER_ROOM
 from src.core.enums import ModeType
 from src.database.database import get_db
-from src.models.models import User, Room, RoomPlayer, RoomMission
+from src.models.models import User, Room, RoomPlayer, RoomMission, Member
 from src.schemas.schemas import RoomCreateRequest, DeleteRoomRequest
 from src.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
     get_solved_problem_list, \
     handle_room_start, fetch_problems
 from src.utils.scheduler import add_job
-from src.utils.security_utils import hash_password, verify_password
+from src.utils.security_utils import hash_password, verify_password, get_handle_by_token
 from src.utils.solvedac_utils import search_problems
 
 router = APIRouter()
@@ -63,13 +63,21 @@ async def room_detail(id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/rooms/delete/{id}")
-async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends(get_db)):
+async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends(get_db),
+                      handle: str = Depends(get_handle_by_token)):
     room = db.query(Room).options(joinedload(Room.players)).filter(Room.id == id).first()
 
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
-    if verify_password(request.password, room.edit_pwd) is False:
-        raise HTTPException(status_code=400, detail="비밀번호가 틀립니다.")
+
+    owner_member = db.query(Member).filter(Member.handle == room.owner.handle).first()
+
+    if owner_member is None:
+        if verify_password(request.password, room.edit_pwd) is False:
+            raise HTTPException(status_code=400, detail="비밀번호가 틀립니다.")
+    else:
+        if handle != owner_member.handle:
+            raise HTTPException(status_code=401, detail="방의 주인만 삭제할 수 있습니다.")
 
     total_indiv_solved_count = sum(player.indiv_solved_count for player in room.players)
     if total_indiv_solved_count > 2:
@@ -83,7 +91,8 @@ async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends
 
 
 @router.post("/rooms/join/{id}")
-async def room_join(id: int, handle: str = Body(...), password: str = Body(None), db: Session = Depends(get_db)):
+async def room_join(id: int, handle: str = Body(...), password: str = Body(None), db: Session = Depends(get_db),
+                    token_handle: str = Depends(get_handle_by_token)):
     room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
@@ -105,6 +114,11 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
     if any(player.user.handle == handle for player in room_players):
         raise HTTPException(status_code=400, detail="이미 존재하는 유저입니다.")
 
+    if token_handle is None:  # 비회원 조인 시
+        existing_member = db.query(Member).filter(Member.handle == handle).first()
+        if existing_member is not None:
+            raise HTTPException(status_code=400, detail="가입된 유저입니다. 로그인해주시기 바랍니다.")
+
     query = "@" + handle
     solved_problems = await search_problems(query)
     if len(solved_problems) == 0:
@@ -119,7 +133,7 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
     if room.is_started:
         unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
         solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, handle)
-        if not room.is_private and len(solved_mission_list) > 2:
+        if token_handle is None and not room.is_private and len(solved_mission_list) > 2:  # 비회원의 경우에만 제한
             raise HTTPException(status_code=400, detail="이미 해결한 문제가 2문제를 초과하여 참여할 수 없습니다.")
 
     # calculate mex
@@ -153,11 +167,12 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
         await update_score(id, db)
     db.commit()
 
-    return {"success": True}
+    return {"success": True, "solved_mission_list": solved_mission_list}
 
 
 @router.post("/rooms/solved/")
-async def room_solved(room_id: int = Body(...), problem_id: int = Body(...), db: Session = Depends(get_db)):
+async def room_solved(room_id: int = Body(...), problem_id: int = Body(...),
+                      db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
     room = (db.query(Room)
             .options(joinedload(Room.players))
             .options(joinedload(Room.missions))
@@ -175,19 +190,36 @@ async def room_solved(room_id: int = Body(...), problem_id: int = Body(...), db:
             mission = m
             break
 
+    if mission is None:
+        raise HTTPException(status_code=400, detail="The problem does not exist")
+
     async with httpx.AsyncClient() as client:
-        room_players = room.players
-        random.shuffle(room_players)
-        await update_solver(room_id, [mission], room_players, db, client)
+        target_players = []
+        if token_handle is None:
+            target_players = room.players
+            random.shuffle(target_players)
+        else:
+            for player in room.players:
+                if player.user.handle == token_handle:
+                    target_players.append(player)
+                    break
+            if len(target_players) == 0:
+                raise HTTPException(status_code=400, detail="You are not in this room")
+
+        await update_solver(room_id, [mission], target_players, db, client)
         await update_score(room_id, db)
 
 
 @router.post("/rooms/create")
-async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get_db), ):
+async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get_db),
+                      token_handle: str = Depends(get_handle_by_token)):
     if room_request.max_players > MAX_TEAM_PER_ROOM:
         raise HTTPException(status_code=400)
 
     owner = db.query(User).filter(User.handle == room_request.owner_handle).first()
+    if token_handle is None and owner is not None and owner.member is not None:
+        raise HTTPException(status_code=400, detail="가입된 유저입니다. 로그인해주시기 바랍니다.")
+
     if not owner:
         owner = User(handle=room_request.owner_handle)
         db.add(owner)
