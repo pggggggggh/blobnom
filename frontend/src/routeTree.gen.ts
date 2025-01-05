@@ -13,6 +13,8 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as RegisterImport } from './routes/register'
+import { Route as LoginImport } from './routes/login'
 import { Route as CreateImport } from './routes/create'
 import { Route as RoomsRoomIdImport } from './routes/rooms/$roomId'
 
@@ -21,6 +23,18 @@ import { Route as RoomsRoomIdImport } from './routes/rooms/$roomId'
 const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
+
+const RegisterRoute = RegisterImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const CreateRoute = CreateImport.update({
   id: '/create',
@@ -58,6 +72,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateImport
       parentRoute: typeof rootRoute
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterImport
+      parentRoute: typeof rootRoute
+    }
     '/rooms/$roomId': {
       id: '/rooms/$roomId'
       path: '/rooms/$roomId'
@@ -73,12 +101,16 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/create': typeof CreateRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/create': typeof CreateRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 
@@ -86,27 +118,33 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
   '/create': typeof CreateRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create' | '/rooms/$roomId'
+  fullPaths: '/' | '/create' | '/login' | '/register' | '/rooms/$roomId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create' | '/rooms/$roomId'
-  id: '__root__' | '/' | '/create' | '/rooms/$roomId'
+  to: '/' | '/create' | '/login' | '/register' | '/rooms/$roomId'
+  id: '__root__' | '/' | '/create' | '/login' | '/register' | '/rooms/$roomId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   CreateRoute: typeof CreateRoute
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
   RoomsRoomIdRoute: typeof RoomsRoomIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   CreateRoute: CreateRoute,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
   RoomsRoomIdRoute: RoomsRoomIdRoute,
 }
 
@@ -122,6 +160,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/create",
+        "/login",
+        "/register",
         "/rooms/$roomId"
       ]
     },
@@ -130,6 +170,12 @@ export const routeTree = rootRoute
     },
     "/create": {
       "filePath": "create.tsx"
+    },
+    "/login": {
+      "filePath": "login.tsx"
+    },
+    "/register": {
+      "filePath": "register.tsx"
     },
     "/rooms/$roomId": {
       "filePath": "rooms/$roomId.tsx"
