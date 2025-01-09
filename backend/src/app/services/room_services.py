@@ -8,11 +8,11 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 from starlette import status
 
-from src.api.websocket_router import manager
-from src.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
-from src.models.models import Room, RoomMission, RoomPlayer
-from src.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
-from src.utils.solvedac_utils import fetch_problems, get_solved_problem_list
+from src.app.api.websocket_router import manager
+from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
+from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
+from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
+from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
 
 
 def get_room_summary(room: Room) -> RoomSummary:
@@ -35,7 +35,7 @@ def get_room_summary(room: Room) -> RoomSummary:
     )
 
 
-def get_room_detail(room_id: int, db: Session) -> RoomDetail:
+def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
     room = (db.query(Room).filter(Room.id == room_id)
             .options(joinedload(Room.missions)
                      .joinedload(RoomMission.solved_room_player)
@@ -46,6 +46,12 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
     players = room.players
+    is_user_in_room = False
+    for player in players:
+        if player.user.handle == handle:
+            is_user_in_room = True
+            break
+
     team_users = [[] for _ in range(MAX_TEAM_PER_ROOM)]  # 닉네임, indiv_solved_count
     team_adj_solved_count_list = [0 for _ in range(MAX_TEAM_PER_ROOM)]
     team_total_solved_count_list = [0 for _ in range(MAX_TEAM_PER_ROOM)]
@@ -88,7 +94,11 @@ def get_room_detail(room_id: int, db: Session) -> RoomDetail:
         ends_at=room.ends_at,
         id=room.id,
         name=room.name,
+        owner=room.owner.handle if room.owner else "",
         is_private=room.is_private,
+        is_user_in_room=is_user_in_room,
+        is_owner_a_member=True if db.query(Member).filter(
+            Member.handle == room.owner.handle).first() is not None else False,
         mode_type=room.mode_type,
         num_missions=room.num_mission,
         team_info=room_team_info,
@@ -171,6 +181,8 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
     newly_solved_problems = []
     for player in room_players:
         solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.handle)
+        print(player.user.handle)
+        print(solved_problem_list)
         for mission in missions:
             if not mission.solved_at and mission.problem_id in solved_problem_list:
                 newly_solved_problems.append(

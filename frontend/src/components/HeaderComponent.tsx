@@ -1,12 +1,12 @@
-import { Burger, Button, Group, Image, Title } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import {Burger, Button, Group, Image, Title} from "@mantine/core";
+import {useDisclosure} from "@mantine/hooks";
 import logo from "../assets/blobnom.png";
-import { Link } from "@tanstack/react-router";
+import {Link} from "@tanstack/react-router";
+import {useAuth} from "../context/AuthProvider.tsx";
 
 const HeaderComponent = () => {
-    const [opened, { toggle }] = useDisclosure();
-    const token = localStorage.getItem("accessToken");
-    const isLoggedIn = !!token;
+    const [opened, {toggle}] = useDisclosure();
+    const auth = useAuth()
 
     return (
         <Group h="100%" px="md" gap="md" className="justify-between w-full">
@@ -30,9 +30,9 @@ const HeaderComponent = () => {
             </Group>
 
             <Group>
-                {isLoggedIn ? (
+                {auth.user ? (
                     <Link to="/mypage" className="no-underline text-white">
-                        <Button variant="light">내 정보</Button>
+                        <Button variant="light">{`${auth.user} 정보`}</Button>
                     </Link>
                 ) : (
                     <Link to="/login" className="no-underline text-white">

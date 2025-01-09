@@ -12,11 +12,13 @@ import {
     TeamSelector
 } from '../components/RoomForm';
 import {useCreateRoom} from '../hooks/hooks';
+import {useAuth} from "../context/AuthProvider.tsx";
 
 function CreateRoom() {
+    const auth = useAuth();
+
     const now = new Date();
     now.setMinutes(now.getMinutes() + 5);
-
     const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
 
     const form = useForm<RoomForm>({
@@ -36,9 +38,9 @@ function CreateRoom() {
             entry_pin: '',
         },
         validate: {
-            owner_handle: (value) => (value.trim() === '' ? '방장은 필수 항목입니다.' : null),
+            owner_handle: (value) => (!auth.user && value.trim() === '' ? '방장은 필수 항목입니다.' : null),
             edit_password: (value) =>
-                value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null,
+                !auth.user && value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null,
             title: (value) => (value.trim() === '' ? '방 제목은 필수 항목입니다.' : null),
             entry_pin: (value, values) =>
                 values.is_private ? (value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null) : null,
@@ -97,10 +99,11 @@ function CreateRoom() {
                         onClearPin={() => form.setFieldValue('entry_pin', '')}
                     />
 
-                    <SetRoomOwner
-                        ownerProps={form.getInputProps('owner_handle')}
-                        passwordProps={form.getInputProps('edit_password')}
-                    />
+                    {!auth.user &&
+                        <SetRoomOwner
+                            ownerProps={form.getInputProps('owner_handle')}
+                            passwordProps={form.getInputProps('edit_password')}
+                        />}
 
                     <SetRoomQuery
                         queryValue={form.values.query}

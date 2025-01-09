@@ -1,12 +1,14 @@
 from fastapi import FastAPI
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from src.app.core.rate_limit import limiter
 from starlette.middleware.cors import CORSMiddleware
 
-import src.models.models as models
-from src.api.member_router import router as member_router
-from src.api.room_router import router as room_router
-from src.api.websocket_router import router as ws_router
-from src.database.database import engine, SessionLocal
-from src.services.room_services import check_unstarted_rooms
+import src.app.db.models.models as models
+from src.app.api.core_router import router as core_router
+from src.app.api.websocket_router import router as ws_router
+from src.app.db.database import engine, SessionLocal
+from src.app.services.room_services import check_unstarted_rooms
 
 try:
     models.Base.metadata.create_all(bind=engine)
@@ -22,6 +24,9 @@ origins = [
     "https://blobnom.xyz",
 ]
 app = FastAPI()
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -30,8 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(room_router)
-app.include_router(member_router)
+app.include_router(core_router)
 app.include_router(ws_router)
 
 

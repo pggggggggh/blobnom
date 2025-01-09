@@ -8,10 +8,12 @@ import dayjs from "dayjs";
 import DeleteIcon from '@mui/icons-material/Delete';
 import RoomDeleteModal from "./Modals/RemoveModal.tsx";
 import {userColors} from "../constants/UserColorsFill.tsx";
+import {useAuth} from "../context/AuthProvider.tsx";
 
 const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const [timeLeft, setTimeLeft] = useState<string>("");
     const [timeBefore, setTimeBefore] = useState<string>("");
+    const auth = useAuth()
 
     useEffect(() => {
         if (!roomDetail) return;
@@ -35,15 +37,34 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                         ? timeLeft
                         : `${dayjs(roomDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ ${dayjs(roomDetail.ends_at).format('YYYY-MM-DD HH:mm')}, ${roomDetail.num_missions}문항`}
                 </Text>
-                <ActionIcon mt="5" variant="transparent" color="white"
-                            onClick={() => {
-                                modals.open({
-                                    title: "방 삭제하기",
-                                    children: <RoomDeleteModal roomId={roomDetail.id}/>
-                                });
-                            }}>
-                    <DeleteIcon/>
-                </ActionIcon>
+                {
+                    (auth && auth.user === roomDetail.owner) ?
+                        (
+                            <ActionIcon mt="5" variant="transparent" color="white"
+                                        onClick={() => {
+                                            modals.open({
+                                                title: "방 삭제하기",
+                                                children: <RoomDeleteModal roomId={roomDetail.id} needPassword={false}/>
+                                            });
+                                        }}>
+                                <DeleteIcon/>
+                            </ActionIcon>
+                        ) :
+                        (
+                            !roomDetail.is_owner_a_member && <ActionIcon mt="5" variant="transparent" color="white"
+                                                                         onClick={() => {
+                                                                             modals.open({
+                                                                                 title: "방 삭제하기",
+                                                                                 children: <RoomDeleteModal
+                                                                                     roomId={roomDetail.id}
+                                                                                     needPassword={true}/>
+                                                                             });
+                                                                         }}>
+                                <DeleteIcon/>
+                            </ActionIcon>
+                        )
+                }
+
             </Box>
 
             {!roomDetail.is_started &&
@@ -61,7 +82,7 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                 </Box>
             }
 
-            {roomDetail.mode_type === "land_grab_solo" && new Date(roomDetail.ends_at) > new Date() &&
+            {!roomDetail.is_user_in_room && roomDetail.mode_type === "land_grab_solo" && new Date(roomDetail.ends_at) > new Date() &&
                 <div
                     className="p-2 fixed bottom-4 left-4">
                     <Button

@@ -3,7 +3,7 @@ from typing import List, Optional, Dict
 
 from pydantic import BaseModel
 
-from src.core.enums import ModeType
+from src.app.core.enums import ModeType
 
 
 class RoomCreateRequest(BaseModel):
@@ -33,7 +33,7 @@ class LoginRequest(BaseModel):
     remember_me: bool
 
 
-class DeleteRoomRequest(BaseModel):
+class RoomDeleteRequest(BaseModel):
     password: str
 
 
@@ -82,7 +82,10 @@ class RoomDetail(BaseModel):
     ends_at: Optional[datetime]
     id: int
     name: str
+    owner: str
     is_private: bool
+    is_user_in_room: bool
+    is_owner_a_member: bool  # True면 비회원에게 삭제 버튼이 보이지 않음
     num_missions: int
     is_started: bool
     mode_type: ModeType

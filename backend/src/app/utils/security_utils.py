@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta, datetime
+from typing import Optional
 
 import jwt
 import pytz
@@ -10,8 +11,8 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from starlette import status
 
-from src.database.database import get_db
-from src.models.models import User
+from src.app.db.database import get_db
+from src.app.db.models.models import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -35,16 +36,22 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-async def get_handle_by_token(token: str = Header(None), db: Session = Depends(get_db)):
-    if token is None:
-        return None
+async def get_handle_by_token(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    if authorization is None:
+        return None  # 비회원
+    if not authorization.startswith("Bearer "):
+        raise credentials_exception
+
     try:
-        payload = jwt.decode(token, os.environ.get("JWT_SECRET_KEY"), algorithms=os.environ.get("JWT_ALGORITHM"))
+        token = authorization.split(" ")[1]
+        payload = jwt.decode(token, os.environ.get("JWT_SECRET_KEY"),
+                             algorithms=os.environ.get("JWT_ALGORITHM"))
         handle = payload.get("sub")
         if handle is None:
             raise credentials_exception

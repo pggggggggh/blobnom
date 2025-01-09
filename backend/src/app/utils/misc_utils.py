@@ -2,9 +2,9 @@ import os
 
 from sqlalchemy.orm import joinedload
 
-from src.models.models import Room
-from src.services.room_services import update_score
-from src.utils.security_utils import hash_password
+from src.app.db.models.models import Room
+from src.app.services.room_services import update_score
+from src.app.utils.security_utils import hash_password
 
 
 async def update_all_rooms(db):

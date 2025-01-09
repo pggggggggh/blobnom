@@ -4,27 +4,30 @@ from datetime import datetime
 
 import httpx
 import pytz
-from fastapi import Body, HTTPException, Depends, APIRouter, status
+from fastapi import Body, HTTPException, Depends, APIRouter, status, Request
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.core.constants import MAX_TEAM_PER_ROOM
-from src.core.enums import ModeType
-from src.database.database import get_db
-from src.models.models import User, Room, RoomPlayer, RoomMission, Member
-from src.schemas.schemas import RoomCreateRequest, DeleteRoomRequest
-from src.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
+from src.app.core.constants import MAX_TEAM_PER_ROOM
+from src.app.core.enums import ModeType
+from src.app.core.rate_limit import limiter
+from src.app.db.database import get_db
+from src.app.db.models.models import User, Room, RoomPlayer, RoomMission, Member
+from src.app.schemas.schemas import RoomCreateRequest, RoomDeleteRequest
+from src.app.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
     get_solved_problem_list, \
     handle_room_start, fetch_problems
-from src.utils.scheduler import add_job
-from src.utils.security_utils import hash_password, verify_password, get_handle_by_token
-from src.utils.solvedac_utils import search_problems
+from src.app.utils.scheduler import add_job
+from src.app.utils.security_utils import hash_password, verify_password, get_handle_by_token
+from src.app.utils.solvedac_utils import search_problems
 
 router = APIRouter()
 
 
-@router.get("/")
-async def room_list(page: int, search: str = "", activeOnly: bool = False, db: Session = Depends(get_db)):
+@router.get("/list")
+@limiter.limit("20/minute")
+async def room_list(request: Request, page: int, search: str = "", activeOnly: bool = False,
+                    db: Session = Depends(get_db)):
     # 쿼리에 검색 필터 추가
     query = (
         db.query(Room)
@@ -57,13 +60,16 @@ async def room_list(page: int, search: str = "", activeOnly: bool = False, db: S
     return {"room_list": room_list, "total_pages": math.ceil(total_rooms / 20)}
 
 
-@router.get("/rooms/detail/{id}")
-async def room_detail(id: int, db: Session = Depends(get_db)):
-    return get_room_detail(room_id=id, db=db)
+@router.get("/detail/{id}")
+@limiter.limit("20/minute")
+async def room_detail(request: Request, id: int, db: Session = Depends(get_db),
+                      handle: str = Depends(get_handle_by_token)):
+    return get_room_detail(room_id=id, db=db, handle=handle)
 
 
-@router.post("/rooms/delete/{id}")
-async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends(get_db),
+@router.post("/delete/{id}")
+@limiter.limit("5/minute")
+async def delete_room(request: Request, id: int, room_delete_request: RoomDeleteRequest, db: Session = Depends(get_db),
                       handle: str = Depends(get_handle_by_token)):
     room = db.query(Room).options(joinedload(Room.players)).filter(Room.id == id).first()
 
@@ -73,7 +79,7 @@ async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends
     owner_member = db.query(Member).filter(Member.handle == room.owner.handle).first()
 
     if owner_member is None:
-        if verify_password(request.password, room.edit_pwd) is False:
+        if verify_password(room_delete_request.password, room.edit_pwd) is False:
             raise HTTPException(status_code=400, detail="비밀번호가 틀립니다.")
     else:
         if handle != owner_member.handle:
@@ -90,8 +96,10 @@ async def delete_room(id: int, request: DeleteRoomRequest, db: Session = Depends
     return {"message": "Room deleted successfully"}
 
 
-@router.post("/rooms/join/{id}")
-async def room_join(id: int, handle: str = Body(...), password: str = Body(None), db: Session = Depends(get_db),
+@router.post("/join/{id}")
+@limiter.limit("5/minute")
+async def room_join(request: Request, id: int, handle: str = Body(...), password: str = Body(None),
+                    db: Session = Depends(get_db),
                     token_handle: str = Depends(get_handle_by_token)):
     room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
     if not room:
@@ -170,8 +178,9 @@ async def room_join(id: int, handle: str = Body(...), password: str = Body(None)
     return {"success": True, "solved_mission_list": solved_mission_list}
 
 
-@router.post("/rooms/solved/")
-async def room_solved(room_id: int = Body(...), problem_id: int = Body(...),
+@router.post("/solved")
+@limiter.limit("5/minute")
+async def room_solved(request: Request, room_id: int = Body(...), problem_id: int = Body(...),
                       db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
     room = (db.query(Room)
             .options(joinedload(Room.players))
@@ -196,7 +205,10 @@ async def room_solved(room_id: int = Body(...), problem_id: int = Body(...),
     async with httpx.AsyncClient() as client:
         target_players = []
         if token_handle is None:
-            target_players = room.players
+            players = room.players
+            for player in players:
+                if player.user.member is None:
+                    target_players.append(player)
             random.shuffle(target_players)
         else:
             for player in room.players:
@@ -210,69 +222,74 @@ async def room_solved(room_id: int = Body(...), problem_id: int = Body(...),
         await update_score(room_id, db)
 
 
-@router.post("/rooms/create")
-async def room_create(room_request: RoomCreateRequest, db: Session = Depends(get_db),
+@router.post("/create")
+@limiter.limit("5/minute")
+async def room_create(request: Request, room_request: RoomCreateRequest, db: Session = Depends(get_db),
                       token_handle: str = Depends(get_handle_by_token)):
     if room_request.max_players > MAX_TEAM_PER_ROOM:
         raise HTTPException(status_code=400)
 
-    owner = db.query(User).filter(User.handle == room_request.owner_handle).first()
+    owner = None
+    if token_handle is None:
+        owner = db.query(User).filter(User.handle == room_request.owner_handle).first()
+        if not owner:
+            owner = User(handle=room_request.owner_handle)
+            db.add(owner)
+            db.flush()
+    else:
+        owner = db.query(User).filter(User.handle == token_handle).first()
+
     if token_handle is None and owner is not None and owner.member is not None:
         raise HTTPException(status_code=400, detail="가입된 유저입니다. 로그인해주시기 바랍니다.")
 
-    if not owner:
-        owner = User(handle=room_request.owner_handle)
-        db.add(owner)
-        db.flush()
+    problem_ids = await fetch_problems(room_request.query)  # 방 생성 시 문제 모자란지 테스트
+    num_mission = 3 * room_request.size * (room_request.size + 1) + 1
 
-        problem_ids = await fetch_problems(room_request.query)  # 방 생성 시 문제 모자란지 테스트
-        num_mission = 3 * room_request.size * (room_request.size + 1) + 1
+    if len(problem_ids) < num_mission:
+        raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 너무 적습니다.")
 
-        if len(problem_ids) < num_mission:
-            raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 너무 적습니다.")
+    room = Room(
+        name=room_request.title,
+        query=room_request.query,
+        owner=owner,
+        num_mission=num_mission,
+        entry_pwd=hash_password(room_request.entry_pin) if room_request.entry_pin else None,
+        edit_pwd=hash_password(room_request.edit_password) if room_request.edit_password else None,
+        mode_type=room_request.mode,
+        max_players=room_request.max_players,
+        is_started=False,
+        starts_at=room_request.starts_at,
+        ends_at=room_request.ends_at,
+        is_private=room_request.is_private
+    )
+    db.add(room)
+    db.flush()
 
-        room = Room(
-            name=room_request.title,
-            query=room_request.query,
-            owner=owner,
-            num_mission=num_mission,
-            entry_pwd=hash_password(room_request.entry_pin) if room_request.entry_pin else None,
-            edit_pwd=hash_password(room_request.edit_password) if room_request.edit_password else None,
-            mode_type=room_request.mode,
-            max_players=room_request.max_players,
-            is_started=False,
-            starts_at=room_request.starts_at,
-            ends_at=room_request.ends_at,
-            is_private=room_request.is_private
-        )
-        db.add(room)
-        db.flush()
+    add_job(
+        handle_room_start,
+        run_date=room_request.starts_at,
+        args=[room.id, db],
+    )
 
-        add_job(
-            handle_room_start,
-            run_date=room_request.starts_at,
-            args=[room.id, db],
-        )
-
-        for idx, (username, team_idx) in enumerate(room_request.handles.items()):
-            print(username, team_idx)
-            user = db.query(User).filter(User.handle == username).first()
-            if not user:
-                user = User(handle=username)
-                db.add(user)
-                db.flush()
-            room_player = RoomPlayer(
-                user_id=user.id,
-                room_id=room.id,
-                player_index=idx,
-                team_index=team_idx,
-                last_solved_at=room_request.starts_at
-            )
-            room.players.append(room_player)
-            db.add(room_player)
+    for idx, (username, team_idx) in enumerate(room_request.handles.items()):
+        print(username, team_idx)
+        user = db.query(User).filter(User.handle == username).first()
+        if not user:
+            user = User(handle=username)
+            db.add(user)
             db.flush()
-        db.commit()
+        room_player = RoomPlayer(
+            user_id=user.id,
+            room_id=room.id,
+            player_index=idx,
+            team_index=team_idx,
+            last_solved_at=room_request.starts_at
+        )
+        room.players.append(room_player)
+        db.add(room_player)
+        db.flush()
+    db.commit()
 
-        print("fin")
+    print("fin")
 
-        return {"success": True, "roomId": room.id}
+    return {"success": True, "roomId": room.id}

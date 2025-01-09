@@ -21,6 +21,7 @@ bcrypt = "4.0.1"
 apscheduler = "^3.11.0"
 websockets = "^14.1"
 pyjwt = "^2.10.1"
+slowapi = "^0.1.9"
 
 
 [build-system]
