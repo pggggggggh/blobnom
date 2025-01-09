@@ -70,7 +70,15 @@ function Index() {
                         withCloseButton
                         onClose={() => setShowNotice(false)}
                     >
-                        이제 브라우저 상단에서 '알림 권한'을 '허용'으로 놓으시면, 같은 방의 문제 해결 시 알림을 받아보실 수 있습니다!
+                        Blobnom 공식 Discord가 오픈했습니다!{" "}
+                        <a
+                            href="https://discord.gg/Z7tUQZK8"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            https://discord.gg/Z7tUQZK8
+                        </a>
+                        에서 땅따먹기 같이 할 사람을 구해보세요!
                     </Alert>
                 )}
                 <Group className="flex flex-wrap items-center justify-between">
