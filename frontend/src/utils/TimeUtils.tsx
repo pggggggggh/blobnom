@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
 
-export const getDiffTime = (dt: Date) => {
-    const now = dayjs();
-    const end = dayjs(dt);
-    const diff = end.diff(now, 'second');
+export const getDiffTime = (startDate: Date, endDate: Date) => {
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+    const diff = end.diff(start, 'second');
 
     if (diff <= 0) {
         return "00:00:00";

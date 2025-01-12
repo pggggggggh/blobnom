@@ -1,9 +1,10 @@
 import {RoomDetail} from "../types/RoomDetail.tsx";
 import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "react-hexgrid";
-import {Box, Button, Center, HoverCard, Text} from "@mantine/core";
+import {Paper, Button, Center, HoverCard, Text} from "@mantine/core";
 import {useSolveProblem} from "../hooks/hooks.tsx";
 import dayjs from "dayjs";
 import {gradientNull, userColors} from "../constants/UserColorsFill.tsx";
+import {getDiffTime} from "../utils/TimeUtils.tsx";
 
 export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const missions = roomDetail.mission_info;
@@ -13,7 +14,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
 
     return (
         <Center h="calc(100vh - var(--app-shell-header-height, 0px) - 32px)">
-            <Box w="100%" h="100%" className="flex items-center justify-center">
+            <Paper w="100%" h="100%" className="flex items-center justify-center">
 
                 <HexGrid
                     className="mx-auto"
@@ -73,6 +74,11 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                         >
                                             <SVGText
                                                 fontSize="5"
+                                                y={
+                                                    !missions[i].solved_at
+                                                        ? 0
+                                                        : -0.25
+                                                }
                                                 className={`
                                                 ${
                                                     missions[i].solved_at ?
@@ -96,6 +102,24 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                             >
                                                 {missions[i].problem_id}
                                             </SVGText>
+                                            {
+                                                !missions[i].solved_at
+                                                ? <></> :
+                                                <SVGText
+                                                    fontSize="3"
+                                                    y={4}
+                                                    className={`
+                                                ${
+                                                        missions[i].solved_at ?
+                                                            missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-zinc-200"
+                                                            :
+                                                            "fill-zinc-200"
+                                                    }
+                                                stroke-0`}
+                                                >
+                                                    {getDiffTime(new Date(roomDetail.starts_at), new Date(missions[i].solved_at))}
+                                                </SVGText>
+                                            }
                                         </Hexagon>
                                     </a>
                                 </HoverCard.Target>
@@ -133,7 +157,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                         ))}
                     </Layout>
                 </HexGrid>
-            </Box>
+            </Paper>
         </Center>
     );
 };

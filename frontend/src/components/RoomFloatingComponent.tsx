@@ -18,13 +18,13 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     useEffect(() => {
         if (!roomDetail) return;
 
-        const startInterval = setInterval(() => setTimeBefore(getDiffTime(new Date(roomDetail.starts_at))), 1000);
+        const startInterval = setInterval(() => setTimeBefore(getDiffTime(new Date(), new Date(roomDetail.starts_at))), 1000);
         if (roomDetail.is_started) {
             clearInterval(startInterval);
-            setTimeLeft(getDiffTime(new Date(roomDetail.ends_at)))
-            setInterval(() => setTimeLeft(getDiffTime(new Date(roomDetail.ends_at))), 1000);
+            setTimeLeft(getDiffTime(new Date(), new Date(roomDetail.ends_at)))
+            setInterval(() => setTimeLeft(getDiffTime(new Date(), new Date(roomDetail.ends_at))), 1000);
         } else {
-            setTimeBefore(getDiffTime(new Date(roomDetail.starts_at)))
+            setTimeBefore(getDiffTime(new Date(), new Date(roomDetail.starts_at)))
         }
     }, [roomDetail]);
 
