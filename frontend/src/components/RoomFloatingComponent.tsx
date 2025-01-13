@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RoomDeleteModal from "./Modals/RemoveModal.tsx";
 import {userColors} from "../constants/UserColorsFill.tsx";
 import {useAuth} from "../context/AuthProvider.tsx";
+import TeamStatusBox from "./TeamStatusBox.tsx";
 
 const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const [timeLeft, setTimeLeft] = useState<string>("");
@@ -18,13 +19,13 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     useEffect(() => {
         if (!roomDetail) return;
 
-        const startInterval = setInterval(() => setTimeBefore(getDiffTime(new Date(roomDetail.starts_at))), 1000);
+        const startInterval = setInterval(() => setTimeBefore(getDiffTime(new Date(), new Date(roomDetail.starts_at))), 1000);
         if (roomDetail.is_started) {
             clearInterval(startInterval);
-            setTimeLeft(getDiffTime(new Date(roomDetail.ends_at)))
-            setInterval(() => setTimeLeft(getDiffTime(new Date(roomDetail.ends_at))), 1000);
+            setTimeLeft(getDiffTime(new Date(), new Date(roomDetail.ends_at)))
+            setInterval(() => setTimeLeft(getDiffTime(new Date(), new Date(roomDetail.ends_at))), 1000);
         } else {
-            setTimeBefore(getDiffTime(new Date(roomDetail.starts_at)))
+            setTimeBefore(getDiffTime(new Date(), new Date(roomDetail.starts_at)))
         }
     }, [roomDetail]);
 
@@ -98,37 +99,7 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                 </div>
             }
 
-            <div
-                className="p-2 fixed bottom-4 right-4 bg-zinc-900 opacity-75 text-white shadow-lg rounded-sm max-h-100 overflow-y-auto z-0">
-                {roomDetail.team_info.map((team, i) => {
-                    return (
-                        <Box key={i} className="flex items-center gap-2">
-                            <Box style={{backgroundColor: userColors[team.team_index][0]}}
-                                 className={`w-4 h-4 rounded-sm`}></Box>
-                            <Text className="font-light">
-                                {team.users
-                                    .map((user, idx) => (
-                                        <span key={user.name}>
-                                    <span
-                                        className={team.users.length > 1 && user.indiv_solved_cnt > 0 && idx === 0 ? "font-bold" : ""}>
-                                        <a href={`https://www.acmicpc.net/status?user_id=${user.name}`}
-                                           target="_blank"
-                                           rel="noopener noreferrer"
-                                           className="no-underline text-white">
-                                        {user.name}
-                                        </a>
-                                    </span>
-                                            {team.users.length > 1 && `(${user.indiv_solved_cnt})`}
-                                            {idx < team.users.length - 1 && ", "}
-                                </span>
-                                    ))}
-                                &nbsp;: <span
-                                className="font-bold">{team.adjacent_solved_count}</span> ({team.total_solved_count})
-                            </Text>
-                        </Box>
-                    );
-                })}
-            </div>
+            <TeamStatusBox roomDetail={roomDetail} userColors={userColors}/>
         </>);
 }
 
