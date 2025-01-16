@@ -16,12 +16,12 @@ const ContestDetailsPage = () => {
 
     return (
         <Container size="lg">
-            <Grid>
+            <Grid my="lg">
                 <Grid.Col span={{base: 12, md: 8}}>
                     <Card padding="lg" mb="lg">
                         <Stack align="center" justify="center" gap="xs">
                             <Title>🏆</Title>
-                            <Title order={2}>{contestDetail.name}</Title>
+                            <Title order={2} ta="center">{contestDetail.name}</Title>
                             <Text>
                                 {dayjs(contestDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ {dayjs(contestDetail.ends_at).format('YYYY-MM-DD HH:mm')}
                             </Text>
@@ -45,7 +45,7 @@ const ContestDetailsPage = () => {
                         </Stack>
                     </Card>
 
-                    <Card shadow="sm" padding="lg">
+                    <Card shadow="sm" p="lg">
                         <Stack>
                             <Box>
                                 <Title order={3} mb="xs">
