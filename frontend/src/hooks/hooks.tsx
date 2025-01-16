@@ -87,8 +87,10 @@ export const useRegisterContest = () => {
         },
         onError: (error: any) => {
             console.log(error);
-            const detailMessage =
+            let detailMessage =
                 error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
+            if(error?.response?.status === 401)
+                detailMessage = "로그인이 필요합니다.";
             modals.open({
                 children: <ErrorModal detailMessage={detailMessage}/>,
             });

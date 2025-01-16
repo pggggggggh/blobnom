@@ -11,7 +11,7 @@ const ContestListComponent = ({contests, cur_datetime}: { contests: ContestSumma
         <Stack gap="sm">
             {contests?.map((contest) => {
                 return (
-                    <Card key={contest.id} withBorder shadow="sm">
+                    <Card key={contest.id} withBorder shadow="sm" style={{ border: '1px solid #DFCD7E' }}>
                         <Group justify="space-between">
                             <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
                                 <Text fw={500} size="lg">
