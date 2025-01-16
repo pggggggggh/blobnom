@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import "dayjs/locale/ko";
+import isBetween from 'dayjs/plugin/isBetween';
 import utc from 'dayjs/plugin/utc';
 import {ModalsProvider} from "@mantine/modals";
 import Theme from "./constants/Theme.tsx";
@@ -37,6 +38,7 @@ const queryClient = new QueryClient();
 // dayjs
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
+dayjs.extend(isBetween);
 dayjs.locale("ko");
 dayjs.extend(utc);
 
