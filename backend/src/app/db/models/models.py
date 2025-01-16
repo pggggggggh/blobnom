@@ -29,6 +29,8 @@ class Member(TimestampMixin, Base):
     email = Column(String)
     password = Column(String, nullable=False)
 
+    registered_contests = relationship("ContestMember", back_populates="member")
+
 
 class Room(TimestampMixin, Base):
     __tablename__ = "rooms"
@@ -126,6 +128,7 @@ class Contest(TimestampMixin, Base):
     ends_at = Column(DateTime(timezone=True), nullable=False)
 
     contest_rooms = relationship("ContestRoom", back_populates="contest", foreign_keys="ContestRoom.contest_id")
+    contest_members = relationship("ContestMember", back_populates="contest")
 
 
 class ContestRoom(TimestampMixin, Base):
@@ -139,3 +142,19 @@ class ContestRoom(TimestampMixin, Base):
 
     room_id = Column(ForeignKey("rooms.id"))
     room = relationship("Room")
+
+
+class ContestMember(TimestampMixin, Base):
+    __tablename__ = "contest_members"
+    id = Column(Integer, primary_key=True)
+
+    contest_id = Column(ForeignKey("contests.id"))
+    contest = relationship("Contest", back_populates="contest_members")
+
+    member_id = Column(ForeignKey("members.id"))
+    member = relationship("Member", back_populates="registered_contests")
+
+    room_id = Column(ForeignKey("rooms.id"))
+    room = relationship("Room")
+
+    final_rank = Column(Integer)

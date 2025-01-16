@@ -1,42 +1,43 @@
 import {Badge, Box, Button, Card, Group, Stack, Text} from "@mantine/core";
-import {Link} from "@tanstack/react-router";
-import {RoomSummary} from "../types/Summaries.tsx";
-import TokenOutlinedIcon from '@mui/icons-material/TokenOutlined';
-import PersonIcon from '@mui/icons-material/Person';
-import LockIcon from '@mui/icons-material/Lock';
 import dayjs, {Dayjs} from "dayjs";
+import {ContestSummary} from "../types/Summaries.tsx";
+import PersonIcon from "@mui/icons-material/Person";
+import TokenOutlinedIcon from "@mui/icons-material/TokenOutlined";
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import {Link} from "@tanstack/react-router";
 
-const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_datetime: Dayjs }) => {
+const ContestListComponent = ({contests, cur_datetime}: { contests: ContestSummary[], cur_datetime: Dayjs }) => {
     return (
         <Stack gap="sm">
-            {rooms?.map((room) => {
+            {contests?.map((contest) => {
                 return (
-                    <Card key={room.id} withBorder shadow="sm">
+                    <Card key={contest.id} withBorder shadow="sm">
                         <Group justify="space-between">
                             <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
                                 <Text fw={500} size="lg">
-                                    {room.is_private && <LockIcon fontSize={"inherit"} className="mr-1 "/>}
-                                    {room.name}
+                                    <Box component="span" c="yellow"><EmojiEventsIcon fontSize={"inherit"}
+                                                                                      className="mr-1 "/></Box>
+                                    {contest.name}
                                 </Text>
                                 <Text size="sm" c="dimmed">
-                                    방장: {room.owner}
+                                    쿼리: {contest.query}
                                 </Text>
                             </Box>
                             <Group>
                                 <Group gap="xs" visibleFrom="sm">
                                     {
-                                        dayjs(room.starts_at).isBefore(cur_datetime) ? (
-                                            dayjs(room.ends_at).isBefore(cur_datetime) ?
+                                        dayjs(contest.starts_at).isBefore(cur_datetime) ? (
+                                            dayjs(contest.ends_at).isBefore(cur_datetime) ?
                                                 <Badge className="font-medium" color="blue">
-                                                    {dayjs(room.ends_at).to(cur_datetime, true)} 전 종료
+                                                    {dayjs(contest.ends_at).to(cur_datetime, true)} 전 종료
                                                 </Badge>
                                                 :
                                                 <Badge className="font-medium" color="green">
-                                                    {dayjs(room.ends_at).to(cur_datetime, true)} 후 종료
+                                                    {dayjs(contest.ends_at).to(cur_datetime, true)} 후 종료
                                                 </Badge>
                                         ) : (
                                             <Badge className="font-medium" color="red">
-                                                {dayjs(room.starts_at).to(cur_datetime, true)} 후 시작
+                                                {dayjs(contest.starts_at).to(cur_datetime, true)} 후 시작
                                             </Badge>
                                         )
                                     }
@@ -44,28 +45,28 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                     <Box visibleFrom="xs" w={65}>
                                         <Group gap="xs">
                                             <PersonIcon/>
-                                            <Text size="sm" w={30} ta="">
-                                                {room.num_players}/{room.max_players}
+                                            <Text size="sm" w={30}>
+                                                {contest.num_participants}/∞
                                             </Text>
                                         </Group>
                                     </Box>
                                     <Box visibleFrom="sm" w={80}>
                                         <Group gap="xs">
                                             <TokenOutlinedIcon/>
-                                            <Text size="sm" w={30} ta="">
-                                                {room.num_solved_missions}/{room.num_missions}
+                                            <Text size="sm" w={30}>
+                                                {contest.missions_per_room}
                                             </Text>
                                         </Group>
                                     </Box>
                                 </Group>
                                 <Link
-                                    to="/rooms/$roomId"
+                                    to="/contests/$contestId"
                                     params={{
-                                        roomId: room.id.toString()
+                                        contestId: contest.id.toString()
                                     }}
                                 >
-                                    <Button variant="light">
-                                        참여하기
+                                    <Button variant="light" color="yellow">
+                                        입장하기
                                     </Button>
                                 </Link>
                             </Group>
@@ -74,7 +75,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                 );
             })}
         </Stack>
-    );
-};
+    )
+}
 
-export default RoomListComponent;
+export default ContestListComponent;

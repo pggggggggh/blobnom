@@ -1,25 +1,25 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { RoomDetail } from "../types/RoomDetail.tsx";
-import {
-    LoginPayload,
-    RegisterPayload,
-    SolvedAcTokenResponse,
-} from "../types/Auth.tsx"
+import {useMutation, useQuery} from '@tanstack/react-query';
+import {RoomDetail} from "../types/RoomDetail.tsx";
+import {LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
 import {
     deleteRoom,
+    fetchContestDetail,
     fetchMainData,
     fetchRoomDetail,
+    fetchSolvedAcToken,
     postCreateRoom,
     postJoinRoom,
-    postSolveProblem,
     postLogin,
-    fetchSolvedAcToken,
-    postRegister
+    postRegister,
+    postRegisterContest,
+    postSolveProblem,
+    postUnregisterContest
 } from "../api/api.tsx";
-import { modals } from "@mantine/modals";
+import {modals} from "@mantine/modals";
 import ErrorModal from "../components/Modals/ErrorModal.tsx";
-import { MainData } from "../types/RoomSummary.tsx";
-import { useRouter } from "@tanstack/react-router";
+import {MainData} from "../types/Summaries.tsx";
+import {useRouter} from "@tanstack/react-router";
+import {ContestDetail} from "../types/ContestDetail.tsx";
 
 
 export const useRoomList = (page: number, search: string, activeOnly: boolean) => {
@@ -37,6 +37,13 @@ export const useRoomDetail = (roomId: number) => {
     });
 };
 
+export const useContestDetail = (contestId: number) => {
+    return useQuery<ContestDetail, Error>({
+        queryKey: ['contestDetail', contestId],
+        queryFn: () => fetchContestDetail(contestId),
+    });
+};
+
 
 export const useSolveProblem = () => {
     return useMutation({
@@ -47,7 +54,7 @@ export const useSolveProblem = () => {
             console.log(error);
             modals.open({
                 children: (
-                    <ErrorModal detailMessage={"문제를 해결하는 중 오류가 발생했습니다."} />
+                    <ErrorModal detailMessage={"문제를 해결하는 중 오류가 발생했습니다."}/>
                 ),
             });
         },
@@ -66,12 +73,45 @@ export const useJoinRoom = () => {
             const detailMessage =
                 error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
             modals.open({
-                children: <ErrorModal detailMessage={detailMessage} />,
+                children: <ErrorModal detailMessage={detailMessage}/>,
             });
         },
     });
 };
 
+export const useRegisterContest = () => {
+    return useMutation({
+        mutationFn: postRegisterContest,
+        onSuccess: () => {
+            window.location.reload();
+        },
+        onError: (error: any) => {
+            console.log(error);
+            const detailMessage =
+                error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
+            modals.open({
+                children: <ErrorModal detailMessage={detailMessage}/>,
+            });
+        },
+    });
+}
+
+export const useUnregisterContest = () => {
+    return useMutation({
+        mutationFn: postUnregisterContest,
+        onSuccess: () => {
+            window.location.reload();
+        },
+        onError: (error: any) => {
+            console.log(error);
+            const detailMessage =
+                error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
+            modals.open({
+                children: <ErrorModal detailMessage={detailMessage}/>,
+            });
+        },
+    });
+}
 
 export const useCreateRoom = () => {
     const router = useRouter();
@@ -83,11 +123,11 @@ export const useCreateRoom = () => {
             if (roomId) {
                 router.navigate({
                     to: '/rooms/$roomId',
-                    params: { roomId: roomId },
+                    params: {roomId: roomId},
                 });
             } else {
                 modals.open({
-                    children: <ErrorModal detailMessage="알 수 없는 에러가 발생했습니다." />,
+                    children: <ErrorModal detailMessage="알 수 없는 에러가 발생했습니다."/>,
                 });
             }
         },
@@ -96,7 +136,7 @@ export const useCreateRoom = () => {
             const detailMessage =
                 error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
             modals.open({
-                children: <ErrorModal detailMessage={detailMessage} />,
+                children: <ErrorModal detailMessage={detailMessage}/>,
             });
         },
     });
@@ -114,12 +154,11 @@ export const useDeleteRoom = () => {
             const detailMessage =
                 error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
             modals.open({
-                children: <ErrorModal detailMessage={detailMessage} />,
+                children: <ErrorModal detailMessage={detailMessage}/>,
             });
         },
     });
 };
-
 
 
 export const useFetchSolvedAcToken = () => {
@@ -137,7 +176,7 @@ export const useRegister = () => {
         onSuccess: () => {
             modals.open({
                 children: (
-                    <ErrorModal detailMessage="회원가입이 완료되었습니다. 로그인 해주세요." />
+                    <ErrorModal detailMessage="회원가입이 완료되었습니다. 로그인 해주세요."/>
                 ),
             });
         },
@@ -154,7 +193,7 @@ export const useRegister = () => {
                 }
             }
             modals.open({
-                children: <ErrorModal detailMessage={detailMessage} />,
+                children: <ErrorModal detailMessage={detailMessage}/>,
             });
         },
     });
@@ -179,7 +218,7 @@ export const useLogin = () => {
                 }
             }
             modals.open({
-                children: <ErrorModal detailMessage={detailMessage} />,
+                children: <ErrorModal detailMessage={detailMessage}/>,
             });
         },
     });

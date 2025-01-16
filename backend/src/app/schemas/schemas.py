@@ -70,6 +70,31 @@ class RoomMissionInfo(BaseModel):
         from_attributes = True
 
 
+class ContestSummary(BaseModel):
+    id: int
+    name: str
+    query: str
+    starts_at: datetime
+    ends_at: datetime
+    num_participants: int
+    players_per_room: int
+    missions_per_room: int
+
+
+class ContestDetails(BaseModel):
+    id: int
+    name: str
+    query: str
+    starts_at: datetime
+    ends_at: datetime
+    num_participants: int
+    participants: List[str]
+    players_per_room: int
+    missions_per_room: int
+    is_user_registered: bool
+    # 경기 끝나면 각 방별 순위 등등 제공 예정
+
+
 class RoomSummary(BaseModel):
     id: int
     name: str
