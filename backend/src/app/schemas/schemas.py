@@ -3,7 +3,7 @@ from typing import List, Optional, Dict
 
 from pydantic import BaseModel
 
-from src.app.core.enums import ModeType
+from src.app.core.enums import ModeType, ContestType
 
 
 class RoomCreateRequest(BaseModel):
@@ -17,6 +17,16 @@ class RoomCreateRequest(BaseModel):
     max_players: int
     edit_password: str
     entry_pin: str
+    starts_at: datetime
+    ends_at: datetime
+
+
+class ContestCreateRequest(BaseModel):
+    name: str
+    query: str
+    type: ContestType
+    missions_per_room: int
+    players_per_room: int
     starts_at: datetime
     ends_at: datetime
 

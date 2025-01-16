@@ -2,7 +2,7 @@ from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, Boolean, E
 from sqlalchemy.orm import relationship
 
 from src.app.core.constants import MAX_TEAM_PER_ROOM
-from src.app.core.enums import ProblemType, ModeType
+from src.app.core.enums import ProblemType, ModeType, ContestType, Role
 from src.app.db.database import Base, TimestampMixin
 
 
@@ -25,6 +25,7 @@ class Member(TimestampMixin, Base):
 
     id = Column(Integer, primary_key=True)
     handle = Column(String, index=True)
+    role = Column(Enum(Role), nullable=False, default=Role.MEMBER)
     email = Column(String)
     password = Column(String, nullable=False)
 
@@ -107,3 +108,34 @@ class SolvedacToken(TimestampMixin, Base):
     token = Column(String)
     is_used = Column(Boolean, default=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)
+
+
+class Contest(TimestampMixin, Base):
+    __tablename__ = "contests"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, index=True, nullable=False)
+    query = Column(String)
+    is_deleted = Column(Boolean, default=False)
+    type = Column(Enum(ContestType), nullable=False, default=ContestType.CONTEST_BOJ_GENERAL)
+
+    missions_per_room = Column(Integer, nullable=False)
+    players_per_room = Column(Integer, nullable=False)
+
+    starts_at = Column(DateTime(timezone=True), nullable=False)
+    ends_at = Column(DateTime(timezone=True), nullable=False)
+
+    contest_rooms = relationship("ContestRoom", back_populates="contest", foreign_keys="ContestRoom.contest_id")
+
+
+class ContestRoom(TimestampMixin, Base):
+    __tablename__ = "contest_rooms"
+
+    id = Column(Integer, primary_key=True)
+    index = Column(Integer, nullable=False)  # in which room number within the contest
+
+    contest_id = Column(ForeignKey("contests.id"))
+    contest = relationship("Contest", back_populates="contest_rooms")
+
+    room_id = Column(ForeignKey("rooms.id"))
+    room = relationship("Room")
