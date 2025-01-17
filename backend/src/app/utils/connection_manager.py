@@ -1,6 +1,7 @@
 from typing import List, Dict
 
 from fastapi import WebSocket
+from starlette.websockets import WebSocketDisconnect
 
 
 class ConnectionManager:
@@ -22,8 +23,12 @@ class ConnectionManager:
         await websocket.send_text(message)
 
     async def broadcast(self, message: Dict[str, str], room_id: int):
-        print(self.active_connections)
         if room_id in self.active_connections:
-            print(message)
+            disconnected_sockets = []
             for connection in self.active_connections[room_id]:
-                await connection.send_json(message)
+                try:
+                    await connection.send_json(message)
+                except WebSocketDisconnect:
+                    disconnected_sockets.append(connection)
+            for conn in disconnected_sockets:
+                self.disconnect(conn, room_id)
