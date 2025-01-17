@@ -63,6 +63,9 @@ const ContestDetailsPage = () => {
                                     대회 규칙
                                 </Title>
                                 <List spacing="sm" size="sm" withPadding>
+                                    <List.Item>🚨 중요 대회 규칙 : 반드시 자신의 땅에서 인접한 칸만 도전할 수 있습니다. 🚨</List.Item>
+                                    <List.Item>종료 시점에 가장 많은 땅을 획득한 참가자가 승리합니다.</List.Item>
+                                    <br/>
                                     <List.Item>대회 시작 전, 'BOJ 설정 - 보기 - solved.ac 티어'를 '보지 않기'로 설정해주세요.</List.Item>
                                     <List.Item>해당 문제의 풀이를 직접 검색하는 것을 제외한 모든 검색이 허용됩니다.</List.Item>
                                     <List.Item>해당 문제의 정답 소스코드를 제외한 모든 소스코드의 복사/붙여넣기가 허용됩니다.</List.Item>
