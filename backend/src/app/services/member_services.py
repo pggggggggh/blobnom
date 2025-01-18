@@ -72,7 +72,7 @@ async def login(login_request: LoginRequest, db: Session):
         raise HTTPException(status_code=404, detail="User not found")
     if not verify_password(login_request.password, member.password):
         raise HTTPException(status_code=401, detail="Incorrect password")
-    td = timedelta(minutes=60)
-    if login_request.remember_me:
-        td = timedelta(days=30)
+    td = timedelta(days=30)
+    # if login_request.remember_me:
+    #     td = timedelta(days=30)
     return create_access_token(data={"sub": member.handle}, expires_delta=td)
