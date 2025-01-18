@@ -176,7 +176,7 @@ export const useLogin = () => {
             if (error?.response) {
                 if (error.response.status === 404) {
                     detailMessage = "존재하지 않는 사용자입니다.";
-                } else if (error.response.status === 401) {
+                } else if (error.response.status === 400) {
                     detailMessage = "비밀번호가 잘못되었습니다.";
                 } else if (error.response.status === 429) {
                     detailMessage = "잠시 후 시도해주세요.";
