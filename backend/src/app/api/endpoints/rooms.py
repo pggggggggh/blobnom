@@ -126,6 +126,8 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
         existing_member = db.query(Member).filter(Member.handle == handle).first()
         if existing_member is not None:
             raise HTTPException(status_code=400, detail="가입된 유저입니다. 로그인해주시기 바랍니다.")
+    else:
+        handle = token_handle
 
     query = "@" + handle
     solved_problems = await search_problems(query)
