@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { api } from '../api/instance';
-import { showNotification } from '@mantine/notifications';
-import { useRouter } from '@tanstack/react-router';
+import React, {createContext, useContext, useEffect, useState} from 'react';
+import {api} from '../api/instance';
+import {useRouter} from '@tanstack/react-router';
 
 interface AuthContextType {
     user: string | null;
@@ -12,7 +11,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [user, setUser] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
@@ -33,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     },
                 });
 
-                setUser(response.data.username || response.data.name || 'User');
+                setUser(response.data || 'User');
             } catch (error) {
                 console.error('Failed to fetch user:', error);
                 setUser(null);
@@ -49,16 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = () => {
         localStorage.removeItem('accessToken');
         setUser(null);
-        /*
-        showNotification({
-            title: '로그아웃',
-            message: '로그아웃되었습니다.',
-            color: 'red',
-            loading: true,
-            autoClose: 1500,
-        });
-        */
-        router.navigate({ to: '/' });
+        window.location.href = "/"
     };
 
     useEffect(() => {
@@ -76,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [user]);
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, logout }}>
+        <AuthContext.Provider value={{user, setUser, loading, logout}}>
             {children}
         </AuthContext.Provider>
     );

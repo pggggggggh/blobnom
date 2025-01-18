@@ -179,7 +179,7 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
 
 
 @router.post("/solved")
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 async def room_solved(request: Request, room_id: int = Body(...), problem_id: int = Body(...),
                       db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
     room = (db.query(Room)
