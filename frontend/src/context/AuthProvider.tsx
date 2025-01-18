@@ -1,31 +1,41 @@
-import {createContext, useContext, useEffect, useState} from "react";
-import {api} from "../api/instance"
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { api } from '../api/instance';
+import { showNotification } from '@mantine/notifications';
+import { useRouter } from '@tanstack/react-router';
 
-const AuthContext = createContext(null);
+interface AuthContextType {
+    user: string | null;
+    setUser: React.Dispatch<React.SetStateAction<string | null>>;
+    loading: boolean;
+    logout: () => void;
+}
 
-export const AuthProvider = ({children}) => {
-    const [user, setUser] = useState(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [user, setUser] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const token = localStorage.getItem("accessToken");
+                const token = localStorage.getItem('accessToken');
                 if (!token) {
                     setUser(null);
                     setLoading(false);
                     return;
                 }
 
-                const response = await api.get("/members/me", {
+                const response = await api.get('/members/me', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 });
 
-                setUser(response.data);
+                setUser(response.data.username || response.data.name || 'User');
             } catch (error) {
-                console.error("Failed to fetch user:", error);
+                console.error('Failed to fetch user:', error);
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -35,11 +45,47 @@ export const AuthProvider = ({children}) => {
         fetchUser();
     }, []);
 
+
+    const logout = () => {
+        localStorage.removeItem('accessToken');
+        setUser(null);
+        /*
+        showNotification({
+            title: '로그아웃',
+            message: '로그아웃되었습니다.',
+            color: 'red',
+            loading: true,
+            autoClose: 1500,
+        });
+        */
+        router.navigate({ to: '/' });
+    };
+
+    useEffect(() => {
+        if (user) {
+            /*
+            showNotification({
+                title: '로그인',
+                message: `${user}님 땅먹 ㄱㄱ`,
+                color: 'green',
+                loading: true,
+                autoClose: 1500,
+            });
+            */
+        }
+    }, [user]);
+
     return (
-        <AuthContext.Provider value={{user, setUser, loading}}>
+        <AuthContext.Provider value={{ user, setUser, loading, logout }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};

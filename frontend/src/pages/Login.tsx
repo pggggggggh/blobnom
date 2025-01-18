@@ -50,11 +50,13 @@ export default function Login() {
                     onChange={(e) => setPassword(e.currentTarget.value)}
                     required
                 />
+                {/*
                 <Checkbox
                     label="로그인 상태 유지"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.currentTarget.checked)}
                 />
+                */}
                 <Button onClick={onLogin}>로그인</Button>
                 <Button variant="outline" onClick={goToRegister}>
                     회원가입
