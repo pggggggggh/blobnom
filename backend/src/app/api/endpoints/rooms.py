@@ -126,6 +126,8 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
         existing_member = db.query(Member).filter(Member.handle == handle).first()
         if existing_member is not None:
             raise HTTPException(status_code=400, detail="가입된 유저입니다. 로그인해주시기 바랍니다.")
+    else:
+        handle = token_handle
 
     query = "@" + handle
     solved_problems = await search_problems(query)
@@ -137,6 +139,8 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
         db.add(user)
         db.flush()
     user = db.query(User).filter(User.handle == handle).first()
+
+    solved_mission_list = []
 
     if room.is_started:
         unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
@@ -162,7 +166,7 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
     db.add(player)
     db.flush()
 
-    if room.is_started:
+    if room.is_started and token_handle is not None:  # 비회원인 경우, 가입하자마자 솔브 처리
         missions = db.query(RoomMission).filter(
             RoomMission.problem_id.in_(solved_mission_list),
             RoomMission.room_id == id
