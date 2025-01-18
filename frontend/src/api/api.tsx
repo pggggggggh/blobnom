@@ -2,9 +2,10 @@ import {api} from "./instance.tsx";
 import {RoomDetail} from "../types/RoomDetail.tsx";
 import {MainData} from "../types/RoomSummary.tsx";
 import {RoomForm} from "../types/RoomForm.tsx";
+import {LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
 
 export const fetchMainData = async (page: number, search: string, activeOnly: boolean): Promise<MainData> => {
-    const response = await api.get(`/`, {
+    const response = await api.get(`/rooms/list/`, {
         params: {
             page: page, search: search, activeOnly: activeOnly,
         }
@@ -42,3 +43,21 @@ export const deleteRoom = async (data: { roomId: number; password: string }) => 
     console.log(response)
     return response.data;
 };
+
+
+export async function postLogin(
+    payload: LoginPayload
+): Promise<{ result: 'success'; token: string }> {
+    const response = await api.post<{ result: 'success'; token: string }>('/auth/login', payload);
+    return response.data;
+}
+
+export async function fetchSolvedAcToken(): Promise<SolvedAcTokenResponse> {
+    const response = await api.get<SolvedAcTokenResponse>('/auth/solvedac_token');
+    return response.data;
+}
+
+export async function postRegister(payload: RegisterPayload): Promise<{ result: 'success' }> {
+    const response = await api.post<{ result: 'success' }>('/auth/register', payload);
+    return response.data;
+}

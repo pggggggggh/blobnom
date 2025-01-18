@@ -1,5 +1,5 @@
-import {createRootRoute, Outlet} from '@tanstack/react-router'
-import {AppShell} from "@mantine/core";
+import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { AppShell } from "@mantine/core";
 import HeaderComponent from "../components/HeaderComponent.tsx";
 
 export const Route = createRootRoute({
@@ -7,14 +7,14 @@ export const Route = createRootRoute({
         return (
             <>
                 <AppShell
-                    header={{height: 60}}
+                    header={{ height: 60 }}
                     padding="md"
                 >
                     <AppShell.Header>
-                        <HeaderComponent/>
+                        <HeaderComponent />
                     </AppShell.Header>
                     <AppShell.Main>
-                        <Outlet/>
+                        <Outlet />
                     </AppShell.Main>
                 </AppShell>
             </>);

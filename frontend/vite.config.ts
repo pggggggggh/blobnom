@@ -1,6 +1,6 @@
-import {defineConfig} from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
-import {TanStackRouterVite} from '@tanstack/router-plugin/vite'
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -8,4 +8,7 @@ export default defineConfig({
         react(),
         TanStackRouterVite(),
     ],
+    optimizeDeps: {
+        include: ['zustand'],
+    },
 })

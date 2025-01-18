@@ -1,5 +1,5 @@
 const Theme = {
-    fontFamily: 'Noto Sans KR, sans-serif',
+    fontFamily: 'Pretendard, sans-serif',
     colors: {
         dark: [
             '#FFFFFF', // dark-0

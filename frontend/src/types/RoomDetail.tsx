@@ -9,6 +9,8 @@ export interface RoomDetail {
     max_players: number;
     mode_type: string;
     is_private: boolean;
+    is_user_in_room: boolean;
+    is_owner_a_member: boolean;
     num_missions: number;
     num_solved_missions: number;
     team_info: TeamInfo[];
