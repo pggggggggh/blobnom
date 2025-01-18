@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     Burger,
     Button,
@@ -9,18 +10,19 @@ import {
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import logo from '../assets/blobnom.png';
-import { Link, useNavigate } from '@tanstack/react-router';
-import { useAuth } from '../context/AuthProvider.tsx';
+import { Link } from '@tanstack/react-router';
+import { useAuth } from '../context/AuthProvider';
 
 const HeaderComponent = () => {
     const [opened, { toggle, close }] = useDisclosure(false);
     const auth = useAuth();
-    const navigate = useNavigate();
 
     const isSmallScreen = useMediaQuery('(max-width: 768px)');
 
     const menuItems = [
-        //{ label: '홈', link: '/' },
+        { label: '홈', link: '/' },
+        { label: '마라탕', link: '/' },
+        { label: '랭킹', link: '/' },
     ];
 
     const handleLogout = () => {
@@ -31,54 +33,79 @@ const HeaderComponent = () => {
     return (
         <>
             <Group
-                h="100%"
-                px="md"
-                className="justify-between w-full"
-                noWrap
+                align="center"
+                justify="space-between"
+                px="xl"
+                py="sm"
+                style={{
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    backgroundColor: '#1A1B1E',
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    zIndex: 1000,
+                    height: '60px',
+                }}
             >
-                <Group h="100%" gap="md">
+
+                <Group align="center" spacing="md">
+                    <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+                        <Image
+                            src={logo}
+                            alt="Logo"
+                            style={{ objectFit: 'contain', height: '40px' }}
+                        />
+                        <Title
+                            order={4}
+                            style={{
+                                marginLeft: '8px',
+                                color: '#fff',
+                                fontWeight: 300,
+                                textDecoration: 'none',
+                            }}
+                        >
+                            Blobnom
+                        </Title>
+                    </Link>
+                </Group>
+
+                <Group align="center" spacing="md">
+                    {!isSmallScreen && (
+                        <>
+                            {menuItems.map((item) => (
+                                <Link
+                                    key={item.label}
+                                    to={item.link}
+                                    style={{ textDecoration: 'none' }}
+                                >
+                                    <Button variant="subtle" color="white">
+                                        {item.label}
+                                    </Button>
+                                </Link>
+                            ))}
+                            {auth.user ? (
+                                <Button variant="light" onClick={handleLogout}>
+                                    로그아웃
+                                </Button>
+                            ) : (
+                                <Link to="/login" style={{ textDecoration: 'none' }}>
+                                    <Button variant="light">로그인</Button>
+                                </Link>
+                            )}
+                        </>
+                    )}
+
                     {isSmallScreen && (
                         <Burger
                             opened={opened}
                             onClick={toggle}
                             size="sm"
                             aria-label={opened ? '메뉴 닫기' : '메뉴 열기'}
+                            color="#fff"
                         />
                     )}
-                    <Link to="/" className="h-full">
-                        <Image
-                            src={logo}
-                            alt="Logo"
-                            className="object-contain h-full py-2"
-                        />
-                    </Link>
-                    <Link to="/" className="no-underline text-white">
-                        <Title className="font-extralight" order={4}>
-                            Blobnom
-                        </Title>
-                    </Link>
                 </Group>
-
-                {!isSmallScreen && (
-                    <Group spacing="md">
-                        {menuItems.map((item) => (
-                            <Link key={item.label} to={item.link} className="no-underline">
-                                <Button variant="subtle" color="white">
-                                    {item.label}
-                                </Button>
-                            </Link>
-                        ))}
-                        {auth.user ? (
-                            <Button variant="light" onClick={handleLogout}>
-                                로그아웃
-                            </Button>
-                        ) : (
-                            <Link to="/login" className="no-underline">
-                                <Button variant="light">로그인</Button>
-                            </Link>
-                        )}
-                    </Group>
-                )}
             </Group>
 
             {isSmallScreen && (
@@ -88,14 +115,20 @@ const HeaderComponent = () => {
                     title="메뉴"
                     padding="md"
                     size="sm"
+                    position="right"
+                    styles={{
+                        drawer: {
+                            backgroundColor: '#1A1B1E',
+                        },
+                    }}
                 >
-                    <Stack>
+                    <Stack spacing="md">
                         {menuItems.map((item) => (
                             <Link
                                 key={item.label}
                                 to={item.link}
                                 onClick={close}
-                                className="no-underline"
+                                style={{ textDecoration: 'none' }}
                             >
                                 <Button variant="subtle" fullWidth>
                                     {item.label}
@@ -110,7 +143,7 @@ const HeaderComponent = () => {
                             <Link
                                 to="/login"
                                 onClick={close}
-                                className="no-underline"
+                                style={{ textDecoration: 'none' }}
                             >
                                 <Button variant="light" fullWidth>
                                     로그인
