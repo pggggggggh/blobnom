@@ -166,7 +166,7 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
     db.add(player)
     db.flush()
 
-    if room.is_started:
+    if room.is_started and token_handle is not None:  # 비회원인 경우, 가입하자마자 솔브 처리
         missions = db.query(RoomMission).filter(
             RoomMission.problem_id.in_(solved_mission_list),
             RoomMission.room_id == id
