@@ -1,7 +1,6 @@
 export interface LoginPayload {
     handle: string;
     password: string;
-    remember_me?: boolean;
 }
 
 export interface RegisterPayload {

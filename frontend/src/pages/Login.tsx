@@ -1,22 +1,31 @@
 import { useState } from "react";
-import { Container, TextInput, PasswordInput, Button, Checkbox, Stack, Title, Alert } from "@mantine/core";
+import { Alert, Button, Container, PasswordInput, Stack, TextInput, Title } from "@mantine/core";
 import { useLogin } from "../hooks/hooks";
 import { useNavigate } from "@tanstack/react-router";
+import { useForm } from "@mantine/form";
 
 
 export default function Login() {
     const navigate = useNavigate();
-    const loginMutation = useLogin(); // <-- useLogin 훅 사용
+    const loginMutation = useLogin();
 
-    const [handle, setHandle] = useState("");
-    const [password, setPassword] = useState("");
-    const [rememberMe, setRememberMe] = useState(false);
+    const form = useForm({
+        mode: 'uncontrolled',
+        initialValues: {
+            handle: '',
+            password: '',
+            rememberMe: false
+        },
+        validate: {},
+    });
+
     const [error, setError] = useState<string | null>(null);
 
-    const onLogin = () => {
+    const onLogin = (values) => {
         setError(null);
+        console.log(values)
         loginMutation.mutate(
-            { handle, password, remember_me: rememberMe },
+            { handle: values.handle, password: values.password, remember_me: values.rememberMe },
             {
                 onError: (err: any) => {
                     console.log("Login error from component:", err);
@@ -31,35 +40,30 @@ export default function Login() {
 
     return (
         <Container size="xs" my="xl">
-            <Title order={2} mb="md">
-                로그인
-            </Title>
-            <Stack>
-                {error && <Alert color="red">{error}</Alert>}
-                <TextInput
-                    label="Handle"
-                    placeholder="핸들 입력"
-                    value={handle}
-                    onChange={(e) => setHandle(e.currentTarget.value)}
-                    required
-                />
-                <PasswordInput
-                    label="비밀번호"
-                    placeholder="비밀번호 입력"
-                    value={password}
-                    onChange={(e) => setPassword(e.currentTarget.value)}
-                    required
-                />
-                <Checkbox
-                    label="로그인 상태 유지"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.currentTarget.checked)}
-                />
-                <Button onClick={onLogin}>로그인</Button>
-                <Button variant="outline" onClick={goToRegister}>
-                    회원가입
-                </Button>
-            </Stack>
+            <form onSubmit={form.onSubmit(onLogin)}>
+                <Title order={2} mb="md">
+                    로그인
+                </Title>
+                <Stack>
+                    {error && <Alert color="red">{error}</Alert>}
+                    <TextInput
+                        {...form.getInputProps('handle')}
+                        label="Handle"
+                        placeholder="핸들 입력"
+                        required
+                    />
+                    <PasswordInput
+                        {...form.getInputProps('password')}
+                        label="비밀번호"
+                        placeholder="비밀번호 입력"
+                        required
+                    />
+                    <Button type="submit" loading={loginMutation.isPending}>로그인</Button>
+                    <Button variant="outline" onClick={goToRegister}>
+                        회원가입
+                    </Button>
+                </Stack>
+            </form>
         </Container>
     );
 }

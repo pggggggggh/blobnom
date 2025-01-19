@@ -19,7 +19,36 @@ import {modals} from "@mantine/modals";
 import ErrorModal from "../components/Modals/ErrorModal.tsx";
 import {MainData} from "../types/Summaries.tsx";
 import {useRouter} from "@tanstack/react-router";
+import InfoModal from "../components/Modals/InfoModal.tsx";
 import {ContestDetail} from "../types/ContestDetail.tsx";
+
+const handleError = (error: any) => {
+    console.log(error);
+    let detailMessage = "알 수 없는 에러가 발생했습니다.";
+
+    if (error?.response) {
+        switch (error.response.status) {
+            case 429:
+                detailMessage = "잠시 후 시도해주세요.";
+                break;
+            // case 404:
+            //     detailMessage = "존재하지 않는 리소스입니다.";
+            //     break;
+            case 401:
+                detailMessage = "로그인해주시기 바랍니다.";
+                break;
+            // case 400:
+            //     detailMessage = "잘못된 요청입니다.";
+            //     break;
+            default:
+                detailMessage = error.response.data?.detail || detailMessage;
+        }
+    }
+
+    modals.open({
+        children: <ErrorModal detailMessage={detailMessage}/>,
+    });
+};
 
 
 export const useRoomList = (page: number, search: string, activeOnly: boolean) => {
@@ -50,14 +79,7 @@ export const useSolveProblem = () => {
         mutationFn: postSolveProblem,
         onSuccess: () => {
         },
-        onError: (error) => {
-            console.log(error);
-            modals.open({
-                children: (
-                    <ErrorModal detailMessage={"문제를 해결하는 중 오류가 발생했습니다."}/>
-                ),
-            });
-        },
+        onError: handleError
     });
 };
 
@@ -68,14 +90,7 @@ export const useJoinRoom = () => {
         onSuccess: () => {
             window.location.reload();
         },
-        onError: (error: any) => {
-            console.log(error);
-            const detailMessage =
-                error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
-            modals.open({
-                children: <ErrorModal detailMessage={detailMessage}/>,
-            });
-        },
+        onError: handleError
     });
 };
 
@@ -89,7 +104,7 @@ export const useRegisterContest = () => {
             console.log(error);
             let detailMessage =
                 error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
-            if(error?.response?.status === 401)
+            if (error?.response?.status === 401)
                 detailMessage = "로그인이 필요합니다.";
             modals.open({
                 children: <ErrorModal detailMessage={detailMessage}/>,
@@ -133,14 +148,7 @@ export const useCreateRoom = () => {
                 });
             }
         },
-        onError: (error: any) => {
-            console.log(error);
-            const detailMessage =
-                error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
-            modals.open({
-                children: <ErrorModal detailMessage={detailMessage}/>,
-            });
-        },
+        onError: handleError
     });
 };
 
@@ -151,14 +159,7 @@ export const useDeleteRoom = () => {
         onSuccess: () => {
             window.location.href = "/";
         },
-        onError: (error: any) => {
-            console.log(error);
-            const detailMessage =
-                error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
-            modals.open({
-                children: <ErrorModal detailMessage={detailMessage}/>,
-            });
-        },
+        onError: handleError
     });
 };
 
@@ -178,8 +179,11 @@ export const useRegister = () => {
         onSuccess: () => {
             modals.open({
                 children: (
-                    <ErrorModal detailMessage="회원가입이 완료되었습니다. 로그인 해주세요."/>
+                    <InfoModal detailMessage="회원가입이 완료되었습니다. 로그인해주세요."/>
                 ),
+                onClose: () => {
+                    window.location.href = "/login"
+                }
             });
         },
         onError: (error: any) => {
@@ -191,13 +195,15 @@ export const useRegister = () => {
                 } else if (error.response.status === 400) {
                     detailMessage = "토큰 검증에 실패했습니다. (solved.ac 토큰 확인)";
                 } else if (error.response.status === 404) {
-                    detailMessage = "User not found (solved.ac)";
+                    detailMessage = "solved.ac에 존재하지 않는 사용자입니다.";
+                } else if (error.response.status === 429) {
+                    detailMessage = "잠시 후 시도해주세요.";
                 }
             }
             modals.open({
                 children: <ErrorModal detailMessage={detailMessage}/>,
             });
-        },
+        }
     });
 };
 
@@ -215,13 +221,15 @@ export const useLogin = () => {
             if (error?.response) {
                 if (error.response.status === 404) {
                     detailMessage = "존재하지 않는 사용자입니다.";
-                } else if (error.response.status === 401) {
+                } else if (error.response.status === 400) {
                     detailMessage = "비밀번호가 잘못되었습니다.";
+                } else if (error.response.status === 429) {
+                    detailMessage = "잠시 후 시도해주세요.";
                 }
             }
             modals.open({
                 children: <ErrorModal detailMessage={detailMessage}/>,
             });
-        },
+        }
     });
 };

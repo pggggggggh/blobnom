@@ -11,20 +11,20 @@ router = APIRouter()
 
 
 @router.get('/solvedac_token')
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 async def solvedac_token(request: Request, db: Session = Depends(get_db)):
     response = await create_solvedac_token(db=db)
     return response
 
 
 @router.post('/register')
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 async def post_register(request: Request, register_request: RegisterRequest = Body(...), db: Session = Depends(get_db)):
     await register(register_request, db=db)
 
 
 @router.post('/login')
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 async def post_login(request: Request, login_request: LoginRequest = Body(...), db: Session = Depends(get_db)):
     token = await login(login_request, db=db)
     return {"result": "success", "token": token}

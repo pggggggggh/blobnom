@@ -8,26 +8,27 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
-
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as RegisterImport } from './routes/register'
+import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as CreateImport } from './routes/create'
+import { Route as IndexImport } from './routes/index'
 import { Route as RoomsRoomIdImport } from './routes/rooms/$roomId'
-import { Route as ContestsContestIdImport } from './routes/contests/$contestId'
-
-// Create Virtual Routes
-
-const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
 
 const RegisterRoute = RegisterImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LogoutRoute = LogoutImport.update({
+  id: '/logout',
+  path: '/logout',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -43,21 +44,15 @@ const CreateRoute = CreateImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexLazyRoute = IndexLazyImport.update({
+const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+} as any)
 
 const RoomsRoomIdRoute = RoomsRoomIdImport.update({
   id: '/rooms/$roomId',
   path: '/rooms/$roomId',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const ContestsContestIdRoute = ContestsContestIdImport.update({
-  id: '/contests/$contestId',
-  path: '/contests/$contestId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -69,7 +64,7 @@ declare module '@tanstack/react-router' {
       id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
+      preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
     '/create': {
@@ -86,18 +81,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutImport
+      parentRoute: typeof rootRoute
+    }
     '/register': {
       id: '/register'
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterImport
-      parentRoute: typeof rootRoute
-    }
-    '/contests/$contestId': {
-      id: '/contests/$contestId'
-      path: '/contests/$contestId'
-      fullPath: '/contests/$contestId'
-      preLoaderRoute: typeof ContestsContestIdImport
       parentRoute: typeof rootRoute
     }
     '/rooms/$roomId': {
@@ -113,30 +108,30 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexLazyRoute
+  '/': typeof IndexRoute
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/register': typeof RegisterRoute
-  '/contests/$contestId': typeof ContestsContestIdRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexLazyRoute
+  '/': typeof IndexRoute
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/register': typeof RegisterRoute
-  '/contests/$contestId': typeof ContestsContestIdRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexLazyRoute
+  '/': typeof IndexRoute
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/register': typeof RegisterRoute
-  '/contests/$contestId': typeof ContestsContestIdRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
 }
 
@@ -146,43 +141,37 @@ export interface FileRouteTypes {
     | '/'
     | '/create'
     | '/login'
+    | '/logout'
     | '/register'
-    | '/contests/$contestId'
     | '/rooms/$roomId'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/create'
-    | '/login'
-    | '/register'
-    | '/contests/$contestId'
-    | '/rooms/$roomId'
+  to: '/' | '/create' | '/login' | '/logout' | '/register' | '/rooms/$roomId'
   id:
     | '__root__'
     | '/'
     | '/create'
     | '/login'
+    | '/logout'
     | '/register'
-    | '/contests/$contestId'
     | '/rooms/$roomId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute
+  IndexRoute: typeof IndexRoute
   CreateRoute: typeof CreateRoute
   LoginRoute: typeof LoginRoute
+  LogoutRoute: typeof LogoutRoute
   RegisterRoute: typeof RegisterRoute
-  ContestsContestIdRoute: typeof ContestsContestIdRoute
   RoomsRoomIdRoute: typeof RoomsRoomIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
+  IndexRoute: IndexRoute,
   CreateRoute: CreateRoute,
   LoginRoute: LoginRoute,
+  LogoutRoute: LogoutRoute,
   RegisterRoute: RegisterRoute,
-  ContestsContestIdRoute: ContestsContestIdRoute,
   RoomsRoomIdRoute: RoomsRoomIdRoute,
 }
 
@@ -199,13 +188,13 @@ export const routeTree = rootRoute
         "/",
         "/create",
         "/login",
+        "/logout",
         "/register",
-        "/contests/$contestId",
         "/rooms/$roomId"
       ]
     },
     "/": {
-      "filePath": "index.lazy.tsx"
+      "filePath": "index.tsx"
     },
     "/create": {
       "filePath": "create.tsx"
@@ -213,11 +202,11 @@ export const routeTree = rootRoute
     "/login": {
       "filePath": "login.tsx"
     },
+    "/logout": {
+      "filePath": "logout.tsx"
+    },
     "/register": {
       "filePath": "register.tsx"
-    },
-    "/contests/$contestId": {
-      "filePath": "contests/$contestId.tsx"
     },
     "/rooms/$roomId": {
       "filePath": "rooms/$roomId.tsx"

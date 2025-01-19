@@ -6,7 +6,7 @@ import {LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Au
 import {ContestDetail} from "../types/ContestDetail.tsx";
 
 export const fetchMainData = async (page: number, search: string, activeOnly: boolean): Promise<MainData> => {
-    const response = await api.get(`/rooms/list/`, {
+    const response = await api.get(`/rooms/list`, {
         params: {
             page: page, search: search, activeOnly: activeOnly,
         }
@@ -29,7 +29,7 @@ export const fetchContestDetail = async (contestId: number): Promise<ContestDeta
 
 
 export const postSolveProblem = async (data: { roomId: number; problemId: number }) => {
-    const response = await api.post(`/rooms/solved/`, {room_id: data.roomId, problem_id: data.problemId});
+    const response = await api.post(`/rooms/solved`, {room_id: data.roomId, problem_id: data.problemId});
     console.log(response)
     return response.data;
 }
