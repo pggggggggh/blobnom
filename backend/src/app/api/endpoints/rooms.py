@@ -61,7 +61,7 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
 
 
 @router.get("/detail/{id}")
-@limiter.limit("20/minute")
+@limiter.limit("15/minute")
 async def room_detail(request: Request, id: int, db: Session = Depends(get_db),
                       handle: str = Depends(get_handle_by_token)):
     return get_room_detail(room_id=id, db=db, handle=handle)
