@@ -151,9 +151,9 @@ async def handle_room_start(room_id: int, db: Session):
 
             for idx, problem_id in enumerate(problem_ids):
                 mission = RoomMission(problem_id=problem_id, room_id=room.id, index_in_room=idx)
-                room.missions.append(mission)
                 db.add(mission)
-                db.flush()
+                room.missions.append(mission)
+            db.flush()
             await update_solver(room.id, room.missions, room.players, db, client, True)
             await update_score(room.id, db)
             room.is_started = True

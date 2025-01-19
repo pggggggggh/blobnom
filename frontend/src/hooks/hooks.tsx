@@ -3,6 +3,7 @@ import {RoomDetail} from "../types/RoomDetail.tsx";
 import {LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
 import {
     deleteRoom,
+    fetchContestDetail,
     fetchMainData,
     fetchRoomDetail,
     fetchSolvedAcToken,
@@ -10,14 +11,16 @@ import {
     postJoinRoom,
     postLogin,
     postRegister,
-    postSolveProblem
+    postRegisterContest,
+    postSolveProblem,
+    postUnregisterContest
 } from "../api/api.tsx";
 import {modals} from "@mantine/modals";
 import ErrorModal from "../components/Modals/ErrorModal.tsx";
-import {MainData} from "../types/RoomSummary.tsx";
+import {MainData} from "../types/Summaries.tsx";
 import {useRouter} from "@tanstack/react-router";
 import InfoModal from "../components/Modals/InfoModal.tsx";
-
+import {ContestDetail} from "../types/ContestDetail.tsx";
 
 const handleError = (error: any) => {
     console.log(error);
@@ -63,6 +66,13 @@ export const useRoomDetail = (roomId: number) => {
     });
 };
 
+export const useContestDetail = (contestId: number) => {
+    return useQuery<ContestDetail, Error>({
+        queryKey: ['contestDetail', contestId],
+        queryFn: () => fetchContestDetail(contestId),
+    });
+};
+
 
 export const useSolveProblem = () => {
     return useMutation({
@@ -84,6 +94,41 @@ export const useJoinRoom = () => {
     });
 };
 
+export const useRegisterContest = () => {
+    return useMutation({
+        mutationFn: postRegisterContest,
+        onSuccess: () => {
+            window.location.reload();
+        },
+        onError: (error: any) => {
+            console.log(error);
+            let detailMessage =
+                error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
+            if (error?.response?.status === 401)
+                detailMessage = "로그인이 필요합니다.";
+            modals.open({
+                children: <ErrorModal detailMessage={detailMessage}/>,
+            });
+        },
+    });
+}
+
+export const useUnregisterContest = () => {
+    return useMutation({
+        mutationFn: postUnregisterContest,
+        onSuccess: () => {
+            window.location.reload();
+        },
+        onError: (error: any) => {
+            console.log(error);
+            const detailMessage =
+                error?.response?.data?.detail || "알 수 없는 에러가 발생했습니다.";
+            modals.open({
+                children: <ErrorModal detailMessage={detailMessage}/>,
+            });
+        },
+    });
+}
 
 export const useCreateRoom = () => {
     const router = useRouter();

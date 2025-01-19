@@ -48,6 +48,7 @@ function RouteComponent() {
 
     if (isLoading || error || !roomDetail) return (<div></div>);
     console.log(roomDetail);
+    1
 
     return (
         <Box className="relative">

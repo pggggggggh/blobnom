@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
-from src.app.api.endpoints import auth, rooms, members
+from src.app.api.endpoints import auth, rooms, members, contests
 from src.app.core.rate_limit import limiter
 from src.app.db.database import get_db
 from src.app.utils.misc_utils import update_all_rooms
@@ -18,3 +18,4 @@ async def update_all(request: Request, db: Session = Depends(get_db)):
 router.include_router(auth.router, prefix="/auth", tags=["auth"])
 router.include_router(rooms.router, prefix="/rooms", tags=["rooms"])
 router.include_router(members.router, prefix="/members", tags=["members"])
+router.include_router(contests.router, prefix="/contests", tags=["contests"])

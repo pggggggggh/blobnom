@@ -12,8 +12,9 @@ from src.app.core.constants import MAX_TEAM_PER_ROOM
 from src.app.core.enums import ModeType
 from src.app.core.rate_limit import limiter
 from src.app.db.database import get_db
-from src.app.db.models.models import User, Room, RoomPlayer, RoomMission, Member
+from src.app.db.models.models import User, Room, RoomPlayer, RoomMission, Member, Contest
 from src.app.schemas.schemas import RoomCreateRequest, RoomDeleteRequest
+from src.app.services.contest_services import get_contest_summary
 from src.app.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
     get_solved_problem_list, \
     handle_room_start, fetch_problems
@@ -57,7 +58,15 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
         room_data = get_room_summary(room)
         room_list.append(room_data)
 
-    return {"room_list": room_list, "total_pages": math.ceil(total_rooms / 20)}
+    contests = db.query(Contest).filter(Contest.starts_at > datetime.now(tz=pytz.UTC)).order_by(
+        Contest.starts_at).limit(2)
+
+    contest_list = []
+    for contest in contests:
+        contest_data = get_contest_summary(contest)
+        contest_list.append(contest_data)
+
+    return {"room_list": room_list, "upcoming_contest_list": contest_list, "total_pages": math.ceil(total_rooms / 20)}
 
 
 @router.get("/detail/{id}")
