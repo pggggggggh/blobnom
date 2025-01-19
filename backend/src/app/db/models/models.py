@@ -55,7 +55,10 @@ class Room(TimestampMixin, Base):
     owner = relationship("User", foreign_keys=[owner_id], back_populates="owned_rooms")
 
     mode_type = Column(Enum(ModeType), nullable=False, default=ModeType.LAND_GRAB_SOLO)
-    winning_team_index = Column(Integer, default=1)
+    winning_team_index = Column(Integer, default=0)
+
+    winner = Column(String, nullable=False, default="")
+    num_solved_missions = Column(Integer, nullable=False, default=0)
 
     players = relationship("RoomPlayer", back_populates="room", foreign_keys="RoomPlayer.room_id")
     missions = relationship("RoomMission", back_populates="room")
