@@ -181,8 +181,6 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
     newly_solved_problems = []
     for player in room_players:
         solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.handle)
-        print(player.user.handle)
-        print(solved_problem_list)
         for mission in missions:
             if not mission.solved_at and mission.problem_id in solved_problem_list:
                 newly_solved_problems.append(
@@ -196,6 +194,8 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
                 mission.solved_room_player = player
                 mission.solved_team_index = player.team_index
                 db.add(mission)
+                room.num_solved_missions += 1
+                db.add(room)
     db.commit()
 
     for problem in newly_solved_problems:
@@ -299,5 +299,9 @@ async def update_score(room_id, db):
         )
     )
     room.winning_team_index = sorted_players[0].team_index
+    winner_dict = [player.user.handle for player in room_players if player.team_index == room.winning_team_index]
+    room.winner = ", ".join(winner_dict)
+    db.add(room)
+
     db.commit()
     return
