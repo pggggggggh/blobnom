@@ -13,8 +13,8 @@ const SetRoomTime: React.FC<SetRoomTimeProps> = ({ form }) => {
         if (date) {
             form.setFieldValue('starts_at', date.toISOString());
 
-            const endsAt = new Date(date.getTime() + 2 * 60 * 60 * 1000);
-            form.setFieldValue('ends_at', endsAt.toISOString());
+            // const endsAt = new Date(date.getTime() + 2 * 60 * 60 * 1000);
+            // form.setFieldValue('ends_at', endsAt.toISOString());
         }
     };
 
