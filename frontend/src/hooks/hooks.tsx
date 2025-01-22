@@ -51,10 +51,10 @@ const handleError = (error: any) => {
 };
 
 
-export const useRoomList = (page: number, search: string, activeOnly: boolean) => {
+export const useRoomList = (page: number, search: string, activeOnly: boolean, myRoomOnly: boolean) => {
     return useQuery<MainData, Error>({
-        queryKey: ['roomList', page, search, activeOnly],
-        queryFn: () => fetchMainData(page, search, activeOnly),
+        queryKey: ['roomList', page, search, activeOnly, myRoomOnly],
+        queryFn: () => fetchMainData(page, search, activeOnly, myRoomOnly),
     });
 };
 

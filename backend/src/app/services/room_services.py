@@ -1,6 +1,6 @@
 import math
 from collections import deque
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import httpx
 import pytz
@@ -9,15 +9,14 @@ from sqlalchemy.orm import Session, joinedload
 from starlette import status
 
 from src.app.api.websocket_router import manager
-from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM, REGISTER_DEADLINE_SECONDS
+from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
 from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
-from src.app.db.session import get_db
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
-from src.app.utils.scheduler import add_job
+from src.app.services.member_services import convert_to_user_summary
 from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
 
 
-def get_room_summary(room: Room) -> RoomSummary:
+async def get_room_summary(room: Room, db: Session) -> RoomSummary:
     winner_team_index = room.winning_team_index
     winner_dict = [player.user.handle for player in room.players if player.team_index == winner_team_index]
     winner = ", ".join(winner_dict)
@@ -27,7 +26,7 @@ def get_room_summary(room: Room) -> RoomSummary:
         name=room.name,
         starts_at=room.starts_at,
         ends_at=room.ends_at,
-        owner=room.owner.handle if room.owner else "",
+        owner=await convert_to_user_summary(room.owner, db) if room.owner else None,
         num_players=len(room.players),
         max_players=room.max_players,
         num_missions=room.num_mission,
@@ -37,7 +36,7 @@ def get_room_summary(room: Room) -> RoomSummary:
     )
 
 
-def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
+async def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
     room = (db.query(Room).filter(Room.id == room_id)
             .options(joinedload(Room.missions)
                      .joinedload(RoomMission.solved_room_player)
@@ -65,8 +64,9 @@ def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
         team_adj_solved_count_list[player.team_index] = player.adjacent_solved_count
         team_total_solved_count_list[player.team_index] = player.total_solved_count
         team_last_solved_at_list[player.team_index] = player.last_solved_at
+        user_info = await convert_to_user_summary(player.user, db)
         team_users[player.team_index].append(
-            {"name": player.user.handle, "indiv_solved_cnt": player.indiv_solved_count})
+            {"user": user_info, "indiv_solved_cnt": player.indiv_solved_count})
 
     room_team_info = sorted([
         RoomTeamInfo(
@@ -111,17 +111,16 @@ def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
     return room_detail
 
 
-async def check_unstarted_rooms():
-    db = next(get_db())
+async def check_unstarted_rooms(db: Session):
     rooms = db.query(Room).filter(Room.is_started == False).all()
     for room in rooms:
-        await handle_room_ready(room.id)
+        await handle_room_start(room.id, db)
 
 
-# open new session, since it it is a scheduled job
-async def handle_room_ready(room_id: int):
+async def handle_room_start(room_id: int, db: Session):
+    print(f"{room_id} starting")
+
     try:
-        db = next(get_db())
         room = (
             db.query(Room)
             .options(
@@ -131,23 +130,23 @@ async def handle_room_ready(room_id: int):
             .filter(Room.id == room_id)
             .first()
         )
+        if datetime.now(pytz.utc) < room.starts_at:
+            return
         if not room:
             print(f"Room with id {room_id} not found.")
             return
-        if datetime.now(pytz.utc) < room.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS):
-            return
-
-        print(f"{room_id} getting ready")
 
         async with httpx.AsyncClient() as client:
             for player in room.players:
                 room.query += f" !@{player.user.handle}"
             db.add(room)
+            db.flush()
             problem_ids = await fetch_problems(room.query)
             if len(problem_ids) < room.num_mission:
                 print(f"Room with id {room_id} has no sufficient problems.")
                 room.is_deleted = True
                 db.add(room)
+                db.flush()
                 db.commit()
                 return
             problem_ids = problem_ids[:room.num_mission]
@@ -156,42 +155,21 @@ async def handle_room_ready(room_id: int):
                 mission = RoomMission(problem_id=problem_id, room_id=room.id, index_in_room=idx)
                 db.add(mission)
                 room.missions.append(mission)
+            db.flush()
             await update_solver(room.id, room.missions, room.players, db, client, True)
             await update_score(room.id, db)
+            room.is_started = True
             db.add(room)
             db.commit()
 
-            add_job(
-                handle_room_start,
-                run_date=max(room.starts_at, datetime.now(pytz.utc)),
-                args=[room.id],
-            )
+            print(f"Room {room_id} has started successfully.")
 
-            print(f"Room {room_id} has set successfully. Will start at {room.starts_at}")
     except Exception as e:
-        print(f"Error setting room {room_id}: {e}")
-
-
-async def handle_room_start(room_id: int):
-    db = next(get_db())
-    room = (
-        db.query(Room)
-        .filter(Room.id == room_id)
-        .first()
-    )
-    room.is_started = True
-    db.add(room)
-    db.commit()
-    await manager.broadcast({
-        "type": "room_started",
-    }, room_id)
-
-    print(f"Room {room_id} has started successfully.")
+        print(f"Error starting room {room_id}: {e}")
 
 
 async def update_solver(room_id, missions, room_players, db, client, initial=False):
-    # initial이 True면 방 만들 때이기 때문에
-    # starts_at이 현 시각이 아닌 방 시작 시간과 일치하게 둠
+    # initial이 True면 방 만들 때
     room = db.query(Room).filter(Room.id == room_id).first()
     if room is None:
         raise HTTPException(status_code=400, detail="Such room does not exist")
