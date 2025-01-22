@@ -34,7 +34,7 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
         db.query(Room)
         .options(joinedload(Room.players))
         .options(joinedload(Room.missions))
-        .options(joinedload(Room.owner))
+        .options(joinedload(Room.owner).joinedload(User.member))  # owner의 member까지 미리 로드
         .filter(Room.name.ilike(f"%{search}%"))
         .filter(Room.is_deleted == False)
         .order_by(desc(Room.updated_at))
