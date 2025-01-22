@@ -1,3 +1,5 @@
+import {UserSummary} from "./UserSummary.tsx";
+
 export interface MainData {
     total_pages: number;
     room_list: RoomSummary[];
@@ -9,7 +11,7 @@ export interface RoomSummary {
     name: string;
     starts_at: string;
     ends_at: string;
-    owner: string;
+    owner: UserSummary;
     num_players: number;
     max_players: number;
     is_private: boolean;

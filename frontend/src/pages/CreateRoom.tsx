@@ -32,7 +32,7 @@ function CreateRoom() {
             query: '',
             size: 2,
             is_private: false,
-            max_players: 20,
+            max_players: 16,
             starts_at: now.toISOString(),
             ends_at: twoHoursLater.toISOString(),
             entry_pin: '',

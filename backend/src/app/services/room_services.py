@@ -12,10 +12,11 @@ from src.app.api.websocket_router import manager
 from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
 from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
+from src.app.services.member_services import convert_to_user_summary
 from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
 
 
-def get_room_summary(room: Room) -> RoomSummary:
+async def get_room_summary(room: Room, db: Session) -> RoomSummary:
     winner_team_index = room.winning_team_index
     winner_dict = [player.user.handle for player in room.players if player.team_index == winner_team_index]
     winner = ", ".join(winner_dict)
@@ -25,7 +26,7 @@ def get_room_summary(room: Room) -> RoomSummary:
         name=room.name,
         starts_at=room.starts_at,
         ends_at=room.ends_at,
-        owner=room.owner.handle if room.owner else "",
+        owner=await convert_to_user_summary(room.owner, db) if room.owner else None,
         num_players=len(room.players),
         max_players=room.max_players,
         num_missions=room.num_mission,
@@ -35,7 +36,7 @@ def get_room_summary(room: Room) -> RoomSummary:
     )
 
 
-def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
+async def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
     room = (db.query(Room).filter(Room.id == room_id)
             .options(joinedload(Room.missions)
                      .joinedload(RoomMission.solved_room_player)
@@ -63,8 +64,9 @@ def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
         team_adj_solved_count_list[player.team_index] = player.adjacent_solved_count
         team_total_solved_count_list[player.team_index] = player.total_solved_count
         team_last_solved_at_list[player.team_index] = player.last_solved_at
+        user_info = await convert_to_user_summary(player.user, db)
         team_users[player.team_index].append(
-            {"name": player.user.handle, "indiv_solved_cnt": player.indiv_solved_count})
+            {"user": user_info, "indiv_solved_cnt": player.indiv_solved_count})
 
     room_team_info = sorted([
         RoomTeamInfo(
