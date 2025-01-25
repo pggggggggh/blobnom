@@ -25,12 +25,12 @@ export const gradientNullBefore =
 export const userColors = [
     ["#9E3E3B", "#9E3E3B"],
     ["#37639B", "#37639B"],
-    ["#AE9B47", "#AE9B47"],
     ["#428C3E", "#428C3E"],
     ["#5E3EBA", "#5E3EBA"],
     ["#B639B1", "#B639B1"],
     ["#AF703D", "#AF703D"],
     ["#429397", "#429397"],
+    ["#AE9B47", "#AE9B47"],
     ["#E27F7C", "#E27F7C"],
     ["#7EA3D2", "#7EA3D2"],
     ["#DFCD7E", "#DFCD7E"],

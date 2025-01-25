@@ -50,7 +50,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                             </linearGradient>
                         ))}
                     </defs>
-                    <Layout spacing={1.03}>
+                    <Layout spacing={1.04}>
                         {hexagons.map((hex: Hex, i: number) => (
                             <HoverCard key={`hex${i}`} shadow="lg" position="bottom" offset={-12}
                                        openDelay={mutation.isPending ? 100000 : 0}
@@ -73,6 +73,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                             }
                                         >
                                             <SVGText
+                                                textAnchor="middle"
                                                 fontSize="5"
                                                 y={
                                                     !missions[i].solved_at
@@ -82,10 +83,11 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 className={`
                                                 ${
                                                     missions[i].solved_at ?
-                                                        missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-black"
+                                                        missions[i].solved_team_index < 7 ? "fill-zinc-200" : "fill-stone-900"
                                                         :
                                                         "fill-zinc-200"
                                                 }
+                                                tracking-tighter
                                                 stroke-0
                                                 ${
                                                     missions[i].solved_at &&
@@ -106,15 +108,17 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 !missions[i].solved_at
                                                     ? <></> :
                                                     <SVGText
-                                                        fontSize="3"
+                                                        fontSize="3.3"
                                                         y={4}
                                                         className={`
                                                     ${
                                                             missions[i].solved_at ?
-                                                                missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-black"
+                                                                missions[i].solved_team_index < 7 ? "fill-zinc-200" : "fill-stone-900"
                                                                 :
                                                                 "fill-zinc-200"
                                                         }
+                                                        tracking-tight
+                                                        font-light
                                                     stroke-0
                                                     `}
                                                     >
