@@ -1,6 +1,6 @@
 import {RoomDetail} from "../types/RoomDetail.tsx";
 import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "react-hexgrid";
-import {Paper, Button, Center, HoverCard, Text} from "@mantine/core";
+import {Button, Center, HoverCard, Paper, Text} from "@mantine/core";
 import {useSolveProblem} from "../hooks/hooks.tsx";
 import dayjs from "dayjs";
 import {gradientNull, userColors} from "../constants/UserColorsFill.tsx";
@@ -54,7 +54,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                         {hexagons.map((hex: Hex, i: number) => (
                             <HoverCard key={`hex${i}`} shadow="lg" position="bottom" offset={-12}
                                        openDelay={mutation.isPending ? 100000 : 0}
-                                       closeDelay={mutation.isPending ? 100000 : 0}>
+                                       closeDelay={mutation.isPending ? 1000 : 0}>
                                 <HoverCard.Target>
                                     <a
                                         href={`https://www.acmicpc.net/problem/${missions[i].problem_id}`}
@@ -104,22 +104,22 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                             </SVGText>
                                             {
                                                 !missions[i].solved_at
-                                                ? <></> :
-                                                <SVGText
-                                                    fontSize="3"
-                                                    y={4}
-                                                    className={`
+                                                    ? <></> :
+                                                    <SVGText
+                                                        fontSize="3"
+                                                        y={4}
+                                                        className={`
                                                     ${
-                                                        missions[i].solved_at ?
-                                                            missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-black"
-                                                            :
-                                                            "fill-zinc-200"
-                                                    }
+                                                            missions[i].solved_at ?
+                                                                missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-black"
+                                                                :
+                                                                "fill-zinc-200"
+                                                        }
                                                     stroke-0
                                                     `}
-                                                >
-                                                    {getDiffTime(new Date(roomDetail.starts_at), new Date(missions[i].solved_at))}
-                                                </SVGText>
+                                                    >
+                                                        {getDiffTime(new Date(roomDetail.starts_at), new Date(missions[i].solved_at))}
+                                                    </SVGText>
                                             }
                                         </Hexagon>
                                     </a>
@@ -146,7 +146,6 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 className="border-0 bg-inherit"
                                                 onClick={() => mutation.mutate({
                                                     roomId: roomDetail.id,
-
                                                     problemId: missions[i].problem_id
                                                 })}
                                                 loading={mutation.isPending}
