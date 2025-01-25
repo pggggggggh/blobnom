@@ -1,5 +1,3 @@
-import logging.handlers
-
 from fastapi import FastAPI
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -10,17 +8,7 @@ from src.app.api.websocket_router import router as ws_router
 from src.app.core.rate_limit import limiter
 from src.app.db.database import SessionLocal
 from src.app.services.room_services import check_unstarted_rooms
-
-PAPERTRAIL_HOST = "logs2.papertrailapp.com"
-PAPERTRAIL_PORT = 38922
-
-logger = logging.getLogger("uvicorn.error")
-logger.setLevel(logging.INFO)
-
-syslog_handler = logging.handlers.SysLogHandler(address=(PAPERTRAIL_HOST, PAPERTRAIL_PORT))
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-syslog_handler.setFormatter(formatter)
-logger.addHandler(syslog_handler)
+from src.app.utils.logger import logger
 
 try:
     # models.Base.metadata.create_all(bind=engine)

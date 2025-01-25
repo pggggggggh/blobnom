@@ -14,6 +14,7 @@ from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
 from src.app.db.session import get_db
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
 from src.app.services.member_services import convert_to_user_summary
+from src.app.utils.logger import logger
 from src.app.utils.scheduler import add_job
 from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
 
@@ -115,7 +116,7 @@ async def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
 
 async def check_unstarted_rooms():
     db = next(get_db())
-    rooms = db.query(Room).filter(Room.is_started == False).all()
+    rooms = db.query(Room).filter(Room.is_started == False).filter(Room.is_deleted == False).all()
     for room in rooms:
         await handle_room_ready(room.id)
 
@@ -134,26 +135,31 @@ async def handle_room_ready(room_id: int):
             .first()
         )
         if not room:
-            print(f"Room with id {room_id} not found.")
+            logger.info(f"Room with id {room_id} not found.")
             return
         if datetime.now(pytz.utc) < room.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS):
             return
 
-        print(f"{room_id} getting ready")
+        logger.info(f"{room_id} getting ready")
 
         async with httpx.AsyncClient() as client:
+            new_query = room.query
             for player in room.players:
-                room.query += f" !@{player.user.handle}"
-            db.add(room)
-            db.commit()
+                new_query += f" !@{player.user.handle}"
 
-            problem_ids = await fetch_problems(room.query)
+            logger.info(new_query)
+            problem_ids = await fetch_problems(new_query)
             if len(problem_ids) < room.num_mission:
-                print(f"Room with id {room_id} has no sufficient problems.")
+                logger.info(f"Room with id {room_id} has no sufficient problems.")
                 room.is_deleted = True
                 db.add(room)
                 db.commit()
                 return
+
+            room.query = new_query
+            db.add(room)
+            db.commit()
+
             problem_ids = problem_ids[:room.num_mission]
 
             for idx, problem_id in enumerate(problem_ids):
@@ -171,9 +177,9 @@ async def handle_room_ready(room_id: int):
                 args=[room.id],
             )
 
-            print(f"Room {room_id} has set successfully. Will start at {room.starts_at}")
+            logger.info(f"Room {room_id} has set successfully. Will start at {room.starts_at}")
     except Exception as e:
-        print(f"Error setting room {room_id}: {e}")
+        logger.info(f"Error setting room {room_id}: {e}")
 
 
 async def handle_room_start(room_id: int):
@@ -190,7 +196,7 @@ async def handle_room_start(room_id: int):
         "type": "room_started",
     }, room_id)
 
-    print(f"Room {room_id} has started successfully.")
+    logger.info(f"Room {room_id} has started successfully.")
 
 
 async def update_solver(room_id, missions, room_players, db, client, initial=False):
@@ -226,12 +232,13 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
                 db.add(room)
     db.commit()
 
-    for problem in newly_solved_problems:
-        await manager.broadcast({
-            "type": "problem_solved",
-            "problem_id": problem["pid"],
-            "username": problem["username"],
-        }, room_id)
+    if initial is not True:
+        for problem in newly_solved_problems:
+            await manager.broadcast({
+                "type": "problem_solved",
+                "problem_id": problem["pid"],
+                "username": problem["username"],
+            }, room_id)
     return
 
 

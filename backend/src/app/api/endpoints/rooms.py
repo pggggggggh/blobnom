@@ -288,7 +288,8 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
 
     add_job(
         handle_room_ready,
-        run_date=max(room_request.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS), datetime.now(pytz.UTC)),
+        run_date=max(room_request.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
+                     datetime.now(pytz.UTC) + timedelta(seconds=15)),
         args=[room.id],
     )
 
@@ -298,7 +299,6 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         if not user:
             user = User(handle=username)
             db.add(user)
-            db.flush()
         room_player = RoomPlayer(
             user_id=user.id,
             room_id=room.id,
@@ -308,7 +308,6 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         )
         room.players.append(room_player)
         db.add(room_player)
-        db.flush()
     db.commit()
 
     print("fin")
