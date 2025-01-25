@@ -82,7 +82,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 className={`
                                                 ${
                                                     missions[i].solved_at ?
-                                                        missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-zinc-200"
+                                                        missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-blac
                                                         :
                                                         "fill-zinc-200"
                                                 }
@@ -109,13 +109,14 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                     fontSize="3"
                                                     y={4}
                                                     className={`
-                                                ${
+                                                    ${
                                                         missions[i].solved_at ?
-                                                            missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-zinc-200"
+                                                            missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-black"
                                                             :
                                                             "fill-zinc-200"
                                                     }
-                                                stroke-0`}
+                                                    stroke-0
+                                                    `}
                                                 >
                                                     {getDiffTime(new Date(roomDetail.starts_at), new Date(missions[i].solved_at))}
                                                 </SVGText>
