@@ -6,9 +6,9 @@ const Theme = {
             '#F8F9FA', // dark-1
             '#E9ECEF', // dark-2
             '#DEE2E6', // dark-3
-            '#535960', // card border
+            '#2e3035', // card border
             '#494747', // button hover
-            '#282828', // card bg
+            '#222327', // card bg
             '#121212', // bg
             '#33414e', // dark-8
             '#212529', // dark-9
