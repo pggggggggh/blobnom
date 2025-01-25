@@ -145,6 +145,8 @@ async def handle_room_ready(room_id: int):
             for player in room.players:
                 room.query += f" !@{player.user.handle}"
             db.add(room)
+            db.commit()
+
             problem_ids = await fetch_problems(room.query)
             if len(problem_ids) < room.num_mission:
                 print(f"Room with id {room_id} has no sufficient problems.")
