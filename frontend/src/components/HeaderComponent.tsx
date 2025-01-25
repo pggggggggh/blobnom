@@ -1,12 +1,12 @@
 import React from 'react';
-import { Avatar, Burger, Button, Drawer, Group, Image, Menu, Stack, Title } from '@mantine/core';
-import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import {Avatar, Burger, Button, Drawer, Group, Image, Menu, Stack, Title} from '@mantine/core';
+import {useDisclosure, useMediaQuery} from '@mantine/hooks';
 import logo from '../assets/blobnom.png';
-import { Link } from '@tanstack/react-router';
-import { useAuth } from '../context/AuthProvider';
+import {Link} from '@tanstack/react-router';
+import {useAuth} from '../context/AuthProvider';
 
 const HeaderComponent = () => {
-    const [opened, { toggle, close }] = useDisclosure(false);
+    const [opened, {toggle, close}] = useDisclosure(false);
     const auth = useAuth();
 
     const isSmallScreen = useMediaQuery('(max-width: 768px)');
@@ -45,11 +45,11 @@ const HeaderComponent = () => {
                             color="#fff"
                         />
                     )}
-                    <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+                    <Link to="/" style={{display: 'flex', alignItems: 'center', textDecoration: 'none'}}>
                         <Image
                             src={logo}
                             alt="Logo"
-                            style={{ objectFit: 'contain', height: '40px' }}
+                            style={{objectFit: 'contain', height: '40px'}}
                         />
                         <Title
                             order={4}
@@ -72,7 +72,7 @@ const HeaderComponent = () => {
                                 <Link
                                     key={item.label}
                                     to={item.link}
-                                    style={{ textDecoration: 'none' }}
+                                    style={{textDecoration: 'none'}}
                                 >
                                     <Button variant="subtle" color="white">
                                         {item.label}
@@ -96,7 +96,7 @@ const HeaderComponent = () => {
                                 </Menu.Target>
 
                                 <Menu.Dropdown>
-                                    {/*<Menu.Item component={Link} to="/profile">*/}
+                                    {/*<Menu.Item component={Link} to={`/members/profile/${auth.user}`}>*/}
                                     {/*    내 정보*/}
                                     {/*</Menu.Item>*/}
                                     <Menu.Item color="red" component={Link} to="/logout">
@@ -108,7 +108,7 @@ const HeaderComponent = () => {
 
                         </Group>
                     ) : (
-                        <Link to="/login" style={{ textDecoration: 'none' }}>
+                        <Link to="/login" style={{textDecoration: 'none'}}>
                             <Button variant="light">로그인</Button>
                         </Link>
                     )}
@@ -130,7 +130,7 @@ const HeaderComponent = () => {
                                 key={item.label}
                                 to={item.link}
                                 onClick={close}
-                                style={{ textDecoration: 'none' }}
+                                style={{textDecoration: 'none'}}
                             >
                                 <Button variant="subtle" fullWidth color="white">
                                     {item.label}
