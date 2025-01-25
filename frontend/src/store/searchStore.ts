@@ -17,8 +17,8 @@ export const useSearchStore = create<SearchState>()((set) => ({
     activeOnly: false,
     myRoomOnly: false,
 
-    setSearch: (value) => set({search: value, page: 1}),
+    setSearch: (value) => set({search: value}),
     setPage: (page) => set({page}),
-    setActiveOnly: (checked) => set({activeOnly: checked, page: 1}),
-    setMyRoomOnly: (checked) => set({myRoomOnly: checked, page: 1}),
+    setActiveOnly: (checked) => set({activeOnly: checked}),
+    setMyRoomOnly: (checked) => set({myRoomOnly: checked}),
 }));

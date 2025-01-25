@@ -37,13 +37,13 @@ const Index: React.FC = () => {
     const date = dayjs().utc();
 
     useEffect(() => {
-
         requestNotificationPermission();
     }, []);
 
 
     const handleSearchChange = (value: string) => {
         setSearch(value);
+        setPage(1)
     };
 
 
@@ -63,22 +63,22 @@ const Index: React.FC = () => {
 
     const isInitialLoading = isLoading && !data;
 
-  return (
-    <Container size="lg">
-      <Stack>
-          {error && (
-              <Alert title="오류" color="red">
-                  데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
-              </Alert>
-          )}
+    return (
+        <Container size="lg">
+            <Stack>
+                {error && (
+                    <Alert title="오류" color="red">
+                        데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
+                    </Alert>
+                )}
 
-        {showNotice && (
-          <Alert
-            title="공지"
-            withCloseButton
-            onClose={() => setShowNotice(false)}
-          >
-            Blobnom 공식 Discord가 오픈했습니다!{" "}
+                {showNotice && (
+                    <Alert
+                        title="공지"
+                        withCloseButton
+                        onClose={() => setShowNotice(false)}
+                    >
+                        Blobnom 공식 Discord가 오픈했습니다!{" "}
                         <a
                             href="https://discord.gg/Z7tUQZK8"
                             target="_blank"
@@ -87,8 +87,8 @@ const Index: React.FC = () => {
                             https://discord.gg/Z7tUQZK8
                         </a>
                         에서 땅따먹기 같이 할 사람을 구해보세요!
-          </Alert>
-        )}
+                    </Alert>
+                )}
 
 
                 <Group className="flex flex-wrap items-center justify-between">
@@ -113,14 +113,20 @@ const Index: React.FC = () => {
                         auth.user &&
                         <Checkbox
                             checked={myRoomOnly}
-                            onChange={(event) => handleMyRoomOnlyChange(event.currentTarget.checked)}
+                            onChange={(event) => {
+                                handleMyRoomOnlyChange(event.currentTarget.checked)
+                                setPage(1)
+                            }}
                             label="참여중인 방만 표시"
                             aria-label="참여중인 방만 표시"
                         />
                     }
                     <Checkbox
                         checked={activeOnly}
-                        onChange={(event) => handleActiveOnlyChange(event.currentTarget.checked)}
+                        onChange={(event) => {
+                            handleActiveOnlyChange(event.currentTarget.checked)
+                            setPage(1)
+                        }}
                         label="참여 가능한 게임만 표시"
                         aria-label="참여 가능한 게임만 표시"
                     />
