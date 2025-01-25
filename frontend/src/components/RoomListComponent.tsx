@@ -5,13 +5,19 @@ import TokenOutlinedIcon from '@mui/icons-material/TokenOutlined';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import dayjs, {Dayjs} from "dayjs";
+import HandleComponent from "./HandleComponent.tsx";
 
 const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_datetime: Dayjs }) => {
     return (
         <Stack gap="sm">
             {rooms?.map((room) => {
                 return (
-                    <Card key={room.id} withBorder shadow="sm">
+                    <Card
+                        key={room.id}
+                        withBorder
+                        shadow="sm"
+                        className="text-white "
+                    >
                         <Group justify="space-between">
                             <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
                                 <Text fw={500} size="lg">
@@ -19,7 +25,10 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                     {room.name}
                                 </Text>
                                 <Text size="sm" c="dimmed">
-                                    방장: {room.owner}
+                                    방장:&nbsp;
+                                    {
+                                        <HandleComponent user={room.owner}/>
+                                    }
                                 </Text>
                             </Box>
                             <Group>

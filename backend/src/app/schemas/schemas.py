@@ -47,6 +47,13 @@ class RoomDeleteRequest(BaseModel):
     password: str
 
 
+class UserSummary(BaseModel):
+    handle: str
+    role: Optional[str] = None  # 비회원일 경우 None
+    rating: Optional[int] = None
+    guild_mark: Optional[str] = None
+
+
 class RoomTeamInfo(BaseModel):
     users: List[Dict]
     team_index: int
@@ -100,7 +107,7 @@ class RoomSummary(BaseModel):
     name: str
     starts_at: datetime
     ends_at: datetime
-    owner: str
+    owner: Optional[UserSummary] = None
     num_players: int
     max_players: int
     num_missions: int

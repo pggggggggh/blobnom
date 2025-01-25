@@ -5,10 +5,10 @@ import {RoomForm} from "../types/RoomForm.tsx";
 import {LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
 import {ContestDetail} from "../types/ContestDetail.tsx";
 
-export const fetchMainData = async (page: number, search: string, activeOnly: boolean): Promise<MainData> => {
+export const fetchMainData = async (page: number, search: string, activeOnly: boolean, myRoomOnly: boolean): Promise<MainData> => {
     const response = await api.get(`/rooms/list`, {
         params: {
-            page: page, search: search, activeOnly: activeOnly,
+            page: page, search: search, activeOnly: activeOnly, myRoomOnly: myRoomOnly,
         }
     });
     console.log(response)

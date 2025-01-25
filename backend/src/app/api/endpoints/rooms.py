@@ -27,14 +27,14 @@ router = APIRouter()
 
 @router.get("/list")
 @limiter.limit("20/minute")
-async def room_list(request: Request, page: int, search: str = "", activeOnly: bool = False,
-                    db: Session = Depends(get_db)):
+async def room_list(request: Request, page: int, search: str = "", activeOnly: bool = False, myRoomOnly: bool = False,
+                    db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
     # 쿼리에 검색 필터 추가
     query = (
         db.query(Room)
         .options(joinedload(Room.players))
         .options(joinedload(Room.missions))
-        .options(joinedload(Room.owner))
+        .options(joinedload(Room.owner).joinedload(User.member))  # owner의 member까지 미리 로드
         .filter(Room.name.ilike(f"%{search}%"))
         .filter(Room.is_deleted == False)
         .order_by(desc(Room.updated_at))
@@ -45,6 +45,10 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
                  .filter(Room.is_private == False)
                  .filter(Room.ends_at > datetime.now(tz=pytz.UTC))
                  )
+    if myRoomOnly and token_handle is not None:  # 비회원으로 요청 들어온 경우 무시
+        user = db.query(User).filter(User.handle == token_handle).first()
+        if user:
+            query = query.join(RoomPlayer).filter(RoomPlayer.user_id == user.id)
 
     total_rooms = query.count()
     rooms = (
@@ -55,7 +59,7 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
 
     room_list = []
     for room in rooms:
-        room_data = get_room_summary(room)
+        room_data = await get_room_summary(room, db)
         room_list.append(room_data)
 
     contests = db.query(Contest).filter(Contest.starts_at > datetime.now(tz=pytz.UTC)).order_by(
@@ -73,7 +77,7 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
 @limiter.limit("15/minute")
 async def room_detail(request: Request, id: int, db: Session = Depends(get_db),
                       handle: str = Depends(get_handle_by_token)):
-    return get_room_detail(room_id=id, db=db, handle=handle)
+    return await get_room_detail(room_id=id, db=db, handle=handle)
 
 
 @router.post("/delete/{id}")

@@ -7,9 +7,20 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from src.app.db.models.models import SolvedacToken, Member, User
-from src.app.schemas.schemas import RegisterRequest, LoginRequest
+from src.app.schemas.schemas import RegisterRequest, LoginRequest, UserSummary
 from src.app.utils.security_utils import hash_password, verify_password, create_access_token
 from src.app.utils.solvedac_utils import fetch_user_info
+
+
+async def convert_to_user_summary(user: User, db: Session) -> UserSummary:
+    member = db.query(Member).filter(Member.handle == user.handle).first()
+    role = None
+    if member is not None:
+        role = member.role
+    return UserSummary(
+        handle=user.handle,
+        role=role,
+    )
 
 
 async def create_solvedac_token(db: Session):
