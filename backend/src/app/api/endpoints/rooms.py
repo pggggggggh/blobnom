@@ -1,6 +1,6 @@
 import math
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import httpx
 import pytz
@@ -8,7 +8,7 @@ from fastapi import Body, HTTPException, Depends, APIRouter, status, Request
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.app.core.constants import MAX_TEAM_PER_ROOM
+from src.app.core.constants import MAX_TEAM_PER_ROOM, REGISTER_DEADLINE_SECONDS
 from src.app.core.enums import ModeType
 from src.app.core.rate_limit import limiter
 from src.app.db.database import get_db
@@ -17,7 +17,7 @@ from src.app.schemas.schemas import RoomCreateRequest, RoomDeleteRequest
 from src.app.services.contest_services import get_contest_summary
 from src.app.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
     get_solved_problem_list, \
-    handle_room_start, fetch_problems
+    handle_room_ready, fetch_problems
 from src.app.utils.scheduler import add_job
 from src.app.utils.security_utils import hash_password, verify_password, get_handle_by_token
 from src.app.utils.solvedac_utils import search_problems
@@ -113,6 +113,10 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
     room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+    now = datetime.now(tz=pytz.UTC)
+    if now < room.starts_at and now > room.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS):
+        raise HTTPException(status_code=400, detail="방 시작 5분 전부터는 참여할 수 없습니다.")
+
     if room.mode_type == ModeType.LAND_GRAB_TEAM:
         raise HTTPException(status_code=400, detail="팀전에는 참여할 수 없습니다.")
     if room.is_private and verify_password(password, room.entry_pwd) is False:
@@ -276,12 +280,12 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         is_private=room_request.is_private
     )
     db.add(room)
-    db.flush()
+    db.commit()
 
     add_job(
-        handle_room_start,
-        run_date=room_request.starts_at,
-        args=[room.id, db],
+        handle_room_ready,
+        run_date=max(room_request.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS), datetime.now(pytz.UTC)),
+        args=[room.id],
     )
 
     for idx, (username, team_idx) in enumerate(room_request.handles.items()):

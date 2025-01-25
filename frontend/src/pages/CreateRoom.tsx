@@ -18,6 +18,7 @@ function CreateRoom() {
     const auth = useAuth();
 
     const now = new Date();
+    now.setSeconds(0);
     now.setMinutes(now.getMinutes() + 5);
     const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
 

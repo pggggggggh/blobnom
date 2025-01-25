@@ -1,6 +1,6 @@
 import math
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import httpx
 import pytz
@@ -9,9 +9,11 @@ from sqlalchemy.orm import Session, joinedload
 from starlette import status
 
 from src.app.api.websocket_router import manager
-from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
+from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM, REGISTER_DEADLINE_SECONDS
 from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
+from src.app.db.session import get_db
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
+from src.app.utils.scheduler import add_job
 from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
 
 
@@ -109,16 +111,17 @@ def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
     return room_detail
 
 
-async def check_unstarted_rooms(db: Session):
+async def check_unstarted_rooms():
+    db = next(get_db())
     rooms = db.query(Room).filter(Room.is_started == False).all()
     for room in rooms:
-        await handle_room_start(room.id, db)
+        await handle_room_ready(room.id)
 
 
-async def handle_room_start(room_id: int, db: Session):
-    print(f"{room_id} starting")
-
+# open new session, since it it is a scheduled job
+async def handle_room_ready(room_id: int):
     try:
+        db = next(get_db())
         room = (
             db.query(Room)
             .options(
@@ -128,23 +131,23 @@ async def handle_room_start(room_id: int, db: Session):
             .filter(Room.id == room_id)
             .first()
         )
-        if datetime.now(pytz.utc) < room.starts_at:
-            return
         if not room:
             print(f"Room with id {room_id} not found.")
             return
+        if datetime.now(pytz.utc) < room.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS):
+            return
+
+        print(f"{room_id} getting ready")
 
         async with httpx.AsyncClient() as client:
             for player in room.players:
                 room.query += f" !@{player.user.handle}"
             db.add(room)
-            db.flush()
             problem_ids = await fetch_problems(room.query)
             if len(problem_ids) < room.num_mission:
                 print(f"Room with id {room_id} has no sufficient problems.")
                 room.is_deleted = True
                 db.add(room)
-                db.flush()
                 db.commit()
                 return
             problem_ids = problem_ids[:room.num_mission]
@@ -153,21 +156,42 @@ async def handle_room_start(room_id: int, db: Session):
                 mission = RoomMission(problem_id=problem_id, room_id=room.id, index_in_room=idx)
                 db.add(mission)
                 room.missions.append(mission)
-            db.flush()
             await update_solver(room.id, room.missions, room.players, db, client, True)
             await update_score(room.id, db)
-            room.is_started = True
             db.add(room)
             db.commit()
 
-            print(f"Room {room_id} has started successfully.")
+            add_job(
+                handle_room_start,
+                run_date=max(room.starts_at, datetime.now(pytz.utc)),
+                args=[room.id],
+            )
 
+            print(f"Room {room_id} has set successfully. Will start at {room.starts_at}")
     except Exception as e:
-        print(f"Error starting room {room_id}: {e}")
+        print(f"Error setting room {room_id}: {e}")
+
+
+async def handle_room_start(room_id: int):
+    db = next(get_db())
+    room = (
+        db.query(Room)
+        .filter(Room.id == room_id)
+        .first()
+    )
+    room.is_started = True
+    db.add(room)
+    db.commit()
+    await manager.broadcast({
+        "type": "room_started",
+    }, room_id)
+
+    print(f"Room {room_id} has started successfully.")
 
 
 async def update_solver(room_id, missions, room_players, db, client, initial=False):
-    # initial이 True면 방 만들 때
+    # initial이 True면 방 만들 때이기 때문에
+    # starts_at이 현 시각이 아닌 방 시작 시간과 일치하게 둠
     room = db.query(Room).filter(Room.id == room_id).first()
     if room is None:
         raise HTTPException(status_code=400, detail="Such room does not exist")

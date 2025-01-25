@@ -37,6 +37,12 @@ function RouteComponent() {
                     });
                     window.location.reload()
                 }
+                if (message.type === "room_started") {
+                    requestNotificationPermission().then(() => {
+                        showNotification("Blobnom", `게임이 시작되었습니다.`);
+                    });
+                    window.location.reload()
+                }
             } catch (e) {
                 console.error('Failed to parse JSON:', e);
             }
