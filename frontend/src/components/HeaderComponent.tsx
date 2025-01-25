@@ -1,13 +1,17 @@
 import React from 'react';
-import {Avatar, Box, Burger, Button, Drawer, Group, Image, Menu, Stack, Title} from '@mantine/core';
+import {Avatar, Burger, Button, Drawer, Group, Image, Menu, Stack, Title} from '@mantine/core';
 import {useDisclosure, useMediaQuery} from '@mantine/hooks';
 import logo from '../assets/blobnom.png';
 import {Link} from '@tanstack/react-router';
 import {useAuth} from '../context/AuthProvider';
+import {useSearchStore} from "../store/searchStore.ts";
 
 const HeaderComponent = () => {
     const [opened, {toggle, close}] = useDisclosure(false);
     const auth = useAuth();
+    const {
+        setPage,
+    } = useSearchStore();
 
     const isSmallScreen = useMediaQuery('(max-width: 768px)');
 
@@ -45,9 +49,12 @@ const HeaderComponent = () => {
                             color="#fff"
                         />
                     )}
-                    <Box onClick={() => {
-                        window.location.href = '/'
-                    }} style={{display: 'flex', alignItems: 'center', textDecoration: 'none', cursor: 'pointer'}}>
+                    <Link to="/" onClick={() => {
+                        setPage(1)
+                        window.scrollTo(0, 0)
+                    }
+                    }
+                          style={{display: 'flex', alignItems: 'center', textDecoration: 'none'}}>
                         <Image
                             src={logo}
                             alt="Logo"
@@ -64,7 +71,7 @@ const HeaderComponent = () => {
                         >
                             Blobnom
                         </Title>
-                    </Box>
+                    </Link>
                 </Group>
 
                 <Group align="center" spacing="md">

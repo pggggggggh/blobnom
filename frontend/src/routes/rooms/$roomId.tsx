@@ -11,6 +11,7 @@ export const Route = createFileRoute('/rooms/$roomId')({
 });
 
 function RouteComponent() {
+
     const {roomId} = Route.useParams();
     const {data: roomDetail, isLoading, error, refetch} = useRoomDetail(parseInt(roomId));
 
