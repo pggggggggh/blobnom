@@ -82,7 +82,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 className={`
                                                 ${
                                                     missions[i].solved_at ?
-                                                        missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-blac
+                                                        missions[i].solved_team_index < 8 ? "fill-zinc-200" : "fill-black"
                                                         :
                                                         "fill-zinc-200"
                                                 }
