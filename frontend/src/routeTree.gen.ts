@@ -18,6 +18,7 @@ import { Route as CreateImport } from './routes/create'
 import { Route as IndexImport } from './routes/index'
 import { Route as RoomsRoomIdImport } from './routes/rooms/$roomId'
 import { Route as ContestsContestIdImport } from './routes/contests/$contestId'
+import { Route as MembersProfileHandleImport } from './routes/members/profile/$handle'
 
 // Create/Update Routes
 
@@ -60,6 +61,12 @@ const RoomsRoomIdRoute = RoomsRoomIdImport.update({
 const ContestsContestIdRoute = ContestsContestIdImport.update({
   id: '/contests/$contestId',
   path: '/contests/$contestId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const MembersProfileHandleRoute = MembersProfileHandleImport.update({
+  id: '/members/profile/$handle',
+  path: '/members/profile/$handle',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -116,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoomsRoomIdImport
       parentRoute: typeof rootRoute
     }
+    '/members/profile/$handle': {
+      id: '/members/profile/$handle'
+      path: '/members/profile/$handle'
+      fullPath: '/members/profile/$handle'
+      preLoaderRoute: typeof MembersProfileHandleImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -129,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/members/profile/$handle': typeof MembersProfileHandleRoute
 }
 
 export interface FileRoutesByTo {
@@ -139,6 +154,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/members/profile/$handle': typeof MembersProfileHandleRoute
 }
 
 export interface FileRoutesById {
@@ -150,6 +166,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/members/profile/$handle': typeof MembersProfileHandleRoute
 }
 
 export interface FileRouteTypes {
@@ -162,6 +179,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/contests/$contestId'
     | '/rooms/$roomId'
+    | '/members/profile/$handle'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -171,6 +189,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/contests/$contestId'
     | '/rooms/$roomId'
+    | '/members/profile/$handle'
   id:
     | '__root__'
     | '/'
@@ -180,6 +199,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/contests/$contestId'
     | '/rooms/$roomId'
+    | '/members/profile/$handle'
   fileRoutesById: FileRoutesById
 }
 
@@ -191,6 +211,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ContestsContestIdRoute: typeof ContestsContestIdRoute
   RoomsRoomIdRoute: typeof RoomsRoomIdRoute
+  MembersProfileHandleRoute: typeof MembersProfileHandleRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -201,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ContestsContestIdRoute: ContestsContestIdRoute,
   RoomsRoomIdRoute: RoomsRoomIdRoute,
+  MembersProfileHandleRoute: MembersProfileHandleRoute,
 }
 
 export const routeTree = rootRoute
@@ -219,7 +241,8 @@ export const routeTree = rootRoute
         "/logout",
         "/register",
         "/contests/$contestId",
-        "/rooms/$roomId"
+        "/rooms/$roomId",
+        "/members/profile/$handle"
       ]
     },
     "/": {
@@ -242,6 +265,9 @@ export const routeTree = rootRoute
     },
     "/rooms/$roomId": {
       "filePath": "rooms/$roomId.tsx"
+    },
+    "/members/profile/$handle": {
+      "filePath": "members/profile/$handle.tsx"
     }
   }
 }
