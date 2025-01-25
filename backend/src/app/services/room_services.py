@@ -19,10 +19,6 @@ from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
 
 
 async def get_room_summary(room: Room, db: Session) -> RoomSummary:
-    winner_team_index = room.winning_team_index
-    winner_dict = [player.user.handle for player in room.players if player.team_index == winner_team_index]
-    winner = ", ".join(winner_dict)
-
     return RoomSummary(
         id=room.id,
         name=room.name,
@@ -32,8 +28,8 @@ async def get_room_summary(room: Room, db: Session) -> RoomSummary:
         num_players=len(room.players),
         max_players=room.max_players,
         num_missions=room.num_mission,
-        num_solved_missions=len([mission for mission in room.missions if mission.solved_at is not None]),
-        winner=winner,
+        num_solved_missions=room.num_solved_missions,
+        winner=room.winner,
         is_private=room.is_private,
     )
 
