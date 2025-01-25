@@ -1,3 +1,5 @@
+import {UserSummary} from "./UserSummary.tsx";
+
 export interface RoomDetail {
     id: number;
     name: string;
@@ -26,7 +28,7 @@ export interface TeamInfo {
 }
 
 export interface RoomPlayerInfo {
-    name: string;
+    user: UserSummary;
     indiv_solved_cnt: number;
 }
 

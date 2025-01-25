@@ -18,6 +18,7 @@ function CreateRoom() {
     const auth = useAuth();
 
     const now = new Date();
+    now.setSeconds(0);
     now.setMinutes(now.getMinutes() + 5);
     const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
 
@@ -32,7 +33,7 @@ function CreateRoom() {
             query: '',
             size: 2,
             is_private: false,
-            max_players: 20,
+            max_players: 16,
             starts_at: now.toISOString(),
             ends_at: twoHoursLater.toISOString(),
             entry_pin: '',

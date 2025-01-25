@@ -1,6 +1,6 @@
 import math
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import httpx
 import pytz
@@ -8,15 +8,16 @@ from fastapi import Body, HTTPException, Depends, APIRouter, status, Request
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.app.core.constants import MAX_TEAM_PER_ROOM
+from src.app.core.constants import MAX_TEAM_PER_ROOM, REGISTER_DEADLINE_SECONDS
 from src.app.core.enums import ModeType
 from src.app.core.rate_limit import limiter
 from src.app.db.database import get_db
-from src.app.db.models.models import User, Room, RoomPlayer, RoomMission, Member
+from src.app.db.models.models import User, Room, RoomPlayer, RoomMission, Member, Contest
 from src.app.schemas.schemas import RoomCreateRequest, RoomDeleteRequest
+from src.app.services.contest_services import get_contest_summary
 from src.app.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
     get_solved_problem_list, \
-    handle_room_start, fetch_problems
+    handle_room_ready, fetch_problems
 from src.app.utils.scheduler import add_job
 from src.app.utils.security_utils import hash_password, verify_password, get_handle_by_token
 from src.app.utils.solvedac_utils import search_problems
@@ -26,14 +27,14 @@ router = APIRouter()
 
 @router.get("/list")
 @limiter.limit("20/minute")
-async def room_list(request: Request, page: int, search: str = "", activeOnly: bool = False,
-                    db: Session = Depends(get_db)):
+async def room_list(request: Request, page: int, search: str = "", activeOnly: bool = False, myRoomOnly: bool = False,
+                    db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
     # 쿼리에 검색 필터 추가
     query = (
         db.query(Room)
         .options(joinedload(Room.players))
         .options(joinedload(Room.missions))
-        .options(joinedload(Room.owner))
+        .options(joinedload(Room.owner).joinedload(User.member))  # owner의 member까지 미리 로드
         .filter(Room.name.ilike(f"%{search}%"))
         .filter(Room.is_deleted == False)
         .order_by(desc(Room.updated_at))
@@ -44,6 +45,10 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
                  .filter(Room.is_private == False)
                  .filter(Room.ends_at > datetime.now(tz=pytz.UTC))
                  )
+    if myRoomOnly and token_handle is not None:  # 비회원으로 요청 들어온 경우 무시
+        user = db.query(User).filter(User.handle == token_handle).first()
+        if user:
+            query = query.join(RoomPlayer).filter(RoomPlayer.user_id == user.id)
 
     total_rooms = query.count()
     rooms = (
@@ -54,17 +59,25 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
 
     room_list = []
     for room in rooms:
-        room_data = get_room_summary(room)
+        room_data = await get_room_summary(room, db)
         room_list.append(room_data)
 
-    return {"room_list": room_list, "total_pages": math.ceil(total_rooms / 20)}
+    contests = db.query(Contest).filter(Contest.starts_at > datetime.now(tz=pytz.UTC)).order_by(
+        Contest.starts_at).limit(2)
+
+    contest_list = []
+    for contest in contests:
+        contest_data = get_contest_summary(contest)
+        contest_list.append(contest_data)
+
+    return {"room_list": room_list, "upcoming_contest_list": contest_list, "total_pages": math.ceil(total_rooms / 20)}
 
 
 @router.get("/detail/{id}")
-@limiter.limit("20/minute")
+@limiter.limit("15/minute")
 async def room_detail(request: Request, id: int, db: Session = Depends(get_db),
                       handle: str = Depends(get_handle_by_token)):
-    return get_room_detail(room_id=id, db=db, handle=handle)
+    return await get_room_detail(room_id=id, db=db, handle=handle)
 
 
 @router.post("/delete/{id}")
@@ -104,6 +117,10 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
     room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+    now = datetime.now(tz=pytz.UTC)
+    if now < room.starts_at and now > room.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS):
+        raise HTTPException(status_code=400, detail="방 시작 5분 전부터는 참여할 수 없습니다.")
+
     if room.mode_type == ModeType.LAND_GRAB_TEAM:
         raise HTTPException(status_code=400, detail="팀전에는 참여할 수 없습니다.")
     if room.is_private and verify_password(password, room.entry_pwd) is False:
@@ -267,12 +284,12 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         is_private=room_request.is_private
     )
     db.add(room)
-    db.flush()
+    db.commit()
 
     add_job(
-        handle_room_start,
-        run_date=room_request.starts_at,
-        args=[room.id, db],
+        handle_room_ready,
+        run_date=max(room_request.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS), datetime.now(pytz.UTC)),
+        args=[room.id],
     )
 
     for idx, (username, team_idx) in enumerate(room_request.handles.items()):

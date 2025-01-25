@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import {useState} from 'react';
+import HandleComponent from "./HandleComponent.tsx";
+import {TeamInfo} from "../types/RoomDetail.tsx";
 
-function TeamStatusBox({ roomDetail, userColors }) {
+function TeamStatusBox({roomDetail, userColors}) {
     const [showAll, setShowAll] = useState(true);
 
     const toggleView = () => {
@@ -18,46 +20,47 @@ function TeamStatusBox({ roomDetail, userColors }) {
                 onClick={toggleView}
                 className="absolute bottom-2 right-2 p-1 bg-transparent border-none rounded focus:outline-none"
                 aria-label="Toggle view mode"
-                style={{ fontSize: '0.8rem' }}
+                style={{fontSize: '0.8rem'}}
             >
                 {showAll ? '▼' : '▲'}
             </button>
 
             <div className="pr-8">
-                {teamsToShow.map((team, i) => (
+                {teamsToShow.map((team: TeamInfo, i) => (
                     <div key={i} className="flex items-center gap-2 mb-1 mt-1 ml-2">
                         <div
-                            style={{ backgroundColor: userColors[team.team_index][0] }}
+                            style={{backgroundColor: userColors[team.team_index][0]}}
                             className="w-4 h-4 rounded-sm"
                         ></div>
                         <span className="font-light">
-                            {team.users.map((user, idx) => (
-                                <span key={user.name}>
+                            {team.users.map((player_info, idx) => (
+                                <span key={player_info.user.handle}>
                                     <span
                                         className={
                                             team.users.length > 1 &&
-                                            user.indiv_solved_cnt > 0 &&
+                                            player_info.indiv_solved_cnt > 0 &&
                                             idx === 0
                                                 ? 'font-bold'
                                                 : ''
                                         }
                                     >
                                       <a
-                                          href={`https://www.acmicpc.net/status?user_id=${user.name}`}
+                                          href={`https://www.acmicpc.net/status?user_id=${player_info.user.handle}`}
                                           target="_blank"
                                           rel="noopener noreferrer"
                                           className="no-underline text-white"
                                       >
-                                        {user.name}
+                                          <HandleComponent user={player_info.user}/>
                                       </a>
                                     </span>
-                                    {team.users.length > 1 && `(${user.indiv_solved_cnt})`}
+                                    {team.users.length > 1 && `(${player_info.indiv_solved_cnt})`}
                                     {idx < team.users.length - 1 && ', '}
                                 </span>
                             ))}
-                            &nbsp;: <span className="font-bold">{team.adjacent_solved_count}</span> ({team.total_solved_count})
+                            &nbsp;: <span
+                            className="font-bold">{team.adjacent_solved_count}</span> ({team.total_solved_count})
                         </span>
-                </div>
+                    </div>
                 ))}
             </div>
         </div>
