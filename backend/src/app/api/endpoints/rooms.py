@@ -286,13 +286,6 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
     db.add(room)
     db.commit()
 
-    add_job(
-        handle_room_ready,
-        run_date=max(room_request.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
-                     datetime.now(pytz.UTC) + timedelta(seconds=15)),
-        args=[room.id],
-    )
-
     for idx, (username, team_idx) in enumerate(room_request.handles.items()):
         print(username, team_idx)
         user = db.query(User).filter(User.handle == username).first()
@@ -310,6 +303,11 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         db.add(room_player)
     db.commit()
 
-    print("fin")
+    add_job(
+        handle_room_ready,
+        run_date=max(room_request.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
+                     datetime.now(pytz.UTC) + timedelta(seconds=5)),
+        args=[room.id],
+    )
 
     return {"success": True, "roomId": room.id}
