@@ -13,6 +13,7 @@ from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM, REGISTE
 from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
 from src.app.db.session import get_db
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
+from src.app.services.member_services import convert_to_user_summary
 from src.app.utils.scheduler import add_job
 from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
 
