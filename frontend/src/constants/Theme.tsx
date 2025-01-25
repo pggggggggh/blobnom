@@ -14,6 +14,7 @@ const Theme = {
             '#212529', // dark-9
         ],
     },
+    
 }
 
 export default Theme;

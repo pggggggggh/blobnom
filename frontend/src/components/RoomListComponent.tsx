@@ -20,11 +20,11 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                     >
                         <Group justify="space-between">
                             <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
-                                <Text fw={500} size="lg">
+                                <Text fw={300} size="lg">
                                     {room.is_private && <LockIcon fontSize={"inherit"} className="mr-1 "/>}
                                     {room.name}
                                 </Text>
-                                <Text size="sm" c="dimmed">
+                                <Text fw={200} size="sm" c="dimmed">
                                     방장:&nbsp;
                                     {
                                         <HandleComponent user={room.owner}/>
@@ -36,15 +36,23 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                     {
                                         dayjs(room.starts_at).isBefore(cur_datetime) ? (
                                             dayjs(room.ends_at).isBefore(cur_datetime) ?
-                                                <Badge className="font-medium" color="blue">
+                                                <Badge variant="gradient"
+                                                       gradient={{from: 'indigo', to: 'blue', deg: 90}}
+                                                       className="font-medium">
                                                     {dayjs(room.ends_at).to(cur_datetime, true)} 전 종료
                                                 </Badge>
                                                 :
-                                                <Badge className="font-medium" color="green">
+                                                <Badge variant="gradient"
+                                                       gradient={{from: 'green', to: 'teal', deg: 90}}
+                                                       className="font-medium"
+                                                >
                                                     {dayjs(room.ends_at).to(cur_datetime, true)} 후 종료
                                                 </Badge>
                                         ) : (
-                                            <Badge className="font-medium" color="red">
+                                            <Badge
+                                                variant="gradient"
+                                                gradient={{from: 'red', to: 'pink', deg: 90}}
+                                                className="font-medium">
                                                 {dayjs(room.starts_at).to(cur_datetime, true)} 후 시작
                                             </Badge>
                                         )
@@ -53,7 +61,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                     <Box visibleFrom="xs" w={65}>
                                         <Group gap="xs">
                                             <PersonIcon/>
-                                            <Text size="sm" w={30} ta="">
+                                            <Text fw={200} size="sm" w={30} ta="">
                                                 {room.num_players}/{room.max_players}
                                             </Text>
                                         </Group>
@@ -61,7 +69,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                     <Box visibleFrom="sm" w={80}>
                                         <Group gap="xs">
                                             <TokenOutlinedIcon/>
-                                            <Text size="sm" w={30} ta="">
+                                            <Text fw={200} size="sm" w={30} ta="">
                                                 {room.num_solved_missions}/{room.num_missions}
                                             </Text>
                                         </Group>
@@ -73,7 +81,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                         roomId: room.id.toString()
                                     }}
                                 >
-                                    <Button variant="light">
+                                    <Button variant="light" fw={300}>
                                         참여하기
                                     </Button>
                                 </Link>

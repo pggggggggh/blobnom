@@ -77,6 +77,7 @@ const Index: React.FC = () => {
                         title="공지"
                         withCloseButton
                         onClose={() => setShowNotice(false)}
+                        className="font-light"
                     >
                         Blobnom 공식 Discord가 오픈했습니다!{" "}
                         <a
@@ -101,7 +102,7 @@ const Index: React.FC = () => {
                         aria-label="방 검색"
                     />
                     <Link to="/create" className="flex-shrink-0">
-                        <Button leftSection={<AddIcon/>}>
+                        <Button fw={300} leftSection={<AddIcon/>}>
                             방 만들기
                         </Button>
                     </Link>
@@ -154,6 +155,7 @@ const Index: React.FC = () => {
                             value={page}
                             onChange={handlePageChange}
                             aria-label="페이지 네비게이션"
+                            className="font-extralight"
                         />
                     )}
                 </Group>

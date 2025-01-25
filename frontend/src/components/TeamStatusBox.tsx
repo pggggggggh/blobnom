@@ -32,7 +32,7 @@ function TeamStatusBox({roomDetail, userColors}) {
                             style={{backgroundColor: userColors[team.team_index][0]}}
                             className="w-4 h-4 rounded-sm"
                         ></div>
-                        <span className="font-light tracking-tighter">
+                        <span className="font-light">
                             {team.users.map((player_info, idx) => (
                                 <span key={player_info.user.handle}>
                                     <span
