@@ -59,6 +59,7 @@ class Room(TimestampMixin, Base):
 
     winner = Column(String, nullable=False, default="")
     num_solved_missions = Column(Integer, nullable=False, default=0)
+    last_solved_at = Column(DateTime(timezone=True))
 
     players = relationship("RoomPlayer", back_populates="room", foreign_keys="RoomPlayer.room_id")
     missions = relationship("RoomMission", back_populates="room")

@@ -37,7 +37,7 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
         .options(joinedload(Room.owner).joinedload(User.member))  # owner의 member까지 미리 로드
         .filter(Room.name.ilike(f"%{search}%"))
         .filter(Room.is_deleted == False)
-        .order_by(desc(Room.created_at))
+        .order_by(desc(Room.last_solved_at))
     )
 
     if activeOnly:
@@ -163,7 +163,7 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
         unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
         solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, handle)
         if token_handle is None and not room.is_private and len(solved_mission_list) > 2:  # 비회원의 경우에만 제한
-            raise HTTPException(status_code=400, detail="이미 해결한 문제가 2문제를 초과하여 참여할 수 없습니다.")
+            raise HTTPException(status_code=400, detail="비회원은 이미 해결한 문제가 2문제를 초과하면 참여할 수 없습니다.")
 
     # calculate mex
     player_indices = {player.player_index for player in room_players}
@@ -239,7 +239,9 @@ async def room_solved(request: Request, room_id: int = Body(...), problem_id: in
             if len(target_players) == 0:
                 raise HTTPException(status_code=400, detail="You are not in this room")
 
-        await update_solver(room_id, [mission], target_players, db, client)
+        verdict = await update_solver(room_id, [mission], target_players, db, client)
+        if verdict is False:
+            raise HTTPException(status_code=400, detail="문제가 해결되지 않았습니다. '맞았습니다!!'를 받았는데도 이 메시지가 보인다면 잠시 뒤 다시 시도해주세요.")
         await update_score(room_id, db)
 
 

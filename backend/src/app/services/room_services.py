@@ -233,13 +233,17 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
     db.commit()
 
     if initial is not True:
+        if len(newly_solved_problems) == 0:
+            return False
+
         for problem in newly_solved_problems:
             await manager.broadcast({
                 "type": "problem_solved",
                 "problem_id": problem["pid"],
                 "username": problem["username"],
             }, room_id)
-    return
+
+    return True
 
 
 async def update_score(room_id, db):
