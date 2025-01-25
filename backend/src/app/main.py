@@ -56,7 +56,7 @@ async def startup_event():
     db = SessionLocal()
     try:
         logger.info("Checking unstarted rooms...")
-        await check_unstarted_rooms(db)
+        await check_unstarted_rooms()
         logger.info("Startup tasks completed successfully")
     except Exception as e:
         logger.error("Error during startup", exc_info=e)
