@@ -2,6 +2,7 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
 import {Box, Button, Card, Flex, Group, Input, Switch, TagsInput, Text} from '@mantine/core';
 import {Option, Team} from '../types';
+import {useAuth} from "../../context/AuthProvider.tsx";
 
 const MAX_TEAMS = 4;
 const MIN_TEAMS = 2;
@@ -20,8 +21,16 @@ const TeamSelector = ({handleProps, teamModeProps}: {
         onChange: (value: boolean) => void;
     };
 }) => {
+    const auth = useAuth();
+
     const [individualParticipants, setIndividualParticipants] = useState<string[]>([]);
     const [teams, setTeams] = useState<Team[]>([[], []]);
+
+    useEffect(() => {
+        if (auth?.user) {
+            setIndividualParticipants([auth.user]);
+        }
+    }, [auth?.user]);
 
     const handleIndividualChange = (tags: string[]) => {
         setIndividualParticipants(tags);
@@ -61,7 +70,7 @@ const TeamSelector = ({handleProps, teamModeProps}: {
             setTeams([[], []]);
         } else {
             setTeams([[], []]);
-            setIndividualParticipants([]);
+            setIndividualParticipants(auth?.user ? [auth.user] : []);
         }
     };
 

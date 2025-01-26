@@ -128,8 +128,8 @@ const Index: React.FC = () => {
                             handleActiveOnlyChange(event.currentTarget.checked)
                             setPage(1)
                         }}
-                        label="참여 가능한 게임만 표시"
-                        aria-label="참여 가능한 게임만 표시"
+                        label="참여 가능한 방만 표시"
+                        aria-label="참여 가능한 방만 표시"
                     />
                 </Group>
 

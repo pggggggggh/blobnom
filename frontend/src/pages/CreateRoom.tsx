@@ -26,7 +26,7 @@ function CreateRoom() {
         initialValues: {
             owner_handle: '',
             edit_password: '',
-            handles: {},
+            handles: auth.user ? {[auth.user]: 0} : {},
             is_teammode: false,
             mode: 'land_grab_solo',
             title: '',
