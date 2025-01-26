@@ -10,7 +10,7 @@ const HeaderComponent = () => {
     const [opened, {toggle, close}] = useDisclosure(false);
     const auth = useAuth();
     const {
-        setPage,
+        init
     } = useSearchStore();
 
     const isSmallScreen = useMediaQuery('(max-width: 768px)');
@@ -50,7 +50,7 @@ const HeaderComponent = () => {
                         />
                     )}
                     <Link to="/" onClick={() => {
-                        setPage(1)
+                        init()
                         window.scrollTo(0, 0)
                     }
                     }

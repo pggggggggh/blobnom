@@ -87,6 +87,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                         :
                                                         "fill-zinc-200"
                                                 }
+                                                
                                                 tracking-tighter
                                                 stroke-0
                                                 ${

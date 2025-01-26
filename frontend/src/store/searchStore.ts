@@ -9,6 +9,7 @@ interface SearchState {
     setPage: (page: number) => void;
     setActiveOnly: (checked: boolean) => void;
     setMyRoomOnly: (checked: boolean) => void;
+    init: () => void;
 }
 
 export const useSearchStore = create<SearchState>()((set) => ({
@@ -21,4 +22,5 @@ export const useSearchStore = create<SearchState>()((set) => ({
     setPage: (page) => set({page}),
     setActiveOnly: (checked) => set({activeOnly: checked}),
     setMyRoomOnly: (checked) => set({myRoomOnly: checked}),
+    init: () => set({search: '', page: 1, activeOnly: false, myRoomOnly: false}),
 }));
