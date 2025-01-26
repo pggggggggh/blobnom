@@ -114,10 +114,16 @@ async def check_unstarted_rooms():
     db = next(get_db())
     rooms = db.query(Room).filter(Room.is_started == False).filter(Room.is_deleted == False).all()
     for room in rooms:
-        await handle_room_ready(room.id)
+        add_job(
+            handle_room_ready,
+            run_date=max(room.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
+                         datetime.now(pytz.UTC) + timedelta(seconds=5)),
+            args=[room.id],
+        )
+        logger.info(f"Room {room.id} will start at {room.starts_at}")
 
 
-# open new session, since it it is a scheduled job
+# open new session, since it is a scheduled job
 async def handle_room_ready(room_id: int):
     try:
         db = next(get_db())
@@ -133,7 +139,14 @@ async def handle_room_ready(room_id: int):
         if not room:
             logger.info(f"Room with id {room_id} not found.")
             return
-        if datetime.now(pytz.utc) < room.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS):
+
+        if len(room.missions):  # already set, just start
+
+            add_job(
+                handle_room_start,
+                run_date=max(room.starts_at, datetime.now(pytz.utc)),
+                args=[room.id],
+            )
             return
 
         logger.info(f"{room_id} getting ready")

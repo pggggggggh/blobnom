@@ -179,7 +179,7 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
     )
     room.players.append(player)
     db.add(player)
-    db.flush()
+    db.commit()
 
     if room.is_started and token_handle is None:  # 비회원인 경우, 가입하자마자 솔브 처리
         missions = db.query(RoomMission).filter(
@@ -191,8 +191,9 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
             mission.solved_room_player_id = player.id
             mission.solved_team_index = team_index
             mission.solved_user = user
+            db.add(mission)
+        db.commit()
         await update_score(id, db)
-    db.commit()
 
     return {"success": True, "solved_mission_list": solved_mission_list}
 
