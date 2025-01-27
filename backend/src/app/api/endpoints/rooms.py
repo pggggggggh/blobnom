@@ -282,7 +282,8 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         is_started=False,
         starts_at=room_request.starts_at,
         ends_at=room_request.ends_at,
-        is_private=room_request.is_private
+        is_private=room_request.is_private,
+        last_solved_at=datetime.now(tz=pytz.UTC)
     )
     db.add(room)
     db.commit()
