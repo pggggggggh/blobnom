@@ -294,6 +294,7 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         if not user:
             user = User(handle=username)
             db.add(user)
+            db.flush()
         room_player = RoomPlayer(
             user_id=user.id,
             room_id=room.id,
