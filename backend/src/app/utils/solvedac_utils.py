@@ -18,15 +18,15 @@ async def fetch_user_info(handle):
 
 async def fetch_problems(query):
     async with httpx.AsyncClient() as client:
-        problem_ids = []
+        problems = []
         for _ in range(4):
             response = await client.get("https://solved.ac/api/v3/search/problem",
                                         params={"query": query, "sort": "random", "page": 1})
             tmp = response.json()["items"]
             for item in tmp:
-                if item["problemId"] not in problem_ids:
-                    problem_ids.append(item["problemId"])
-        return problem_ids
+                if item["problemId"] not in problems:
+                    problems.append({"id": item["problemId"], "difficulty": item["level"]})
+        return problems
 
 
 async def get_solved_problem_list(problem_ids, username):

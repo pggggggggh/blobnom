@@ -33,6 +33,7 @@ function CreateRoom() {
             query: '',
             size: 2,
             is_private: false,
+            unfreeze_offset_minutes: 0,
             max_players: 16,
             starts_at: now.toISOString(),
             ends_at: twoHoursLater.toISOString(),
@@ -60,6 +61,13 @@ function CreateRoom() {
                 } else {
                     return Object.keys(value).length > 0 ? null : '적어도 하나의 참가자가 필요합니다.';
                 }
+            },
+            unfreeze_offset_minutes: (value) => {
+                if (value === null) return null;
+                if (!Number.isInteger(value) || value < 0) {
+                    return "0 이상의 정수를 입력하세요.";
+                }
+                return null;
             },
             starts_at: (value) =>
                 new Date(value) < new Date() ? '시작 시간은 현재 시간 이후여야 합니다.' : null,
@@ -110,6 +118,7 @@ function CreateRoom() {
                         queryValue={form.values.query}
                         queryProps={form.getInputProps('query')}
                         handleValue={form.values.handles}
+                        unfreezeOffsetMinutesProps={form.getInputProps('unfreeze_offset_minutes')}
                     />
 
                     <SetRoomSize sizeProps={form.getInputProps('size')}/>

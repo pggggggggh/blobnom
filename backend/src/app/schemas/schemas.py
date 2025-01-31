@@ -17,6 +17,7 @@ class RoomCreateRequest(BaseModel):
     max_players: int
     edit_password: str
     entry_pin: str
+    unfreeze_offset_minutes: Optional[int]
     starts_at: datetime
     ends_at: datetime
 
@@ -72,6 +73,7 @@ class RoomMissionInfo(BaseModel):
     solved_player_index: Optional[int]
     solved_team_index: Optional[int]
     solved_user_name: Optional[str]
+    difficulty: Optional[int]
 
     class Config:
         from_attributes = True

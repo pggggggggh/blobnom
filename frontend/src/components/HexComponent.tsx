@@ -72,14 +72,21 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                     : {fill: `url(#gradient-${missions[i].solved_team_index})`}
                                             }
                                         >
+                                            {
+                                                missions[i].difficulty &&
+                                                <image
+                                                    href={`https://storage.googleapis.com/bucket-firogeneral/solvedactier/${missions[i].difficulty}.png`}
+                                                    x="-2.5"
+                                                    y="-8"
+                                                    width="5"
+                                                    height="5"
+                                                />
+                                            }
+
                                             <SVGText
                                                 textAnchor="middle"
                                                 fontSize="5"
-                                                y={
-                                                    !missions[i].solved_at
-                                                        ? 0
-                                                        : -0.25
-                                                }
+                                                y={0}
                                                 className={`
                                                 ${
                                                     missions[i].solved_at ?
@@ -87,7 +94,6 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                         :
                                                         "fill-zinc-200"
                                                 }
-                                                
                                                 tracking-tighter
                                                 stroke-0
                                                 ${
@@ -110,7 +116,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                     ? <></> :
                                                     <SVGText
                                                         fontSize="3.3"
-                                                        y={4}
+                                                        y={5}
                                                         className={`
                                                     ${
                                                             missions[i].solved_at ?
