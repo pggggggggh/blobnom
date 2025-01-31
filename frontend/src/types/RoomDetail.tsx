@@ -38,4 +38,5 @@ export interface MissionInfo {
     solved_player_index: number | null;
     solved_team_index: number;
     solved_user_name: string | null;
+    difficulty: number | null;
 }

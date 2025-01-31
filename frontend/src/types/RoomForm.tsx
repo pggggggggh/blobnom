@@ -9,6 +9,7 @@ export interface RoomForm {
     size: number;
     is_private: boolean;
     max_players: number;
+    unfreeze_offset_minutes: number;
     starts_at: string;
     ends_at: string;
     entry_pin?: string;
