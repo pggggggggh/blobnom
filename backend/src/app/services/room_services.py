@@ -78,6 +78,8 @@ async def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
         key=lambda x: (-x.adjacent_solved_count, -x.total_solved_count, x.last_solved_at))
 
     missions = room.missions
+    show_difficulty = room.unfreeze_offset_minutes is None or datetime.now(pytz.UTC) > room.ends_at - timedelta(
+        minutes=room.unfreeze_offset_minutes)
     room_mission_info = [
         RoomMissionInfo(
             problem_id=mission.problem_id,
@@ -85,7 +87,8 @@ async def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
             solved_at=mission.solved_at,
             solved_player_index=mission.solved_room_player.player_index if mission.solved_at else None,
             solved_team_index=mission.solved_room_player.team_index if mission.solved_at else None,
-            solved_user_name=mission.solved_room_player.user.handle if mission.solved_at else None
+            solved_user_name=mission.solved_room_player.user.handle if mission.solved_at else None,
+            difficulty=mission.difficulty if show_difficulty or mission.solved_at else None
         )
         for mission in sorted(missions, key=lambda m: m.index_in_room)
     ]
@@ -157,8 +160,8 @@ async def handle_room_ready(room_id: int):
                 new_query += f" !@{player.user.handle}"
 
             logger.info(new_query)
-            problem_ids = await fetch_problems(new_query)
-            if len(problem_ids) < room.num_mission:
+            problems = await fetch_problems(new_query)
+            if len(problems) < room.num_mission:
                 logger.info(f"Room with id {room_id} has no sufficient problems.")
                 room.is_deleted = True
                 db.add(room)
@@ -169,10 +172,11 @@ async def handle_room_ready(room_id: int):
             db.add(room)
             db.commit()
 
-            problem_ids = problem_ids[:room.num_mission]
+            problems = problems[:room.num_mission]
 
-            for idx, problem_id in enumerate(problem_ids):
-                mission = RoomMission(problem_id=problem_id, room_id=room.id, index_in_room=idx)
+            for idx, problem in enumerate(problems):
+                mission = RoomMission(problem_id=problem["id"], difficulty=problem["difficulty"], room_id=room.id,
+                                      index_in_room=idx)
                 db.add(mission)
                 room.missions.append(mission)
             await update_solver(room.id, room.missions, room.players, db, client, True)

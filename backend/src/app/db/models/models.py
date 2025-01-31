@@ -54,6 +54,7 @@ class Room(TimestampMixin, Base):
     owner_id = Column(ForeignKey("users.id"), nullable=True)
     owner = relationship("User", foreign_keys=[owner_id], back_populates="owned_rooms")
 
+    unfreeze_offset_minutes = Column(Integer, nullable=True)
     mode_type = Column(Enum(ModeType), nullable=False, default=ModeType.LAND_GRAB_SOLO)
     winning_team_index = Column(Integer, default=0)
 
@@ -73,11 +74,12 @@ class RoomMission(TimestampMixin, Base):
 
     problem_type = Column(Enum(ProblemType), nullable=False, default=ProblemType.BOJ)
     problem_id = Column(Integer)
-    solved_at = Column(DateTime(timezone=True))
+    difficulty = Column(Integer, default=0)
 
     room_id = Column(ForeignKey("rooms.id"))
     room = relationship("Room", back_populates="missions")
 
+    solved_at = Column(DateTime(timezone=True))
     solved_room_player_id = Column(ForeignKey("room_players.id"))
     solved_room_player = relationship("RoomPlayer", back_populates="solved_missions")
     solved_team_index = Column(Integer)
