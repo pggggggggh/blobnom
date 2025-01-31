@@ -73,7 +73,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                             }
                                         >
                                             {
-                                                missions[i].difficulty &&
+                                                missions[i].difficulty != null &&
                                                 <image
                                                     href={`https://storage.googleapis.com/bucket-firogeneral/solvedactier/${missions[i].difficulty}.png`}
                                                     x="-2.5"
