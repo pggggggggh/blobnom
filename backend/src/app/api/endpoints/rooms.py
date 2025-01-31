@@ -270,7 +270,6 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
     if len(problem_ids) < num_mission:
         raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 너무 적습니다.")
 
-    print(room_request)
     room = Room(
         name=room_request.title,
         query=room_request.query,
