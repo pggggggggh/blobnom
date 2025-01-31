@@ -270,7 +270,6 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
     if len(problem_ids) < num_mission:
         raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 너무 적습니다.")
 
-    print(room_request)
     room = Room(
         name=room_request.title,
         query=room_request.query,
@@ -284,6 +283,7 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         starts_at=room_request.starts_at,
         ends_at=room_request.ends_at,
         is_private=room_request.is_private,
+        last_solved_at=datetime.now(tz=pytz.UTC),
         unfreeze_offset_minutes=room_request.unfreeze_offset_minutes,
     )
     db.add(room)
