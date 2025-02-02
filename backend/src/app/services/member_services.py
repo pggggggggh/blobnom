@@ -55,8 +55,8 @@ async def register(register_request: RegisterRequest, db: Session):
         raise HTTPException(status_code=400, detail="Token validation failed")
 
     member = Member(
-        handle=register_request.handle,
-        email=register_request.email,
+        handle=register_request.handle.lower(),
+        email=register_request.email.lower(),
         password=hash_password(register_request.password),
     )
     solvedac_token.is_used = True

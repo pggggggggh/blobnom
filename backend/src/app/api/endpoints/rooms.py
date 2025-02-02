@@ -293,7 +293,7 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         print(username, team_idx)
         user = db.query(User).filter(User.handle == username).first()
         if not user:
-            user = User(handle=username)
+            user = User(handle=username.lower())
             db.add(user)
             db.flush()
         room_player = RoomPlayer(

@@ -17,8 +17,8 @@ const RoomJoinModal = ({roomId, is_private}: { roomId: number, is_private: boole
         validate: {
             handle: (value) => {
                 if (auth.user) return null;
-                if (!/^[a-zA-Z0-9_]{1,50}$/.test(value)) {
-                    return "핸들 형식이 잘못되었습니다.";
+                if (!/^[a-z0-9_]{1,50}$/.test(value)) {
+                    return "핸들 형식이 잘못되었습니다. 알파벳 소문자, 숫자, 언더바만 입력해주세요.";
                 }
                 return null;
             },

@@ -33,13 +33,13 @@ const TeamSelector = ({handleProps, teamModeProps}: {
     }, [auth?.user]);
 
     const handleIndividualChange = (tags: string[]) => {
-        setIndividualParticipants(tags);
+        setIndividualParticipants(tags.map(tag => tag.toLowerCase()));
     };
 
     const handleTeamChange = (index: number, tags: string[]) => {
         setTeams((prevTeams) => {
             const updatedTeams = [...prevTeams];
-            updatedTeams[index] = tags;
+            updatedTeams[index] = tags.map(tag => tag.toLowerCase());
             return updatedTeams;
         });
     };
