@@ -16,7 +16,8 @@ export interface RoomSummary {
     max_players: number;
     is_private: boolean;
     num_missions: number;
-    num_solved_missions: number;
+    num_solved_missions: number
+    is_contest_room: boolean;
 }
 
 export interface ContestSummary {

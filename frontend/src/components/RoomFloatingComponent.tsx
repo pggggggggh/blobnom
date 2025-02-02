@@ -83,7 +83,7 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                 </Box>
             }
 
-            {!roomDetail.is_user_in_room && roomDetail.mode_type === "land_grab_solo" && new Date(roomDetail.ends_at) > new Date() &&
+            {!roomDetail.is_user_in_room && !roomDetail.is_contest_room && roomDetail.mode_type === "land_grab_solo" && new Date(roomDetail.ends_at) > new Date() &&
                 <div
                     className="p-2 fixed bottom-4 left-4">
                     <Button

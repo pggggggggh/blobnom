@@ -1,3 +1,5 @@
+import {RoomDetail} from "./RoomDetail.tsx";
+
 export interface ContestDetail {
     id: number;
     name: string;
@@ -9,4 +11,6 @@ export interface ContestDetail {
     players_per_room: number;
     missions_per_room: number;
     is_user_registered: boolean;
+    user_room_id: number;
+    room_details: RoomDetail[];
 }

@@ -65,6 +65,8 @@ class Room(TimestampMixin, Base):
     players = relationship("RoomPlayer", back_populates="room", foreign_keys="RoomPlayer.room_id")
     missions = relationship("RoomMission", back_populates="room")
 
+    is_contest_room = Column(Boolean, nullable=False, default=False)
+
 
 class RoomMission(TimestampMixin, Base):
     __tablename__ = "room_missions"
@@ -132,6 +134,9 @@ class Contest(TimestampMixin, Base):
 
     starts_at = Column(DateTime(timezone=True), nullable=False)
     ends_at = Column(DateTime(timezone=True), nullable=False)
+
+    is_started = Column(Boolean, nullable=False, default=False)
+    is_ended = Column(Boolean, nullable=False, default=False)
 
     contest_rooms = relationship("ContestRoom", back_populates="contest", foreign_keys="ContestRoom.contest_id")
     contest_members = relationship("ContestMember", back_populates="contest")

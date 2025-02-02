@@ -90,20 +90,6 @@ class ContestSummary(BaseModel):
     missions_per_room: int
 
 
-class ContestDetails(BaseModel):
-    id: int
-    name: str
-    query: str
-    starts_at: datetime
-    ends_at: datetime
-    num_participants: int
-    participants: List[str]
-    players_per_room: int
-    missions_per_room: int
-    is_user_registered: bool
-    # 경기 끝나면 각 방별 순위 등등 제공 예정
-
-
 class RoomSummary(BaseModel):
     id: int
     name: str
@@ -116,6 +102,7 @@ class RoomSummary(BaseModel):
     num_solved_missions: int
     winner: str
     is_private: bool
+    is_contest_room: bool
 
     class Config:
         from_attributes = True
@@ -135,6 +122,24 @@ class RoomDetail(BaseModel):
     mode_type: ModeType
     team_info: List[RoomTeamInfo]
     mission_info: List[RoomMissionInfo]
+    is_contest_room: bool
 
     class Config:
         from_attributes = True
+
+
+class ContestDetails(BaseModel):
+    id: int
+    name: str
+    query: str
+    starts_at: datetime
+    ends_at: datetime
+    num_participants: int
+    participants: List[str]
+    players_per_room: int
+    missions_per_room: int
+    is_user_registered: bool
+    is_started: bool
+    user_room_id: Optional[int]
+    room_details: Dict[int, RoomDetail]
+    # 경기 끝나면 각 방별 순위 등등 제공 예정

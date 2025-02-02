@@ -60,7 +60,7 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
         room_data = await get_room_summary(room, db)
         room_list.append(room_data)
 
-    contests = db.query(Contest).filter(Contest.starts_at > datetime.now(tz=pytz.UTC)).order_by(
+    contests = db.query(Contest).filter(Contest.ends_at > datetime.now(tz=pytz.UTC)).order_by(
         Contest.starts_at).limit(2)
 
     contest_list = []

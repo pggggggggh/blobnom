@@ -1,5 +1,7 @@
 import asyncio
+from datetime import datetime
 
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 
 scheduler = BackgroundScheduler()
@@ -15,6 +17,10 @@ def shutdown_scheduler():
 
 
 def add_job(func, run_date, args=None):
+    now = datetime.now(pytz.UTC)
+    if run_date < now:
+        run_date = now
+
     if asyncio.iscoroutinefunction(func):
         scheduler.add_job(run_async, 'date', run_date=run_date, args=(func, *args))
     else:

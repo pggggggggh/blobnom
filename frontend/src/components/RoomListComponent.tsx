@@ -58,10 +58,10 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                         )
                                     }
 
-                                    <Box visibleFrom="xs" w={65}>
+                                    <Box visibleFrom="xs" w={80}>
                                         <Group gap="xs">
                                             <PersonIcon/>
-                                            <Text fw={200} size="sm" w={30} ta="">
+                                            <Text fw={200} size="sm" w={40} ta="">
                                                 {room.num_players}/{room.max_players}
                                             </Text>
                                         </Group>
@@ -69,7 +69,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                     <Box visibleFrom="sm" w={80}>
                                         <Group gap="xs">
                                             <TokenOutlinedIcon/>
-                                            <Text fw={200} size="sm" w={30} ta="">
+                                            <Text fw={200} size="sm" w={40} ta="">
                                                 {room.num_solved_missions}/{room.num_missions}
                                             </Text>
                                         </Group>

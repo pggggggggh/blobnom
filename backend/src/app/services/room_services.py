@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 from starlette import status
 
 from src.app.api.websocket_router import manager
-from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM, REGISTER_DEADLINE_SECONDS
+from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
 from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
 from src.app.db.session import get_db
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
@@ -32,16 +32,21 @@ async def get_room_summary(room: Room, db: Session) -> RoomSummary:
         num_solved_missions=room.num_solved_missions,
         winner=room.winner,
         is_private=room.is_private,
+        is_contest_room=room.is_contest_room,
     )
 
 
-async def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
-    room = (db.query(Room).filter(Room.id == room_id)
-            .options(joinedload(Room.missions)
-                     .joinedload(RoomMission.solved_room_player)
-                     .joinedload(RoomPlayer.user))
-            .options(joinedload(Room.players))
-            .first())
+async def get_room_detail(room_id: int, db: Session, handle: str, without_mission_info: bool = False) -> RoomDetail:
+    query = db.query(Room).filter(Room.id == room_id)
+    if not without_mission_info:
+        query = query.options(
+            joinedload(Room.missions)
+            .joinedload(RoomMission.solved_room_player)
+            .joinedload(RoomPlayer.user)
+        )
+    query = query.options(joinedload(Room.players))
+    room = query.first()
+
     if not room or room.is_deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
@@ -80,18 +85,22 @@ async def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
     missions = room.missions
     show_difficulty = room.unfreeze_offset_minutes is None or datetime.now(pytz.UTC) > room.ends_at - timedelta(
         minutes=room.unfreeze_offset_minutes)
-    room_mission_info = [
-        RoomMissionInfo(
-            problem_id=mission.problem_id,
-            index_in_room=mission.index_in_room,
-            solved_at=mission.solved_at,
-            solved_player_index=mission.solved_room_player.player_index if mission.solved_at else None,
-            solved_team_index=mission.solved_room_player.team_index if mission.solved_at else None,
-            solved_user_name=mission.solved_room_player.user.handle if mission.solved_at else None,
-            difficulty=mission.difficulty if show_difficulty or mission.solved_at else None
-        )
-        for mission in sorted(missions, key=lambda m: m.index_in_room)
-    ]
+
+    if without_mission_info or not room.is_started:
+        room_mission_info = []
+    else:
+        room_mission_info = [
+            RoomMissionInfo(
+                problem_id=mission.problem_id,
+                index_in_room=mission.index_in_room,
+                solved_at=mission.solved_at,
+                solved_player_index=mission.solved_room_player.player_index if mission.solved_at else None,
+                solved_team_index=mission.solved_room_player.team_index if mission.solved_at else None,
+                solved_user_name=mission.solved_room_player.user.handle if mission.solved_at else None,
+                difficulty=mission.difficulty if show_difficulty or mission.solved_at else None
+            )
+            for mission in sorted(missions, key=lambda m: m.index_in_room)
+        ]
 
     room_detail = RoomDetail(
         starts_at=room.starts_at,
@@ -108,26 +117,15 @@ async def get_room_detail(room_id: int, db: Session, handle: str) -> RoomDetail:
         team_info=room_team_info,
         mission_info=room_mission_info,
         is_started=room.is_started,
+        is_contest_room=room.is_contest_room,
     )
 
     return room_detail
 
 
-async def check_unstarted_rooms():
-    db = next(get_db())
-    rooms = db.query(Room).filter(Room.is_started == False).filter(Room.is_deleted == False).all()
-    for room in rooms:
-        add_job(
-            handle_room_ready,
-            run_date=max(room.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
-                         datetime.now(pytz.UTC) + timedelta(seconds=5)),
-            args=[room.id],
-        )
-        logger.info(f"Room {room.id} will start at {room.starts_at}")
-
-
 # open new session, since it is a scheduled job
 async def handle_room_ready(room_id: int):
+    global db
     try:
         db = next(get_db())
         room = (
@@ -144,7 +142,6 @@ async def handle_room_ready(room_id: int):
             return
 
         if len(room.missions):  # already set, just start
-
             add_job(
                 handle_room_start,
                 run_date=max(room.starts_at, datetime.now(pytz.utc)),
@@ -186,22 +183,27 @@ async def handle_room_ready(room_id: int):
 
             add_job(
                 handle_room_start,
-                run_date=max(room.starts_at, datetime.now(pytz.utc)),
+                run_date=room.starts_at,
                 args=[room.id],
             )
 
             logger.info(f"Room {room_id} has set successfully. Will start at {room.starts_at}")
     except Exception as e:
         logger.info(f"Error setting room {room_id}: {e}")
+    finally:
+        db.close()
 
 
-async def handle_room_start(room_id: int):
-    db = next(get_db())
+async def handle_room_start(room_id: int, db: Session = None):
+    if db is None:
+        db = next(get_db())
     room = (
         db.query(Room)
         .filter(Room.id == room_id)
         .first()
     )
+    if room is None or room.is_started or room.is_deleted:
+        return
     room.is_started = True
     db.add(room)
     db.commit()

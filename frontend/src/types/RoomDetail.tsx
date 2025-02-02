@@ -17,6 +17,7 @@ export interface RoomDetail {
     num_solved_missions: number;
     team_info: TeamInfo[];
     mission_info: MissionInfo[];
+    is_contest_room: boolean;
 }
 
 export interface TeamInfo {

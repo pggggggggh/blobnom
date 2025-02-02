@@ -3,6 +3,8 @@ import {useContestDetail, useRegisterContest, useUnregisterContest} from "../hoo
 import {Route} from "../routes/contests/$contestId.tsx";
 import React from "react";
 import dayjs from "dayjs";
+import {Link} from "@tanstack/react-router";
+import ContestLeaderboardComponent from "../components/ContestLeaderboardComponent.tsx";
 
 const ContestDetailsPage = () => {
     const {contestId} = Route.useParams()
@@ -34,16 +36,31 @@ const ContestDetailsPage = () => {
                                     참가하기
                                 </Button>
                                 :
-                                <Button
-                                    onClick={() => {
-                                        mutation_unregister.mutate({contestId: contestId})
-                                    }}
-                                    loading={mutation_unregister.isPending}>
-                                    취소하기
-                                </Button>
+                                (contestDetail.user_room_id ?
+                                    <Link
+                                        to="/rooms/$roomId"
+                                        params={{
+                                            roomId: contestDetail.user_room_id.toString()
+                                        }}
+                                    >
+                                        <Button
+                                        >
+                                            입장하기
+                                        </Button>
+                                    </Link>
+                                    :
+                                    <Button
+                                        onClick={() => {
+                                            mutation_unregister.mutate({contestId: contestId})
+                                        }}
+                                        loading={mutation_unregister.isPending}>
+                                        취소하기
+                                    </Button>)
                             }
                         </Stack>
                     </Card>
+
+                    <ContestLeaderboardComponent room_details={contestDetail.room_details}/>
 
                     <Card shadow="sm" p="lg">
                         <Stack>
@@ -79,7 +96,7 @@ const ContestDetailsPage = () => {
                 <Grid.Col span={{base: 12, md: 4}}>
                     <Card shadow="sm" padding="lg">
                         <Title order={4} mb="md">
-                            참가자
+                            참가자 ({contestDetail.num_participants})
                         </Title>
                         <Stack align="center" gap="xs">
                             {

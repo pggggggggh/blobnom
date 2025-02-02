@@ -11,7 +11,7 @@ const ContestListComponent = ({contests, cur_datetime}: { contests: ContestSumma
         <Stack gap="sm">
             {contests?.map((contest) => {
                 return (
-                    <Card key={contest.id} withBorder shadow="sm" style={{ border: '1px solid #DFCD7E' }}>
+                    <Card key={contest.id} withBorder shadow="sm" style={{border: '1px solid #DFCD7E'}}>
                         <Group justify="space-between">
                             <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
                                 <Text fw={500} size="lg">
@@ -42,10 +42,10 @@ const ContestListComponent = ({contests, cur_datetime}: { contests: ContestSumma
                                         )
                                     }
 
-                                    <Box visibleFrom="xs" w={65}>
+                                    <Box visibleFrom="xs" w={80}>
                                         <Group gap="xs">
                                             <PersonIcon/>
-                                            <Text size="sm" w={30}>
+                                            <Text size="sm" w={40}>
                                                 {contest.num_participants}/∞
                                             </Text>
                                         </Group>
@@ -53,7 +53,7 @@ const ContestListComponent = ({contests, cur_datetime}: { contests: ContestSumma
                                     <Box visibleFrom="sm" w={80}>
                                         <Group gap="xs">
                                             <TokenOutlinedIcon/>
-                                            <Text size="sm" w={30}>
+                                            <Text size="sm" w={40}>
                                                 {contest.missions_per_room}
                                             </Text>
                                         </Group>

@@ -11,6 +11,7 @@ import {useRoomList} from "../hooks/hooks.tsx";
 import RoomListComponent from '../components/RoomListComponent.tsx';
 import {useSearchStore} from "../store/searchStore.ts";
 import {useAuth} from "../context/AuthProvider.tsx";
+import ContestListComponent from "../components/ContestListComponent.tsx";
 
 const Index: React.FC = () => {
     const {
@@ -141,7 +142,10 @@ const Index: React.FC = () => {
                     </Stack>
                 ) : (
                     data && (
-                        <RoomListComponent rooms={data.room_list} cur_datetime={date}/>
+                        <>
+                            <ContestListComponent contests={data.upcoming_contest_list} cur_datetime={date}/>
+                            <RoomListComponent rooms={data.room_list} cur_datetime={date}/>
+                        </>
                     )
                 )}
 
