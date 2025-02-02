@@ -19,7 +19,7 @@ async def fetch_user_info(handle):
 async def fetch_problems(query):
     async with httpx.AsyncClient() as client:
         problems = []
-        for _ in range(4):
+        for _ in range(3):
             response = await client.get("https://solved.ac/api/v3/search/problem",
                                         params={"query": query, "sort": "random", "page": 1})
             tmp = response.json()["items"]

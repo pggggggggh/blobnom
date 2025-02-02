@@ -142,4 +142,21 @@ class ContestDetails(BaseModel):
     is_started: bool
     user_room_id: Optional[int]
     room_details: Dict[int, RoomDetail]
-    # 경기 끝나면 각 방별 순위 등등 제공 예정
+
+
+class ContestHistory(BaseModel):
+    rating_before: Optional[int]
+    rating_after: Optional[int]
+    contest_id: int
+    contest_name: str
+    final_rank: Optional[int]
+    is_rated: bool
+    started_at: datetime
+
+
+class MemberDetails(BaseModel):
+    handle: str
+    desc: str
+    rating: int
+    contest_history: List[ContestHistory]
+    num_solved_missions: int

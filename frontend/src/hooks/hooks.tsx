@@ -5,6 +5,7 @@ import {
     deleteRoom,
     fetchContestDetail,
     fetchMainData,
+    fetchMemberDetails,
     fetchRoomDetail,
     fetchSolvedAcToken,
     postCreateRoom,
@@ -21,6 +22,7 @@ import {MainData} from "../types/Summaries.tsx";
 import {useRouter} from "@tanstack/react-router";
 import InfoModal from "../components/Modals/InfoModal.tsx";
 import {ContestDetail} from "../types/ContestDetail.tsx";
+import {MemberDetails} from "../types/MemberDetails.tsx";
 
 const handleError = (error: any) => {
     console.log(error);
@@ -70,6 +72,13 @@ export const useContestDetail = (contestId: number) => {
     return useQuery<ContestDetail, Error>({
         queryKey: ['contestDetail', contestId],
         queryFn: () => fetchContestDetail(contestId),
+    });
+};
+
+export const useMemberDetail = (handle: string) => {
+    return useQuery<MemberDetails, Error>({
+        queryKey: ['memberDetail', handle],
+        queryFn: () => fetchMemberDetails(handle),
     });
 };
 

@@ -1,6 +1,7 @@
 import math
 from collections import deque
 from datetime import datetime, timedelta
+from typing import Optional
 
 import httpx
 import pytz
@@ -11,7 +12,7 @@ from starlette import status
 from src.app.api.websocket_router import manager
 from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
 from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
-from src.app.db.session import get_db
+from src.app.db.session import get_db, SessionLocal
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
 from src.app.services.member_services import convert_to_user_summary
 from src.app.utils.logger import logger
@@ -36,7 +37,8 @@ async def get_room_summary(room: Room, db: Session) -> RoomSummary:
     )
 
 
-async def get_room_detail(room_id: int, db: Session, handle: str, without_mission_info: bool = False) -> RoomDetail:
+async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
+                          without_mission_info: bool = False) -> RoomDetail:
     query = db.query(Room).filter(Room.id == room_id)
     if not without_mission_info:
         query = query.options(
@@ -125,9 +127,8 @@ async def get_room_detail(room_id: int, db: Session, handle: str, without_missio
 
 # open new session, since it is a scheduled job
 async def handle_room_ready(room_id: int):
-    global db
+    db: Session = SessionLocal()
     try:
-        db = next(get_db())
         room = (
             db.query(Room)
             .options(

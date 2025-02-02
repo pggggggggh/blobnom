@@ -29,6 +29,8 @@ class Member(TimestampMixin, Base):
     email = Column(String)
     password = Column(String, nullable=False)
 
+    rating = Column(Integer, default=1200)
+
     registered_contests = relationship("ContestMember", back_populates="member")
 
 
@@ -101,6 +103,7 @@ class RoomPlayer(TimestampMixin, Base):
     indiv_solved_count = Column(Integer, nullable=False, default=0)  # 개인은 푼 문제수만 셈
 
     last_solved_at = Column(DateTime(timezone=True))
+    rank = Column(Integer)  # 추후 적용 예정
 
     user_id = Column(ForeignKey("users.id"))
     user = relationship("User", back_populates="user_rooms")
@@ -125,9 +128,11 @@ class Contest(TimestampMixin, Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, nullable=False)
-    query = Column(String)
     is_deleted = Column(Boolean, default=False)
+
+    query = Column(String)
     type = Column(Enum(ContestType), nullable=False, default=ContestType.CONTEST_BOJ_GENERAL)
+    is_rated = Column(Boolean, default=False)
 
     missions_per_room = Column(Integer, nullable=False)
     players_per_room = Column(Integer, nullable=False)
@@ -169,3 +174,5 @@ class ContestMember(TimestampMixin, Base):
     room = relationship("Room")
 
     final_rank = Column(Integer)
+    rating_before = Column(Integer)
+    rating_after = Column(Integer)

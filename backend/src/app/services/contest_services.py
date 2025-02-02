@@ -10,9 +10,10 @@ from sqlalchemy.orm import Session, joinedload
 from src.app.core.constants import REGISTER_DEADLINE_SECONDS
 from src.app.core.enums import Role, ContestType, ModeType
 from src.app.db.models.models import Member, Contest, ContestMember, Room, ContestRoom, User, RoomPlayer
-from src.app.db.session import get_db
+from src.app.db.session import SessionLocal
 from src.app.schemas.schemas import ContestCreateRequest, ContestSummary, ContestDetails
 from src.app.services.room_services import handle_room_start, handle_room_ready, get_room_detail
+from src.app.utils.contest_utils import elo_update
 from src.app.utils.logger import logger
 from src.app.utils.scheduler import add_job
 
@@ -95,22 +96,27 @@ async def create_contest(contest_create_request: ContestCreateRequest, db: Sessi
         players_per_room=contest_create_request.players_per_room,
         starts_at=contest_create_request.starts_at,
         ends_at=contest_create_request.ends_at,
+        is_started=False
     )
     db.add(contest)
     db.commit()
+
+    print(contest.starts_at)
 
     add_job(
         handle_contest_ready,
         run_date=contest.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
         args=[contest.id],
     )
+    print(contest.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS))
 
     return {"message": "success"}
 
 
 async def handle_contest_ready(contest_id: int):
+    logger.info(f"Setting contest {contest_id}")
+    db: Session = SessionLocal()
     try:
-        db = next(get_db())
         contest = db.query(Contest).filter(Contest.id == contest_id).first()
         if not contest:
             return
@@ -130,6 +136,13 @@ async def handle_contest_ready(contest_id: int):
         random.shuffle(member_handles)
 
         num_total_players = len(members)
+        if num_total_players == 0:
+            contest.is_deleted = True
+            db.add(contest)
+            db.commit()
+            return
+        print("@")
+
         players_per_room = contest.players_per_room
 
         num_rooms = math.ceil(num_total_players / players_per_room)
@@ -144,6 +157,7 @@ async def handle_contest_ready(contest_id: int):
 
         room_mode_type = None
         unfreeze_offset_minutes = None
+
         if contest.type == ContestType.CONTEST_BOJ_GENERAL:
             room_mode_type = ModeType.LAND_GRAB_SOLO
             unfreeze_offset_minutes = 0
@@ -215,8 +229,8 @@ async def handle_contest_ready(contest_id: int):
 
 
 async def handle_contest_start(contest_id: int):
+    db: Session = SessionLocal()
     try:
-        db = next(get_db())
         contest = db.query(Contest).filter(Contest.id == contest_id).first()
         if not contest:
             raise HTTPException(status_code=404, detail="Contest not found")
@@ -229,9 +243,77 @@ async def handle_contest_start(contest_id: int):
         db.add(contest)
         db.commit()
 
+        add_job(handle_contest_end, run_date=contest.ends_at, args=[contest_id])
+
         logger.info(f"Contest {contest_id} has started successfully.")
     except Exception as e:
         logger.error(f"Contest {contest_id}: {e}")
+    finally:
+        db.close()
+
+
+async def handle_contest_end(contest_id: int):
+    db: Session = SessionLocal()
+    try:
+        contest = db.query(Contest).filter(Contest.id == contest_id).first()
+        if not contest:
+            raise HTTPException(status_code=404, detail="Contest not found")
+        if contest.is_ended or not contest.is_started:
+            raise HTTPException(status_code=400)
+
+        contest_rooms = db.query(ContestRoom).filter(ContestRoom.contest_id == contest_id).all()
+        for contest_room in contest_rooms:
+            room_info = await get_room_detail(contest_room.id, db, None, without_mission_info=True)
+            team_info = room_info.team_info
+            members = []
+            contest_members = []
+            ranks = []
+            for i, team in enumerate(team_info):
+                handle = team.users[0]["user"].handle
+                member = db.query(Member).filter(Member.handle == handle).first()
+                contest_member = db.query(ContestMember).filter(ContestMember.contest_id == contest_id,
+                                                                ContestMember.member_id == member.id).first()
+                if team.total_solved_count == 0:
+                    rank = len(team_info)
+                else:
+                    rank = i + 1
+                ranks.append(rank)
+                members.append(member)
+                contest_members.append(contest_member)
+                contest_member.final_rank = rank
+                db.add(contest_member)
+
+            new_rating = [member.rating for member in members]
+            if contest.is_rated:
+                for i, player_a in enumerate(members):
+                    orig_rating = player_a.rating
+                    for j, player_b in enumerate(members):
+                        if i == j:
+                            continue
+                        result = 0
+                        if ranks[i] < ranks[j]:
+                            result = 1
+                        elif ranks[i] > ranks[j]:
+                            result = 0
+                        else:
+                            result = 0.5
+                        a_new_rating, b_new_rating = elo_update(orig_rating, player_b.rating, result)
+
+                        new_rating[i] += a_new_rating - orig_rating
+
+                for i, member in enumerate(members):
+                    contest_members[i].rating_before = member.rating
+                    contest_members[i].rating_after = new_rating[i]
+                    member.rating = new_rating[i]
+                    db.add(member)
+                    db.add(contest_members[i])
+
+            db.flush()
+        contest.is_ended = True
+        db.commit()
+    except Exception as e:
+        logger.error(f"Error finishing contest {contest_id}: {e}")
+        print(f"Error finishing contest {contest_id}: {e}")
     finally:
         db.close()
 

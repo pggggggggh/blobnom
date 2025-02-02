@@ -6,10 +6,10 @@ import {RoomDetail} from "../types/RoomDetail.tsx";
 
 const ContestLeaderboardComponent = ({room_details}) => {
     return (
-        <Card className="p-4" bg="none">
+        <Card className="" bg="none">
             <Grid>
                 {Object.values(room_details).map((room: RoomDetail, roomIdx) => (
-                    <Grid.Col key={room.id} span={{base: 12, md: 6}}>
+                    <Grid.Col key={room.id} span={{base: 12, sm: 6, md: 4, xl: 3}}>
                         <Card className="bg-gray-900 shadow-lg">
                             <Stack gap="md">
                                 <Group justify="center" className="border-b border-gray-700 pb-4">
@@ -22,7 +22,7 @@ const ContestLeaderboardComponent = ({room_details}) => {
                                 </Group>
 
                                 <div className="">
-                                    {room.team_info.map((team, index) => {
+                                    {room.team_info.slice(0, 7).map((team, index) => {
                                         const rankColors = [
                                             "text-red-500",
                                             "text-orange-500",
@@ -34,7 +34,7 @@ const ContestLeaderboardComponent = ({room_details}) => {
                                             "text-gray-500",
                                         ];
 
-                                        const rankClass = team.total_solved_count > 0 ? rankColors[index] : "text-gray-400";
+                                        const rankClass = index < rankColors.length && team.total_solved_count > 0 ? rankColors[index] : "text-gray-300";
 
                                         return (
                                             <div
@@ -60,9 +60,9 @@ const ContestLeaderboardComponent = ({room_details}) => {
 
                                                     <Text
                                                         size="sm"
-                                                        className="bg-gray-700 px-2 py-1 rounded-full text-gray-300"
+                                                        className="bg-gray-700 px-2 py-1 rounded-full text-gray-200 font-bold"
                                                     >
-                                                        {team.total_solved_count}
+                                                        {team.adjacent_solved_count}
                                                     </Text>
                                                 </Group>
                                             </div>

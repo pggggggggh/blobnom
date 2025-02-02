@@ -4,12 +4,13 @@ from datetime import timedelta
 
 import pytest
 import pytz
+from sqlalchemy import desc
 
 from src.app.core.enums import ContestType
 from src.app.db.models.models import Member, User, Contest, ContestMember
 from src.app.db.session import get_db
 from src.app.schemas.schemas import ContestCreateRequest
-from src.app.services.contest_services import create_contest, register_contest
+from src.app.services.contest_services import register_contest, create_contest, handle_contest_end
 from src.app.services.room_services import update_score
 from src.app.utils.security_utils import hash_password
 
@@ -44,27 +45,30 @@ async def test_create_user():
 
 @pytest.mark.asyncio
 async def test_create_contest_with_50_users():
+    """ 테스트 성공 이후에 서버를 재시작해야 scheduler에 의해 콘테스트가 준비됨 """
     db = next(get_db())
     contest_name = "changhw contest " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    await create_contest(
-        ContestCreateRequest(
-            name=contest_name,
-            query="@changhw",
-            type=ContestType.CONTEST_BOJ_GENERAL,
-            missions_per_room=61,
-            players_per_room=8,
-            starts_at=datetime.datetime.now(pytz.UTC) + timedelta(minutes=6),
-            ends_at=datetime.datetime.now(pytz.UTC) + timedelta(hours=2),
-        ), db, "pgggggggggh"
+    contest = Contest(
+        name=contest_name,
+        query="*s2..g2",
+        type=ContestType.CONTEST_BOJ_GENERAL,
+        missions_per_room=37,
+        players_per_room=16,
+        starts_at=datetime.datetime.now(pytz.UTC),
+        ends_at=datetime.datetime.now(pytz.UTC) + timedelta(hours=2),
+        is_rated=True
     )
+    db.add(contest)
+    db.flush()
 
-    contest = db.query(Contest).filter(Contest.name == contest_name).first()
-    assert contest is not None
-
-    for i in range(1, 51):
-        handle = f"changhw{i}"
-        result = await register_contest(contest.id, db, handle)
-        assert result.get("message", "") is not None
+    members = db.query(Member).limit(50)
+    for member in members:
+        contest_member = ContestMember(
+            member_id=member.id,
+            contest_id=contest.id,
+        )
+        db.add(contest_member)
+    db.commit()
 
     contest_members = db.query(ContestMember).filter(ContestMember.contest_id == contest.id).all()
     assert len(contest_members) == 50
@@ -75,9 +79,9 @@ async def test_create_contest_with_50_users():
 @pytest.mark.asyncio
 async def test_random_solve():
     db = next(get_db())
-    contest_id = 6
     limit = 30
-    contest = db.query(Contest).filter(Contest.id == contest_id).first()
+    contest = db.query(Contest).order_by(desc(Contest.created_at)).first()
+    contest_id = contest.id
 
     for contest_room in contest.contest_rooms:
         room = contest_room.room
@@ -104,3 +108,11 @@ async def test_random_solve():
         await update_score(room_id, db)
 
     db.close()
+
+
+@pytest.mark.asyncio
+async def test_force_end_contest():
+    db = next(get_db())
+    contest = db.query(Contest).order_by(desc(Contest.created_at)).first()
+    contest_id = contest.id
+    await handle_contest_end(contest_id)

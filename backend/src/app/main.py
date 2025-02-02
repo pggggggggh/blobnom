@@ -7,13 +7,11 @@ from src.app.api.core_router import router as core_router
 from src.app.api.websocket_router import router as ws_router
 from src.app.core.rate_limit import limiter
 from src.app.db.database import SessionLocal
-from src.app.db.models import models
-from src.app.db.session import engine
 from src.app.utils.logger import logger
 from src.app.utils.misc_utils import check_unstarted_events
 
 try:
-    models.Base.metadata.create_all(bind=engine)
+    # models.Base.metadata.create_all(bind=engine)
     pass
 except Exception as e:
     logger.error("Error creating database schema", exc_info=e)

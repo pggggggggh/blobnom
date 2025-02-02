@@ -4,6 +4,7 @@ import {MainData} from "../types/Summaries.tsx";
 import {RoomForm} from "../types/RoomForm.tsx";
 import {LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
 import {ContestDetail} from "../types/ContestDetail.tsx";
+import {MemberDetails} from "../types/MemberDetails.tsx";
 
 export const fetchMainData = async (page: number, search: string, activeOnly: boolean, myRoomOnly: boolean): Promise<MainData> => {
     const response = await api.get(`/rooms/list`, {
@@ -27,6 +28,11 @@ export const fetchContestDetail = async (contestId: number): Promise<ContestDeta
     return response.data;
 };
 
+export const fetchMemberDetails = async (handle: string): Promise<MemberDetails> => {
+    const response = await api.get(`/members/details/${handle}`);
+    console.log(response)
+    return response.data;
+};
 
 export const postSolveProblem = async (data: { roomId: number; problemId: number }) => {
     const response = await api.post(`/rooms/solved`, {room_id: data.roomId, problem_id: data.problemId});

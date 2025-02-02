@@ -12,6 +12,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
         <Stack gap="sm">
             {rooms?.map((room) => {
                 return (
+                    !room.is_contest_room &&
                     <Card
                         key={room.id}
                         withBorder
