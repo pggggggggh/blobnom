@@ -9,7 +9,7 @@ from src.app.db.models.models import RoomMission
 
 def get_mission_difficulty(problem_ids):
     url = f"https://solved.ac/api/v3/problem/lookup?problemIds={','.join(problem_ids)}"
-    time.sleep(0.1)
+    time.sleep(0.5)
 
     result = {}
     try:
@@ -25,9 +25,9 @@ def get_mission_difficulty(problem_ids):
     return result
 
 
-def update_difficulty(batch_size=100):
+def update_difficulty(batch_size=50):
     db: Session = next(get_db())
-    missions = db.query(RoomMission).all()
+    missions = db.query(RoomMission).filter(RoomMission.difficulty == 0).all()
     for start in range(0, len(missions), batch_size):
         print(f"{start}/{len(missions)}")
         batch = missions[start:start + batch_size]
@@ -36,9 +36,10 @@ def update_difficulty(batch_size=100):
             problemIds.append(str(problem.problem_id))
         difficulties = get_mission_difficulty(problemIds)
         for problem in batch:
-            problem.difficulty = difficulties[problem.problem_id]
-            db.add(problem)
-    db.commit()
+            if problem.problem_id in difficulties:  # 삭제된 문항의 경우 없을 수도 있음
+                problem.difficulty = difficulties[problem.problem_id]
+                db.add(problem)
+        db.commit()
 
 
 if __name__ == "__main__":

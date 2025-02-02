@@ -81,11 +81,11 @@ const Index: React.FC = () => {
                     >
                         Blobnom 공식 Discord가 오픈했습니다!{" "}
                         <a
-                            href="https://discord.gg/Z7tUQZK8"
+                            href="https://discord.gg/8Wt4MaFanw"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            https://discord.gg/Z7tUQZK8
+                            https://discord.gg/8Wt4MaFanw
                         </a>
                         에서 땅따먹기 같이 할 사람을 구해보세요!
                     </Alert>

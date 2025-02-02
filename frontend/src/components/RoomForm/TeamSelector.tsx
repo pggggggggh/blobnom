@@ -127,6 +127,7 @@ const TeamSelector = ({handleProps, teamModeProps}: {
                         variant="unstyled"
                         getCreateLabel={(query: string) => `+ Create "${query}"`}
                         onCreate={(query: string) => {
+                            query = query.toLowerCase()
                             setIndividualParticipants((current) => [...current, query]);
                             return query;
                         }}
@@ -182,6 +183,7 @@ const TeamSelector = ({handleProps, teamModeProps}: {
                                     splitChars={[',', ' ', '|']}
                                     getCreateLabel={(query: string) => `+ Create "${query}"`}
                                     onCreate={(query: string) => {
+                                        query = query.toLowerCase()
                                         setTeams((prevTeams) => {
                                             const updatedTeams = [...prevTeams];
                                             updatedTeams[index].push(query);
