@@ -140,6 +140,7 @@ class ContestDetails(BaseModel):
     missions_per_room: int
     is_user_registered: bool
     is_started: bool
+    is_ended: bool
     user_room_id: Optional[int]
     room_details: Dict[int, RoomDetail]
 

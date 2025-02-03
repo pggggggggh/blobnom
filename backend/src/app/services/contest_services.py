@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 import pytz
 from fastapi import HTTPException
+from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
 from src.app.core.constants import REGISTER_DEADLINE_SECONDS
@@ -13,7 +14,7 @@ from src.app.db.models.models import Member, Contest, ContestMember, Room, Conte
 from src.app.db.session import SessionLocal
 from src.app.schemas.schemas import ContestCreateRequest, ContestSummary, ContestDetails
 from src.app.services.room_services import handle_room_start, handle_room_ready, get_room_detail
-from src.app.utils.contest_utils import elo_update
+from src.app.utils.contest_utils import elo_update, codeforces_update
 from src.app.utils.logger import logger
 from src.app.utils.scheduler import add_job
 
@@ -74,9 +75,22 @@ async def get_contest_details(contest_id: int, db: Session, token_handle: str):
         missions_per_room=contest.missions_per_room,
         is_user_registered=is_user_registered,
         is_started=contest.is_started,
+        is_ended=contest.is_ended,
         user_room_id=user_room_id,
         room_details=room_details
     )
+
+
+async def get_contest_list(myContestOnly: bool, db: Session, token_handle: str):
+    contests = db.query(Contest).order_by(
+        desc(Contest.starts_at))
+
+    contest_list = []
+    for contest in contests:
+        contest_data = get_contest_summary(contest)
+        contest_list.append(contest_data)
+
+    return contest_list
 
 
 async def create_contest(contest_create_request: ContestCreateRequest, db: Session, token_handle: str):
@@ -283,28 +297,17 @@ async def handle_contest_end(contest_id: int):
                 contest_member.final_rank = rank
                 db.add(contest_member)
 
-            new_rating = [member.rating for member in members]
             if contest.is_rated:
-                for i, player_a in enumerate(members):
-                    orig_rating = player_a.rating
-                    for j, player_b in enumerate(members):
-                        if i == j:
-                            continue
-                        result = 0
-                        if ranks[i] < ranks[j]:
-                            result = 1
-                        elif ranks[i] > ranks[j]:
-                            result = 0
-                        else:
-                            result = 0.5
-                        a_new_rating, b_new_rating = elo_update(orig_rating, player_b.rating, result)
-
-                        new_rating[i] += a_new_rating - orig_rating
+                ratings = [member.rating for member in members]
+                res = codeforces_update(ratings, ranks)
+                new_ratings = res["ratings"]
+                performances = res["performance"]
 
                 for i, member in enumerate(members):
                     contest_members[i].rating_before = member.rating
-                    contest_members[i].rating_after = new_rating[i]
-                    member.rating = new_rating[i]
+                    contest_members[i].rating_after = new_ratings[i]
+                    contest_members[i].performance = performances[i]
+                    member.rating = new_ratings[i]
                     db.add(member)
                     db.add(contest_members[i])
 

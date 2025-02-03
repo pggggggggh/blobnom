@@ -26,38 +26,44 @@ const ContestDetailsPage = () => {
                         {dayjs(contestDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ {dayjs(contestDetail.ends_at).format('YYYY-MM-DD HH:mm')}
                     </Text>
                     {
-                        (!contestDetail.is_user_registered ?
-                            (
-                                !contestDetail.is_started &&
-                                <Button
-                                    onClick={() => {
-                                        mutation_register.mutate({contestId: contestId})
-                                    }}
-                                    loading={mutation_register.isPending}>
-                                    참가하기
-                                </Button>
-                            )
+                        contestDetail.is_ended ?
+                            <Text>
+                                대회가 종료되었습니다.
+                            </Text>
                             :
-                            (contestDetail.user_room_id ?
-                                <Link
-                                    to="/rooms/$roomId"
-                                    params={{
-                                        roomId: contestDetail.user_room_id.toString()
-                                    }}
-                                >
+
+                            (!contestDetail.is_user_registered ?
+                                (
+                                    !contestDetail.is_started &&
                                     <Button
-                                    >
-                                        입장하기
+                                        onClick={() => {
+                                            mutation_register.mutate({contestId: contestId})
+                                        }}
+                                        loading={mutation_register.isPending}>
+                                        참가하기
                                     </Button>
-                                </Link>
+                                )
                                 :
-                                <Button
-                                    onClick={() => {
-                                        mutation_unregister.mutate({contestId: contestId})
-                                    }}
-                                    loading={mutation_unregister.isPending}>
-                                    취소하기
-                                </Button>))
+                                (contestDetail.user_room_id ?
+                                    <Link
+                                        to="/rooms/$roomId"
+                                        params={{
+                                            roomId: contestDetail.user_room_id.toString()
+                                        }}
+                                    >
+                                        <Button
+                                        >
+                                            입장하기
+                                        </Button>
+                                    </Link>
+                                    :
+                                    <Button
+                                        onClick={() => {
+                                            mutation_unregister.mutate({contestId: contestId})
+                                        }}
+                                        loading={mutation_unregister.isPending}>
+                                        취소하기
+                                    </Button>))
                     }
                 </Stack>
             </Card>

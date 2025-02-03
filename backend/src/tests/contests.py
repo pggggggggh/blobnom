@@ -1,4 +1,5 @@
 import datetime
+import math
 import random
 from datetime import timedelta
 
@@ -12,6 +13,7 @@ from src.app.db.session import get_db
 from src.app.schemas.schemas import ContestCreateRequest
 from src.app.services.contest_services import register_contest, create_contest, handle_contest_end
 from src.app.services.room_services import update_score
+from src.app.utils.contest_utils import elo_update, codeforces_update
 from src.app.utils.security_utils import hash_password
 
 

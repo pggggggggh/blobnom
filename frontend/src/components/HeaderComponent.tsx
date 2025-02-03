@@ -16,8 +16,8 @@ const HeaderComponent = () => {
     const isSmallScreen = useMediaQuery('(max-width: 768px)');
 
     const menuItems = [
-        // {label: '홈', link: '/'},
-        // {label: '대회', link: '/contests'},
+        {label: '홈', link: '/'},
+        {label: '대회', link: '/contests'},
         // {label: '도움말', link: '/about'},
     ];
 
@@ -72,24 +72,28 @@ const HeaderComponent = () => {
                             Blobnom
                         </Title>
                     </Link>
+
+                    <div className="ml-5">
+                        {!isSmallScreen && (
+                            <>
+                                {menuItems.map((item) => (
+                                    <Link
+                                        key={item.label}
+                                        to={item.link}
+                                        style={{textDecoration: 'none'}}
+                                    >
+                                        <Button variant="subtle" color="white">
+                                            {item.label}
+                                        </Button>
+                                    </Link>
+                                ))}
+                            </>
+                        )}
+                    </div>
                 </Group>
 
                 <Group align="center" spacing="md">
-                    {!isSmallScreen && (
-                        <>
-                            {menuItems.map((item) => (
-                                <Link
-                                    key={item.label}
-                                    to={item.link}
-                                    style={{textDecoration: 'none'}}
-                                >
-                                    <Button variant="subtle" color="white">
-                                        {item.label}
-                                    </Button>
-                                </Link>
-                            ))}
-                        </>
-                    )}
+
 
                     {auth.user ? (
                         <Group align="center">

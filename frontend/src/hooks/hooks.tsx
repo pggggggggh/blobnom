@@ -4,6 +4,7 @@ import {LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Au
 import {
     deleteRoom,
     fetchContestDetail,
+    fetchContestList,
     fetchMainData,
     fetchMemberDetails,
     fetchRoomDetail,
@@ -18,7 +19,7 @@ import {
 } from "../api/api.tsx";
 import {modals} from "@mantine/modals";
 import ErrorModal from "../components/Modals/ErrorModal.tsx";
-import {MainData} from "../types/Summaries.tsx";
+import {ContestSummary, MainData} from "../types/Summaries.tsx";
 import {useRouter} from "@tanstack/react-router";
 import InfoModal from "../components/Modals/InfoModal.tsx";
 import {ContestDetail} from "../types/ContestDetail.tsx";
@@ -57,6 +58,14 @@ export const useRoomList = (page: number, search: string, activeOnly: boolean, m
     return useQuery<MainData, Error>({
         queryKey: ['roomList', page, search, activeOnly, myRoomOnly],
         queryFn: () => fetchMainData(page, search, activeOnly, myRoomOnly),
+    });
+};
+
+
+export const useContestList = () => {
+    return useQuery<ContestSummary[], Error>({
+        queryKey: ['contestList'],
+        queryFn: () => fetchContestList(),
     });
 };
 

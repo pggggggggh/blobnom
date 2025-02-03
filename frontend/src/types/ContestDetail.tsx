@@ -14,4 +14,5 @@ export interface ContestDetail {
     user_room_id: number;
     room_details: RoomDetail[];
     is_started: boolean;
+    is_ended: boolean;
 }

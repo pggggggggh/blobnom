@@ -174,5 +174,6 @@ class ContestMember(TimestampMixin, Base):
     room = relationship("Room")
 
     final_rank = Column(Integer)
+    performance = Column(Integer)
     rating_before = Column(Integer)
     rating_after = Column(Integer)

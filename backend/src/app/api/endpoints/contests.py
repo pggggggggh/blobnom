@@ -5,10 +5,20 @@ from sqlalchemy.orm import Session
 from src.app.core.rate_limit import limiter
 from src.app.db.database import get_db
 from src.app.schemas.schemas import ContestCreateRequest
-from src.app.services.contest_services import create_contest, register_contest, get_contest_details, unregister_contest
+from src.app.services.contest_services import create_contest, register_contest, get_contest_details, unregister_contest, \
+    get_contest_list
 from src.app.utils.security_utils import get_handle_by_token
 
 router = APIRouter()
+
+
+@router.get("/list")
+@limiter.limit("20/minute")
+async def contest_list_endpoint(request: Request,
+                                myContestOnly: bool = False,
+                                db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
+    response = await get_contest_list(myContestOnly, db, token_handle)
+    return response
 
 
 @router.post("/create")

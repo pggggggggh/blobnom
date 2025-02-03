@@ -16,6 +16,12 @@ export const fetchMainData = async (page: number, search: string, activeOnly: bo
     return response.data;
 };
 
+export const fetchContestList = async (): Promise<ContestDetail[]> => {
+    const response = await api.get(`/contests/list`);
+    console.log(response)
+    return response.data;
+};
+
 export const fetchRoomDetail = async (roomId: number): Promise<RoomDetail> => {
     const response = await api.get(`/rooms/detail/${roomId}`);
     console.log(response)

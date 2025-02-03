@@ -29,7 +29,6 @@ router = APIRouter()
 @limiter.limit("20/minute")
 async def room_list(request: Request, page: int, search: str = "", activeOnly: bool = False, myRoomOnly: bool = False,
                     db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
-    # 쿼리에 검색 필터 추가
     query = (
         db.query(Room)
         .options(joinedload(Room.owner).joinedload(User.member))  # owner의 member까지 미리 로드
