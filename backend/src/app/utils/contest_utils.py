@@ -60,6 +60,8 @@ def codeforces_update(ratings, rank, k=1.5):
             mid = (lo + hi) / 2
             cur_seed = 1
             for j in range(n):
+                if i == j:
+                    continue
                 p = 1 / (1 + 10 ** ((mid - ratings[j]) / 400))
                 cur_seed += p
             if cur_seed > m:

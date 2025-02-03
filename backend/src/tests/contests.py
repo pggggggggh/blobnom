@@ -46,7 +46,7 @@ async def test_create_user():
 
 
 @pytest.mark.asyncio
-async def test_create_contest_with_11_users():
+async def test_create_contest_with_50_users():
     """ 테스트 성공 이후에 서버를 재시작해야 scheduler에 의해 콘테스트가 준비됨 """
     db = next(get_db())
     cnt = db.query(Contest).count()
@@ -56,7 +56,7 @@ async def test_create_contest_with_11_users():
         query="*s2..g2",
         type=ContestType.CONTEST_BOJ_GENERAL,
         missions_per_room=37,
-        players_per_room=16,
+        players_per_room=8,
         starts_at=datetime.datetime.now(pytz.UTC),
         ends_at=datetime.datetime.now(pytz.UTC) + timedelta(hours=2),
         is_rated=True
@@ -64,11 +64,7 @@ async def test_create_contest_with_11_users():
     db.add(contest)
     db.flush()
 
-    members = []
-    for i in range(5, 16):
-        member = db.query(Member).filter(Member.handle == f"changhw{i}").first()
-        assert member is not None
-        members.append(member)
+    members = db.query(Member).limit(50).all()
     for member in members:
         contest_member = ContestMember(
             member_id=member.id,
@@ -78,7 +74,7 @@ async def test_create_contest_with_11_users():
     db.commit()
 
     contest_members = db.query(ContestMember).filter(ContestMember.contest_id == contest.id).all()
-    assert len(contest_members) == 11
+    assert len(contest_members) == 50
 
     db.close()
 
@@ -102,7 +98,7 @@ async def test_random_solve():
         for player in players:
             handle = player.user.handle
             member = db.query(Member).filter(Member.handle == handle).first()
-            if handle[-1] == "0":
+            if handle[-1] == "h" or handle[-1] == "0":
                 rating = 1
             else:
                 rating = (11 - int(handle[-1])) ** 3
