@@ -34,6 +34,7 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
         .options(joinedload(Room.owner).joinedload(User.member))  # owner의 member까지 미리 로드
         .filter(Room.name.ilike(f"%{search}%"))
         .filter(Room.is_deleted == False)
+        .filter(Room.is_contest_room == False)
         .order_by(desc(Room.last_solved_at))
     )
 
