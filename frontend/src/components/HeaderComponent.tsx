@@ -82,7 +82,7 @@ const HeaderComponent = () => {
                                         to={item.link}
                                         style={{textDecoration: 'none'}}
                                     >
-                                        <Button variant="subtle" color="white">
+                                        <Button className="font-light text-[16px]" variant="subtle" color="white">
                                             {item.label}
                                         </Button>
                                     </Link>
@@ -109,9 +109,9 @@ const HeaderComponent = () => {
                                 </Menu.Target>
 
                                 <Menu.Dropdown>
-                                    {/*<Menu.Item component={Link} to="/profile">*/}
-                                    {/*    내 정보*/}
-                                    {/*</Menu.Item>*/}
+                                    <Menu.Item component={Link} to={`members/${auth.user}`}>
+                                        내 정보
+                                    </Menu.Item>
                                     <Menu.Item color="red" component={Link} to="/logout">
                                         로그아웃
                                     </Menu.Item>

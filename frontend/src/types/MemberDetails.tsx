@@ -1,9 +1,12 @@
+import {UserSummary} from "./UserSummary.tsx";
+
 export interface MemberDetails {
     handle: string;
     desc: string;
     rating: number;
     contest_history: ContestHistory[];
     num_solved_missions: number;
+    user_summary: UserSummary;
 }
 
 export interface ContestHistory {

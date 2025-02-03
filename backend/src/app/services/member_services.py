@@ -52,12 +52,14 @@ async def get_member_details(handle: str, db: Session) -> MemberDetails:
         )
         contest_history_list.append(contest_history)
 
+    user_summary = await convert_to_user_summary(user, db)
     return MemberDetails(
         handle=handle,
         desc="",
         rating=member.rating,
         num_solved_missions=num_solved_missions,
-        contest_history=contest_history_list
+        contest_history=contest_history_list,
+        user_summary=user_summary,
     )
 
 

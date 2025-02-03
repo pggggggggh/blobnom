@@ -163,3 +163,4 @@ class MemberDetails(BaseModel):
     rating: int
     contest_history: List[ContestHistory]
     num_solved_missions: int
+    user_summary: UserSummary

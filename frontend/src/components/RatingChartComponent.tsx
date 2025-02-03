@@ -1,4 +1,3 @@
-import React from "react";
 import ReactApexChart from "react-apexcharts";
 
 const RatingChartComponent = ({contestHistory}) => {
@@ -16,9 +15,7 @@ const RatingChartComponent = ({contestHistory}) => {
     const minRating = Math.min(...ratings);
     const maxRating = Math.max(...ratings);
 
-
     const timeMargin = (maxTime - minTime) * 0.2;
-
 
     const chartOptions: ApexCharts.ApexOptions = {
         chart: {
@@ -43,9 +40,13 @@ const RatingChartComponent = ({contestHistory}) => {
             },
             type: "datetime",
             labels: {
-                show: false,
                 datetimeUTC: false,
                 format: "yyyy-MM-dd HH:mm",
+                style: {
+                    fontSize: "10px",
+                    fontWeight: "light",
+                    fontFamily: "Pretendard, sans-serif",
+                }
             },
             min: minTime - timeMargin,
             max: maxTime + timeMargin,
@@ -57,14 +58,14 @@ const RatingChartComponent = ({contestHistory}) => {
 
                 style: {
                     fontSize: "12px",
-                    fontWeight: "bold",
+                    fontWeight: "light",
                     fontFamily: "Pretendard, sans-serif",
                 }
             },
             // min: 0,
             // max: 3000,
-            min: minRating - 500,
-            max: maxRating + 500
+            min: minRating - 400,
+            max: maxRating + 400
         },
         annotations: {
             yaxis: [

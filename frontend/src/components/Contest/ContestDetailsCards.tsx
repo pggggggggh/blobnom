@@ -19,9 +19,9 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
         {
             title: "대회 정보",
             description: [
+                `${!contestDetails.is_rated ? "이 대회는 레이팅을 주지 않습니다." : "이 대회의 결과는 레이팅에 반영됩니다."}`,
                 `solved.ac 쿼리 : ${contestDetails.query} + 각 방 참가자들이 시도하지 않은 문제`,
                 `각 방에 최대 ${contestDetails.players_per_room}명의 인원이 배정되어 ${contestDetails.missions_per_room}문제를 풀게 됩니다.`,
-                `${contestDetails.is_rated ? "이 대회는 레이팅을 주지 않습니다." : "이 대회는 참가 시 레이팅에 반영됩니다."}`,
             ],
             icon: InfoIcon,
         },
@@ -43,7 +43,7 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
             {mockdata.map((feature) => (
                 <Card
                     key={feature.title}
-                    padding="xl"
+                    padding="lg"
                 >
                     <div className="flex items-center space-x-4">
                         <feature.icon className=""/>

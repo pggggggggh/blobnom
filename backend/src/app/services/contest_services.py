@@ -58,7 +58,7 @@ async def get_contest_details(contest_id: int, db: Session, token_handle: str):
     user_room_id = None
     if contest.is_started:
         for contest_room in contest.contest_rooms:
-            room_info = await get_room_detail(contest_room.id, db, token_handle, without_mission_info=True)
+            room_info = await get_room_detail(contest_room.room_id, db, token_handle, without_mission_info=True)
             room_details[contest_room.index] = room_info
             if room_info.is_user_in_room:
                 user_room_id = room_info.id
@@ -277,7 +277,7 @@ async def handle_contest_end(contest_id: int):
 
         contest_rooms = db.query(ContestRoom).filter(ContestRoom.contest_id == contest_id).all()
         for contest_room in contest_rooms:
-            room_info = await get_room_detail(contest_room.id, db, None, without_mission_info=True)
+            room_info = await get_room_detail(contest_room.room_id, db, None, without_mission_info=True)
             team_info = room_info.team_info
             members = []
             contest_members = []
