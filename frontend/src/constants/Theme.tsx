@@ -6,7 +6,7 @@ const Theme = {
             '#F8F9FA', // dark-1
             '#E9ECEF', // dark-2
             '#DEE2E6', // dark-3
-            '#2e3035', // card border
+            '#74767c', // card border
             '#494747', // button hover
             '#222327', // card bg
             '#121212', // bg
@@ -14,7 +14,7 @@ const Theme = {
             '#212529', // dark-9
         ],
     },
-    
+
 }
 
 export default Theme;

@@ -11,7 +11,7 @@ import {useRoomList} from "../hooks/hooks.tsx";
 import RoomListComponent from '../components/RoomListComponent.tsx';
 import {useSearchStore} from "../store/searchStore.ts";
 import {useAuth} from "../context/AuthProvider.tsx";
-import ContestListComponent from "../components/ContestListComponent.tsx";
+import ContestListComponent from "../components/Contest/ContestListComponent.tsx";
 
 const Index: React.FC = () => {
     const {
@@ -65,7 +65,7 @@ const Index: React.FC = () => {
     const isInitialLoading = isLoading && !data;
 
     return (
-        <Container size="lg">
+        <Container size="md">
             <Stack>
                 {error && (
                     <Alert title="오류" color="red">

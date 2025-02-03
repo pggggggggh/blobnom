@@ -77,4 +77,4 @@ def codeforces_update(ratings, rank, k=1.5):
     for i in range(n):
         new_delta += adjusted_new_ratings[i] - ratings[i]
 
-    return {"performance": performance, "ratings": unadjusted_new_ratings, "delta": new_delta}
+    return {"performance": performance, "ratings": adjusted_new_ratings, "delta": new_delta}

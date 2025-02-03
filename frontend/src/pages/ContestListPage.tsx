@@ -1,6 +1,6 @@
-import {Container, Skeleton, Stack} from "@mantine/core";
+import {Container, Skeleton, Stack, Title} from "@mantine/core";
 import {useContestList} from "../hooks/hooks.tsx";
-import ContestListComponent from "../components/ContestListComponent.tsx";
+import ContestListComponent from "../components/Contest/ContestListComponent.tsx";
 import React from "react";
 import dayjs from "dayjs";
 
@@ -11,8 +11,9 @@ const ContestListPage = () => {
     const date = dayjs().utc()
 
     return (
-        <Container size="lg">
+        <Container size="md" my="xl">
             <Stack>
+                <Title order={2}>대회</Title>
                 {isInitialLoading ? (
                     <Stack>
                         {Array.from({length: 3}).map((_, index) => (

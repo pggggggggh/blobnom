@@ -77,7 +77,8 @@ async def get_contest_details(contest_id: int, db: Session, token_handle: str):
         is_started=contest.is_started,
         is_ended=contest.is_ended,
         user_room_id=user_room_id,
-        room_details=room_details
+        room_details=room_details,
+        is_rated=contest.is_rated
     )
 
 

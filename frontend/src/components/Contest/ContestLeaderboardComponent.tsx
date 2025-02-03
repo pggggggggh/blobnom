@@ -1,8 +1,8 @@
 import React from 'react';
 import {Card, Flex, Grid, Group, Stack, Text, Title} from "@mantine/core";
 import {Link} from "@tanstack/react-router";
-import HandleComponent from "./HandleComponent.tsx";
-import {RoomDetail} from "../types/RoomDetail.tsx";
+import HandleComponent from "../HandleComponent.tsx";
+import {RoomDetail} from "../../types/RoomDetail.tsx";
 
 const ContestLeaderboardComponent = ({room_details}) => {
     return (

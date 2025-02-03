@@ -1,6 +1,6 @@
 import {Badge, Box, Button, Card, Group, Stack, Text} from "@mantine/core";
 import dayjs, {Dayjs} from "dayjs";
-import {ContestSummary} from "../types/Summaries.tsx";
+import {ContestSummary} from "../../types/Summaries.tsx";
 import PersonIcon from "@mui/icons-material/Person";
 import TokenOutlinedIcon from "@mui/icons-material/TokenOutlined";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';

@@ -67,16 +67,19 @@ def get_color_text(ratings):
 def test_elo_rating():
     rank_data = [
         [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        [2, 5, 1, 3, 7, 6, 8, 4, 9],
-        [1, 3, 2, 4, 5, 6, 9, 7, 8],
-        [2, 3, 4, 1, 3, 6, 7, 9, 8],
-        [3, 4, 2, 1, 6, 7, 5, 8, 9],
-        [5, 2, 1, 4, 4, 6, 7, 8, 9],
-        [1, 3, 5, 2, 4, 6, 9, 7, 8],
-        [5, 1, 2, 3, 4, 6, 9, 7, 8],
-        [1, 3, 2],
         [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        [1, 3, 2, 5, 4, 6, 9, 7, 8],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9],
+
     ]
     ratings = [1400 for i in range(len(rank_data[0]))]
     new_rating = ratings
@@ -110,20 +113,23 @@ def test_codeforces_rating():
     num_contests = 50
     n = 8
 
-    rank_data = generate_biased_rankings(num_contests, n)
+    # rank_data = generate_biased_rankings(num_contests, n)
+    rank_data = [
+        [1, 2, 3, 4, 5, 6, 7, 8, 9] for _ in range(50)
+    ]
     ratings = [1400 for i in range(len(rank_data[0]))]
 
     print()
     for idx, rank in enumerate(rank_data):
         print("game", idx + 1)
-        res = codeforces_update(ratings, rank, 1.5)
+        res = codeforces_update(ratings, rank)
         for i in range(len(res["ratings"])):
             ratings[i] = res["ratings"][i]
         print("rank:      :", end='')
         for r in rank:
             print(f"   {r}", end=' ')
         print()
-        # print("performance:", get_color_text([round(p) for p in res["performance"]]))
+        print("performance:", get_color_text([round(p) for p in res["performance"]]))
         print("rating:     ", get_color_text(ratings))
         print()
 

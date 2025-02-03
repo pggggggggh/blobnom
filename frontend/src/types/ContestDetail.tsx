@@ -15,4 +15,5 @@ export interface ContestDetail {
     room_details: RoomDetail[];
     is_started: boolean;
     is_ended: boolean;
+    is_rated: boolean;
 }
