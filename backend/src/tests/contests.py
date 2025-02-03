@@ -21,7 +21,7 @@ from src.app.utils.security_utils import hash_password
 async def test_create_user():
     db = next(get_db())
     for i in range(1, 51):
-        if db.query(Member).filter(Member.handle == f"changhw{i}"):
+        if db.query(Member).filter(Member.handle == f"changhw{i}").first() is not None:
             raise Exception
 
         member = Member(
@@ -50,7 +50,7 @@ async def test_create_contest_with_10_users():
     """ 테스트 성공 이후에 서버를 재시작해야 scheduler에 의해 콘테스트가 준비됨 """
     db = next(get_db())
     cnt = db.query(Contest).count()
-    contest_name = "changhw Contest Round" + str(cnt + 1)
+    contest_name = "changhw Contest Round " + str(cnt + 1)
     contest = Contest(
         name=contest_name,
         query="*s2..g2",
@@ -64,7 +64,11 @@ async def test_create_contest_with_10_users():
     db.add(contest)
     db.flush()
 
-    members = db.query(Member).limit(10)
+    members = []
+    for i in range(1, 11):
+        member = db.query(Member).filter(Member.handle == f"changhw{i}").first()
+        assert member is not None
+        members.append(member)
     for member in members:
         contest_member = ContestMember(
             member_id=member.id,
@@ -82,7 +86,7 @@ async def test_create_contest_with_10_users():
 @pytest.mark.asyncio
 async def test_random_solve():
     db = next(get_db())
-    limit = 30
+    limit = 15
     contest = db.query(Contest).order_by(desc(Contest.created_at)).first()
     contest_id = contest.id
 
@@ -98,7 +102,7 @@ async def test_random_solve():
         for player in players:
             handle = player.user.handle
             member = db.query(Member).filter(Member.handle == handle).first()
-            rating = member.rating
+            rating = (11 - int(handle[-1])) ** 3
             ratings.append(rating)
 
         for mission in room_missions[:limit]:
