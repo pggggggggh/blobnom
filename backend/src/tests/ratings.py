@@ -19,7 +19,7 @@ def generate_biased_rankings(num_contests, n):
     for _ in range(num_contests):
         ranks = list(range(1, n + 1))
         biased_ranks = []
-        weights = [1 / (i + 1) for i in range(n)]  # 낮은 숫자가 선택될 확률이 높게 설정
+        weights = [1 / n for _ in range(n)]
 
         for i in range(n):
             if i < 3:  # 앞쪽 3명은 반드시 1~3등
