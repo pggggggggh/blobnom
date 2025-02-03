@@ -16,8 +16,7 @@ const RatingChartComponent = ({contestHistory}) => {
     const minRating = Math.min(...ratings);
     const maxRating = Math.max(...ratings);
 
-    const timeMargin = (maxTime - minTime) * 0.2;
-    const ratingMargin = (maxRating - minRating) * 0.8;
+    const timeMargin = (maxTime - minTime) * 0.5;
 
 
     const chartOptions: ApexCharts.ApexOptions = {
@@ -28,22 +27,25 @@ const RatingChartComponent = ({contestHistory}) => {
             },
         },
         theme: {
-            type: 'dark',
+            mode: 'dark',
         },
         xaxis: {
+            axisTicks: {
+                show: false,
+            },
             type: "datetime",
             labels: {
+                show: false,
                 datetimeUTC: false,
                 format: "yyyy-MM-dd HH:mm",
             },
             min: minTime - timeMargin,
             max: maxTime + timeMargin,
+
         },
         yaxis: {
             min: 0,
             max: 3000,
-            min: Math.max(0, minRating - ratingMargin),
-            max: maxRating + ratingMargin,
         },
         annotations: {
             yaxis: [
@@ -86,10 +88,26 @@ const RatingChartComponent = ({contestHistory}) => {
         },
         tooltip: {
             theme: "dark",
-            marker: {
+            custom: ({series, seriesIndex, dataPointIndex, w}) => {
+                const rating = series[seriesIndex][dataPointIndex];
+                const name = contestHistory[dataPointIndex].contest_name;
+                const rank = contestHistory[dataPointIndex].final_rank;
+                const performance = contestHistory[dataPointIndex].performance;
+                const date = new Date(w.globals.seriesX[seriesIndex][dataPointIndex]).toLocaleString();
+
+                return `<div style="padding: 8px; background: #222; color: white; border-radius: 5px;">
+                    <strong>${name}</strong><br/>
+                    <strong>${date}</strong><br/>
+                    <span>Rating: ${rating}</span><br/>
+                    <span>Performance: ${performance}</span><br/>
+                    <span>Final Rank: ${rank}</span>
+                </div>`;
+            },
+            x: {
                 show: false,
             },
         },
+
     };
 
     const chartSeries = [

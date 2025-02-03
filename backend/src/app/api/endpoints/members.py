@@ -16,7 +16,7 @@ async def get_me(request: Request, token_handle: str = Depends(get_handle_by_tok
 
 
 @router.get('/details/{handle}')
-@limiter.limit("10/minute")
+@limiter.limit("15/minute")
 async def member_details_endpoint(request: Request, handle: str, db: Session = Depends(get_db)):
     result = await get_member_details(handle, db)
     return result

@@ -48,6 +48,7 @@ async def get_member_details(handle: str, db: Session) -> MemberDetails:
             final_rank=contest_member.final_rank,
             is_rated=contest_member.contest.is_rated,
             started_at=contest_member.contest.starts_at,
+            performance=contest_member.performance,
         )
         contest_history_list.append(contest_history)
 

@@ -177,8 +177,8 @@ async def handle_room_ready(room_id: int):
                                       index_in_room=idx)
                 db.add(mission)
                 room.missions.append(mission)
-            await update_solver(room.id, room.missions, room.players, db, client, True)
-            await update_score(room.id, db)
+            # await update_solver(room.id, room.missions, room.players, db, client, True)
+            # await update_score(room.id, db)
             db.add(room)
             db.commit()
 

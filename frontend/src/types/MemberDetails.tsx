@@ -14,4 +14,5 @@ export interface ContestHistory {
     final_rank: number;
     is_rated: boolean;
     started_at: string;
+    performance: number;
 }

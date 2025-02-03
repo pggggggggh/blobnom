@@ -155,7 +155,6 @@ async def handle_contest_ready(contest_id: int):
             db.add(contest)
             db.commit()
             return
-        print("@")
 
         players_per_room = contest.players_per_room
 

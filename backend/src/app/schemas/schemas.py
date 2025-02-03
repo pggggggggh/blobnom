@@ -153,6 +153,7 @@ class ContestHistory(BaseModel):
     final_rank: Optional[int]
     is_rated: bool
     started_at: datetime
+    performance: Optional[int]
 
 
 class MemberDetails(BaseModel):

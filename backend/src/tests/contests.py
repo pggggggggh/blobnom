@@ -46,10 +46,11 @@ async def test_create_user():
 
 
 @pytest.mark.asyncio
-async def test_create_contest_with_50_users():
+async def test_create_contest_with_10_users():
     """ 테스트 성공 이후에 서버를 재시작해야 scheduler에 의해 콘테스트가 준비됨 """
     db = next(get_db())
-    contest_name = "changhw contest " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    cnt = db.query(Contest).count()
+    contest_name = "changhw Contest Round" + str(cnt + 1)
     contest = Contest(
         name=contest_name,
         query="*s2..g2",
@@ -63,7 +64,7 @@ async def test_create_contest_with_50_users():
     db.add(contest)
     db.flush()
 
-    members = db.query(Member).limit(50)
+    members = db.query(Member).limit(10)
     for member in members:
         contest_member = ContestMember(
             member_id=member.id,
@@ -73,7 +74,7 @@ async def test_create_contest_with_50_users():
     db.commit()
 
     contest_members = db.query(ContestMember).filter(ContestMember.contest_id == contest.id).all()
-    assert len(contest_members) == 50
+    assert len(contest_members) == 10
 
     db.close()
 
@@ -93,10 +94,17 @@ async def test_random_solve():
         room_missions = room.missions
         random.shuffle(room_missions)
 
+        ratings = []
+        for player in players:
+            handle = player.user.handle
+            member = db.query(Member).filter(Member.handle == handle).first()
+            rating = member.rating
+            ratings.append(rating)
+
         for mission in room_missions[:limit]:
             if mission.solved_at:
                 continue
-            player = random.choice(players)
+            player = random.choices(players, weights=ratings, k=1)[0]
             mission.solved_at = datetime.datetime.now(pytz.utc)
             mission.solved_user = player.user
             mission.solved_room_player = player
@@ -109,12 +117,5 @@ async def test_random_solve():
 
         await update_score(room_id, db)
 
-    db.close()
-
-
-@pytest.mark.asyncio
-async def test_force_end_contest():
-    db = next(get_db())
-    contest = db.query(Contest).order_by(desc(Contest.created_at)).first()
-    contest_id = contest.id
     await handle_contest_end(contest_id)
+    db.close()
