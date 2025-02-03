@@ -115,6 +115,9 @@ async def create_contest(contest_create_request: ContestCreateRequest, db: Sessi
         players_per_room=contest_create_request.players_per_room,
         starts_at=contest_create_request.starts_at,
         ends_at=contest_create_request.ends_at,
+        is_rated=contest_create_request.is_rated,
+        min_rating=contest_create_request.min_rating,
+        max_rating=contest_create_request.max_rating,
         is_started=False
     )
     db.add(contest)

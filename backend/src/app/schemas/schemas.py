@@ -30,6 +30,9 @@ class ContestCreateRequest(BaseModel):
     players_per_room: int
     starts_at: datetime
     ends_at: datetime
+    is_rated: bool
+    min_rating: Optional[int]
+    max_rating: Optional[int]
 
 
 class RegisterRequest(BaseModel):
