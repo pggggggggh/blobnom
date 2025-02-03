@@ -23,7 +23,7 @@ const ContestListPage = () => {
                 ) : (
                     data && (
                         <>
-                            <ContestListComponent contests={data} cur_datetime={date}/>
+                            <ContestListComponent contests={data} cur_datetime={date} border={false}/>
                         </>
                     )
                 )}

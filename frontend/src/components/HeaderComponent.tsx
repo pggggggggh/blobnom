@@ -18,7 +18,7 @@ const HeaderComponent = () => {
     const menuItems = [
         {label: '홈', link: '/'},
         {label: '대회', link: '/contests'},
-        // {label: '도움말', link: '/about'},
+        {label: '도움말', link: '/about'},
     ];
 
     return (

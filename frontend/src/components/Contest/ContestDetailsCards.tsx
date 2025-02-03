@@ -15,6 +15,7 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
                 "타인과 문제에 대한 어떤 논의도 금지됩니다.",
             ],
             icon: RuleIcon,
+            iconColor: "text-blue-500"
         },
         {
             title: "대회 정보",
@@ -24,6 +25,7 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
                 `각 방에 최대 ${contestDetails.players_per_room}명의 인원이 배정되어 ${contestDetails.missions_per_room}문제를 풀게 됩니다.`,
             ],
             icon: InfoIcon,
+            iconColor: "text-green-500"
         },
         {
             title: "진행 방식",
@@ -35,6 +37,7 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
                 "0점인 유저들끼리는 공동 최하위로 기록됩니다."
             ],
             icon: TokenOutlinedIcon,
+            iconColor: "text-yellow-500"
         },
     ];
 
@@ -43,13 +46,19 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
             {mockdata.map((feature) => (
                 <Card
                     key={feature.title}
+                    shadow="sm"
                     padding="lg"
+                    radius="md"
+                    withBorder
                 >
-                    <div className="flex items-center space-x-4">
-                        <feature.icon className=""/>
-                        <Text className="text-xl font-semibold text-gray-900 dark:text-gray-100">{feature.title}</Text>
-                    </div>
-                    <ul className="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300 list-disc list-inside">
+                    <feature.icon
+                        fontSize="large"
+                        className={`${feature.iconColor} mb-4`}
+                    />
+                    <Text fw={500} size="lg" mb="md">
+                        {feature.title}
+                    </Text>
+                    <ul className="space-y-2 text-sm text-gray-300 list-disc list-inside">
                         {feature.description.map((item, index) => (
                             <li key={index}>{item}</li>
                         ))}

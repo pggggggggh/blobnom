@@ -6,12 +6,17 @@ import TokenOutlinedIcon from "@mui/icons-material/TokenOutlined";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import {Link} from "@tanstack/react-router";
 
-const ContestListComponent = ({contests, cur_datetime}: { contests: ContestSummary[], cur_datetime: Dayjs }) => {
+const ContestListComponent = ({contests, cur_datetime, border}: {
+    contests: ContestSummary[],
+    cur_datetime: Dayjs,
+    border: boolean
+}) => {
     return (
         <Stack gap="sm">
             {contests?.map((contest) => {
                 return (
-                    <Card key={contest.id} withBorder shadow="sm" style={{border: '1px solid #DFCD7E'}}>
+                    <Card key={contest.id} withBorder shadow="sm"
+                          style={{border: border ? '1px solid #DFCD7E' : 'none'}}>
                         <Group justify="space-between">
                             <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
                                 <Text fw={500} size="lg">

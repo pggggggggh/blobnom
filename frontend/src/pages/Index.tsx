@@ -65,7 +65,7 @@ const Index: React.FC = () => {
     const isInitialLoading = isLoading && !data;
 
     return (
-        <Container size="md">
+        <Container size="md" my="lg">
             <Stack>
                 {error && (
                     <Alert title="오류" color="red">
@@ -74,22 +74,7 @@ const Index: React.FC = () => {
                 )}
 
                 {showNotice && (
-                    <Alert
-                        title="공지"
-                        withCloseButton
-                        onClose={() => setShowNotice(false)}
-                        className="font-light"
-                    >
-                        Blobnom 공식 Discord가 오픈했습니다!{" "}
-                        <a
-                            href="https://discord.gg/8Wt4MaFanw"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            https://discord.gg/8Wt4MaFanw
-                        </a>
-                        에서 땅따먹기 같이 할 사람을 구해보세요!
-                    </Alert>
+                    <></>
                 )}
 
 
@@ -143,7 +128,8 @@ const Index: React.FC = () => {
                 ) : (
                     data && (
                         <>
-                            <ContestListComponent contests={data.upcoming_contest_list} cur_datetime={date}/>
+                            <ContestListComponent contests={data.upcoming_contest_list} cur_datetime={date}
+                                                  border={true}/>
                             <RoomListComponent rooms={data.room_list} cur_datetime={date}/>
                         </>
                     )
