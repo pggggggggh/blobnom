@@ -7,6 +7,17 @@ import {ContestDetail} from "../../types/ContestDetail.tsx";
 const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }) => {
     const mockdata = [
         {
+            title: "대회 정보",
+            description: [
+                `${!contestDetails.is_rated ? "이 대회는 레이팅을 주지 않습니다." : "이 대회의 결과는 레이팅에 반영됩니다."}`,
+                `참가 자격 : ${contestDetails.min_rating != null ? "레이팅 " + contestDetails.min_rating + "~" + contestDetails.max_rating : '모든 유저'}`,
+                `solved.ac 쿼리 : ${contestDetails.query} + 각 방 참가자들이 시도하지 않은 문제`,
+                `각 방에 최대 ${contestDetails.players_per_room}명의 인원이 배정되어 ${contestDetails.missions_per_room}문제를 풀게 됩니다.`,
+            ],
+            icon: InfoIcon,
+            iconColor: "text-blue-500"
+        },
+        {
             title: "대회 규칙",
             description: [
                 "대회 시작 전, 'BOJ 설정 - 보기 - solved.ac 티어'를 '보지 않기'로 설정해주세요.",
@@ -15,18 +26,9 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
                 "타인과 문제에 대한 어떤 논의도 금지됩니다.",
             ],
             icon: RuleIcon,
-            iconColor: "text-blue-500"
-        },
-        {
-            title: "대회 정보",
-            description: [
-                `${!contestDetails.is_rated ? "이 대회는 레이팅을 주지 않습니다." : "이 대회의 결과는 레이팅에 반영됩니다."}`,
-                `solved.ac 쿼리 : ${contestDetails.query} + 각 방 참가자들이 시도하지 않은 문제`,
-                `각 방에 최대 ${contestDetails.players_per_room}명의 인원이 배정되어 ${contestDetails.missions_per_room}문제를 풀게 됩니다.`,
-            ],
-            icon: InfoIcon,
             iconColor: "text-green-500"
         },
+
         {
             title: "진행 방식",
             description: [

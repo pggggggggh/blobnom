@@ -29,6 +29,8 @@ def get_contest_summary(contest: Contest):
         num_participants=len(contest.contest_members),
         players_per_room=contest.players_per_room,
         missions_per_room=contest.missions_per_room,
+        min_rating=contest.min_rating,
+        max_rating=contest.max_rating
     )
 
 
@@ -78,7 +80,9 @@ async def get_contest_details(contest_id: int, db: Session, token_handle: str):
         is_ended=contest.is_ended,
         user_room_id=user_room_id,
         room_details=room_details,
-        is_rated=contest.is_rated
+        is_rated=contest.is_rated,
+        min_rating=contest.min_rating,
+        max_rating=contest.max_rating,
     )
 
 
@@ -297,19 +301,23 @@ async def handle_contest_end(contest_id: int):
                 contest_member.final_rank = rank
                 db.add(contest_member)
 
-            if contest.is_rated:
-                ratings = [member.rating for member in members]
-                res = codeforces_update(ratings, ranks)
-                new_ratings = res["ratings"]
-                performances = res["performance"]
+            ratings = [member.rating for member in members]
+            res = codeforces_update(ratings, ranks)
+            new_ratings = res["ratings"]
+            performances = res["performance"]
 
-                for i, member in enumerate(members):
+            for i, member in enumerate(members):
+                if contest.is_rated:
                     contest_members[i].rating_before = member.rating
                     contest_members[i].rating_after = new_ratings[i]
                     contest_members[i].performance = performances[i]
                     member.rating = new_ratings[i]
-                    db.add(member)
-                    db.add(contest_members[i])
+                else:
+                    contest_members[i].rating_before = member.rating
+                    contest_members[i].rating_after = member.rating
+                    contest_members[i].performance = performances[i]
+                db.add(member)
+                db.add(contest_members[i])
 
             db.flush()
         contest.is_ended = True
@@ -336,6 +344,11 @@ async def register_contest(contest_id: int, db: Session, token_handle: str):
     if (db.query(ContestMember).filter(ContestMember.contest_id == contest_id)
             .filter(ContestMember.member_id == member.id).first()):
         raise HTTPException(status_code=409, detail="Contest already registered")
+
+    if contest.min_rating is not None and member.rating < contest.min_rating:
+        raise HTTPException(status_code=400, detail="레이팅 범위에 맞지 않습니다.")
+    if contest.max_rating is not None and member.rating > contest.max_rating:
+        raise HTTPException(status_code=400, detail="레이팅 범위에 맞지 않습니다.")
 
     contest_member = ContestMember(
         contest_id=contest_id,

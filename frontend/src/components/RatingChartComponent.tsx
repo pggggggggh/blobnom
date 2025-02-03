@@ -3,11 +3,14 @@ import {ContestHistory} from "../types/MemberDetails.tsx";
 import {getRatingColor} from "../utils/MemberUtils.tsx";
 
 const RatingChartComponent = ({contestHistory}: { contestHistory: ContestHistory[] }) => {
-    // ApexCharts에 들어갈 {x, y} 포맷의 데이터로 변환
+    if (contestHistory.length === 0) {
+        return <div style={{textAlign: "center", padding: "20px", color: "white"}}>대회 참가 기록이 없습니다.</div>;
+    }
+
     const seriesData = contestHistory.map((contest) => ({
         x: new Date(contest.started_at).getTime(),
         y: contest.rating_after,
-        contestId: contest.contest_id, // 추가: contest ID 저장
+        contestId: contest.contest_id,
     }));
 
     const times = seriesData.map((data) => data.x);
@@ -18,49 +21,34 @@ const RatingChartComponent = ({contestHistory}: { contestHistory: ContestHistory
     const minRating = Math.min(...ratings);
     const maxRating = Math.max(...ratings);
 
-    const timeMargin = (maxTime - minTime) * 0.2;
+    const timeMargin = contestHistory.length > 1 ? (maxTime - minTime) * 0.2 : 86400000 * 10;
+    const ratingMargin = contestHistory.length > 1 ? 400 : 200;
 
     const chartOptions = {
         chart: {
-            animations: {
-                enabled: false,
-            },
+            animations: {enabled: false},
             type: "line",
-            toolbar: {
-                show: false,
-            },
-            zoom: {
-                enabled: false,
-            },
+            toolbar: {show: false},
+            zoom: {enabled: false},
             background: "transparent",
             events: {
                 markerClick: function (event, chartContext, {dataPointIndex}) {
-                    const contestId = contestHistory[dataPointIndex].contest_id;
+                    const contestId = contestHistory[dataPointIndex]?.contest_id;
                     if (contestId) {
                         window.location.href = `/contests/${contestId}`;
                     }
                 },
             },
         },
-        theme: {
-            mode: "dark",
-        },
+        theme: {mode: "dark"},
         xaxis: {
-            tooltip: {
-                enabled: false,
-            },
-            axisTicks: {
-                show: false,
-            },
+            tooltip: {enabled: false},
+            axisTicks: {show: false},
             type: "datetime",
             labels: {
                 datetimeUTC: false,
                 format: "yyyy-MM-dd",
-                style: {
-                    fontSize: "12px",
-                    fontWeight: "light",
-                    fontFamily: "Pretendard, sans-serif",
-                },
+                style: {fontSize: "12px", fontWeight: "light", fontFamily: "Pretendard, sans-serif"},
             },
             min: minTime - timeMargin,
             max: maxTime + timeMargin,
@@ -68,14 +56,10 @@ const RatingChartComponent = ({contestHistory}: { contestHistory: ContestHistory
         yaxis: {
             labels: {
                 formatter: (value) => Math.round(value),
-                style: {
-                    fontSize: "12px",
-                    fontWeight: "light",
-                    fontFamily: "Pretendard, sans-serif",
-                },
+                style: {fontSize: "12px", fontWeight: "light", fontFamily: "Pretendard, sans-serif"},
             },
-            min: minRating - 400,
-            max: maxRating + 400,
+            min: minRating - ratingMargin,
+            max: maxRating + ratingMargin,
         },
         annotations: {
             yaxis: [
@@ -94,34 +78,26 @@ const RatingChartComponent = ({contestHistory}: { contestHistory: ContestHistory
                 const rating = series[seriesIndex][dataPointIndex];
                 const contest_history = contestHistory[dataPointIndex];
                 const date = new Date(w.globals.seriesX[seriesIndex][dataPointIndex]).toLocaleString();
-                const rating_change = contest_history.rating_after - contest_history.rating_before
+                const rating_change = contest_history.rating_after - contest_history.rating_before;
 
                 return `<div style="padding: 8px; background: #222; color: white; border-radius: 5px;">
-                    <strong>${contest_history.contest_name}</strong><br/>
-                    <span>${date}</span><br/>
-                    <span>Rating: <span class=${getRatingColor(contest_history.rating_before)}>${contest_history.rating_before}</span>→<span class=${getRatingColor(rating)}>${rating}</span></span><br/>
-                    <span>Final Rank: ${contest_history.final_rank}</span><br/>
-                    <span>Performance: <span class=${getRatingColor(contest_history.performance)}>${contest_history.performance}</span></span><br/>
-                </div>`;
+                        <strong>${contest_history.contest_name}</strong><br/>
+                        <span>${date}</span><br/>
+                        ${contest_history.is_rated ?
+                    `<span>Rating: <span class=${getRatingColor(contest_history.rating_before)}>${contest_history.rating_before}</span>→<span class=${getRatingColor(rating)}>${rating}</span></span><br/>` :
+                    `<span>Unrated</span><br/>`
+                }
+                        <span>Final Rank: ${contest_history.final_rank}</span><br/>
+                        <span>Performance: <span class=${getRatingColor(contest_history.performance)}>${contest_history.performance}</span></span><br/>
+                    </div>`;
             },
-            x: {
-                show: false,
-            },
+            x: {show: false},
         },
-        stroke: {
-            curve: "straight",
-        },
-        markers: {
-            size: 4,
-        },
+        stroke: {curve: "straight"},
+        markers: {size: contestHistory.length === 1 ? 6 : 4}, // 데이터가 하나뿐이면 마커 크기 증가
     };
 
-    const chartSeries = [
-        {
-            name: "Rating",
-            data: seriesData,
-        },
-    ];
+    const chartSeries = [{name: "Rating", data: seriesData}];
 
     return (
         <div style={{width: "100%"}}>

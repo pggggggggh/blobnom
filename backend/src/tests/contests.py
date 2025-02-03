@@ -59,7 +59,7 @@ async def test_create_contest_with_50_users():
         players_per_room=8,
         starts_at=datetime.datetime.now(pytz.UTC),
         ends_at=datetime.datetime.now(pytz.UTC) + timedelta(hours=2),
-        is_rated=True
+        is_rated=False
     )
     db.add(contest)
     db.flush()

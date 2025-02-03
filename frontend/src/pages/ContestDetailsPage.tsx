@@ -18,7 +18,7 @@ const ContestDetailsPage = () => {
     if (isLoading || error || !contestDetail) return (<div></div>);
 
     return (
-        <Container size="lg">
+        <Container size="lg" mb="xl">
             <Card padding="lg">
                 <Stack align="center" justify="center" gap="xs">
                     <Title>🏆</Title>

@@ -16,4 +16,6 @@ export interface ContestDetail {
     is_started: boolean;
     is_ended: boolean;
     is_rated: boolean;
+    min_rating: number;
+    max_rating: number;
 }

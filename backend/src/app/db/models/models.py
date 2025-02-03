@@ -132,7 +132,10 @@ class Contest(TimestampMixin, Base):
 
     query = Column(String)
     type = Column(Enum(ContestType), nullable=False, default=ContestType.CONTEST_BOJ_GENERAL)
+
     is_rated = Column(Boolean, default=False)
+    min_rating = Column(Integer, nullable=True)
+    max_rating = Column(Integer, nullable=True)
 
     missions_per_room = Column(Integer, nullable=False)
     players_per_room = Column(Integer, nullable=False)

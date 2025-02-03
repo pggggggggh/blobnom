@@ -26,7 +26,7 @@ const MemberProfilePage = () => {
                     <HandleComponent user={memberDetails.user_summary}/>의 프로필
                 </Title>
                 <Text size="md" className="text-gray-600 mt-2">
-                    {memberDetails.bio || "사용자의 설명이 없습니다."}
+                    {memberDetails.bio || "사용자의 자기소개가 없습니다."}
                 </Text>
             </div>
 

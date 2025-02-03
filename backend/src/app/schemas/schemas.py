@@ -88,6 +88,8 @@ class ContestSummary(BaseModel):
     num_participants: int
     players_per_room: int
     missions_per_room: int
+    min_rating: Optional[int]
+    max_rating: Optional[int]
 
 
 class RoomSummary(BaseModel):
@@ -144,6 +146,8 @@ class ContestDetails(BaseModel):
     is_rated: bool
     user_room_id: Optional[int]
     room_details: Dict[int, RoomDetail]
+    min_rating: Optional[int]
+    max_rating: Optional[int]
 
 
 class ContestHistory(BaseModel):
