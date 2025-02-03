@@ -55,9 +55,9 @@ const RatingChartComponent = ({contestHistory}: { contestHistory: ContestHistory
             type: "datetime",
             labels: {
                 datetimeUTC: false,
-                format: "yyyy-MM-dd HH:mm",
+                format: "yyyy-MM-dd",
                 style: {
-                    fontSize: "10px",
+                    fontSize: "12px",
                     fontWeight: "light",
                     fontFamily: "Pretendard, sans-serif",
                 },
@@ -99,7 +99,7 @@ const RatingChartComponent = ({contestHistory}: { contestHistory: ContestHistory
                 return `<div style="padding: 8px; background: #222; color: white; border-radius: 5px;">
                     <strong>${contest_history.contest_name}</strong><br/>
                     <span>${date}</span><br/>
-                    <span>Rating: <span class=${getRatingColor(rating)}>${rating}</span> (${rating_change == 0 ? '' : (rating_change > 0 ? '+' : '-')}${Math.abs(rating_change)})</span><br/>
+                    <span>Rating: <span class=${getRatingColor(contest_history.rating_before)}>${contest_history.rating_before}</span>→<span class=${getRatingColor(rating)}>${rating}</span></span><br/>
                     <span>Final Rank: ${contest_history.final_rank}</span><br/>
                     <span>Performance: <span class=${getRatingColor(contest_history.performance)}>${contest_history.performance}</span></span><br/>
                 </div>`;

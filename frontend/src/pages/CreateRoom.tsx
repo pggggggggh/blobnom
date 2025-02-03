@@ -87,7 +87,7 @@ function CreateRoom() {
     };
 
     return (
-        <Container size="md">
+        <Container size="md" my="xl">
             <form
                 onSubmit={form.onSubmit((values) => {
                     values.mode = values.is_teammode ? 'land_grab_team' : 'land_grab_solo';
@@ -95,8 +95,8 @@ function CreateRoom() {
                 })}
                 onKeyDown={handleKeyDown}
             >
-                <Stack py="md">
-                    <Title size="h1" className="font-light">
+                <Stack>
+                    <Title order={2}>
                         방 만들기
                     </Title>
 

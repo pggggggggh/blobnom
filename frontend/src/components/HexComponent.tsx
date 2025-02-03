@@ -149,7 +149,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                             </Text>
                                         </HoverCard.Dropdown>
                                         :
-                                        dayjs(roomDetail.ends_at).isAfter(dayjs()) &&
+                                        dayjs(roomDetail.ends_at).isAfter(dayjs()) && roomDetail.is_user_in_room &&
                                         <HoverCard.Dropdown className="p-0 bg-zinc-900">
                                             <Button
                                                 variant="default"

@@ -46,7 +46,7 @@ async def test_create_user():
 
 
 @pytest.mark.asyncio
-async def test_create_contest_with_10_users():
+async def test_create_contest_with_11_users():
     """ 테스트 성공 이후에 서버를 재시작해야 scheduler에 의해 콘테스트가 준비됨 """
     db = next(get_db())
     cnt = db.query(Contest).count()
@@ -65,7 +65,7 @@ async def test_create_contest_with_10_users():
     db.flush()
 
     members = []
-    for i in range(1, 11):
+    for i in range(5, 16):
         member = db.query(Member).filter(Member.handle == f"changhw{i}").first()
         assert member is not None
         members.append(member)
@@ -78,7 +78,7 @@ async def test_create_contest_with_10_users():
     db.commit()
 
     contest_members = db.query(ContestMember).filter(ContestMember.contest_id == contest.id).all()
-    assert len(contest_members) == 10
+    assert len(contest_members) == 11
 
     db.close()
 
@@ -102,7 +102,10 @@ async def test_random_solve():
         for player in players:
             handle = player.user.handle
             member = db.query(Member).filter(Member.handle == handle).first()
-            rating = (11 - int(handle[-1])) ** 3
+            if handle[-1] == "0":
+                rating = 1
+            else:
+                rating = (11 - int(handle[-1])) ** 3
             ratings.append(rating)
 
         for mission in room_missions[:limit]:
