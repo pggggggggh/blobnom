@@ -16,20 +16,28 @@ const RatingChartComponent = ({contestHistory}) => {
     const minRating = Math.min(...ratings);
     const maxRating = Math.max(...ratings);
 
-    const timeMargin = (maxTime - minTime) * 0.5;
+
+    const timeMargin = (maxTime - minTime) * 0.2;
 
 
     const chartOptions: ApexCharts.ApexOptions = {
         chart: {
+            animations: {
+                enabled: false
+            },
             type: "line",
             toolbar: {
                 show: false,
             },
+            background: "transparent"
         },
         theme: {
             mode: 'dark',
         },
         xaxis: {
+            tooltip: {
+                enabled: false
+            },
             axisTicks: {
                 show: false,
             },
@@ -44,8 +52,19 @@ const RatingChartComponent = ({contestHistory}) => {
 
         },
         yaxis: {
-            min: 0,
-            max: 3000,
+            labels: {
+                formatter: (value) => (Math.round(value)),
+
+                style: {
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    fontFamily: "Pretendard, sans-serif",
+                }
+            },
+            // min: 0,
+            // max: 3000,
+            min: minRating - 500,
+            max: maxRating + 500
         },
         annotations: {
             yaxis: [
@@ -87,6 +106,7 @@ const RatingChartComponent = ({contestHistory}) => {
             ],
         },
         tooltip: {
+            // enabled:false,
             theme: "dark",
             custom: ({series, seriesIndex, dataPointIndex, w}) => {
                 const rating = series[seriesIndex][dataPointIndex];
@@ -97,16 +117,22 @@ const RatingChartComponent = ({contestHistory}) => {
 
                 return `<div style="padding: 8px; background: #222; color: white; border-radius: 5px;">
                     <strong>${name}</strong><br/>
-                    <strong>${date}</strong><br/>
+                    <span>${date}</span><br/>
                     <span>Rating: ${rating}</span><br/>
+                    <span>Final Rank: ${rank}</span><br/>
                     <span>Performance: ${performance}</span><br/>
-                    <span>Final Rank: ${rank}</span>
                 </div>`;
             },
             x: {
                 show: false,
             },
         },
+        stroke: {
+            curve: "straight"
+        },
+        markers: {
+            size: 4
+        }
 
     };
 
