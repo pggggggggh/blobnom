@@ -10,6 +10,7 @@ const ContestListPage = () => {
     const isInitialLoading = isLoading && !data;
     const date = dayjs().utc()
 
+
     return (
         <Container size="md" my="xl">
             <Stack>

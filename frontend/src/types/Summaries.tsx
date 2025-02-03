@@ -29,4 +29,6 @@ export interface ContestSummary {
     num_participants: number;
     players_per_room: number;
     missions_per_room: number;
+    min_rating: number;
+    max_rating: number;
 }
