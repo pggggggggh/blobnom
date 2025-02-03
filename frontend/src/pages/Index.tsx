@@ -65,7 +65,7 @@ const Index: React.FC = () => {
     const isInitialLoading = isLoading && !data;
 
     return (
-        <Container size="md" my="lg">
+        <Container size="md" my="">
             <Stack>
                 {error && (
                     <Alert title="오류" color="red">
