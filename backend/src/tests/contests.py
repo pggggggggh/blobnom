@@ -7,13 +7,15 @@ import pytest
 import pytz
 from sqlalchemy import desc
 
+from src.app.core.constants import REGISTER_DEADLINE_SECONDS
 from src.app.core.enums import ContestType
 from src.app.db.models.models import Member, User, Contest, ContestMember
 from src.app.db.session import get_db
 from src.app.schemas.schemas import ContestCreateRequest
-from src.app.services.contest_services import register_contest, create_contest, handle_contest_end
+from src.app.services.contest_services import register_contest, create_contest, handle_contest_end, handle_contest_ready
 from src.app.services.room_services import update_score
 from src.app.utils.contest_utils import elo_update, codeforces_update
+from src.app.utils.scheduler import add_job
 from src.app.utils.security_utils import hash_password
 
 
@@ -47,7 +49,6 @@ async def test_create_user():
 
 @pytest.mark.asyncio
 async def test_create_contest_with_50_users():
-    """ 테스트 성공 이후에 서버를 재시작해야 scheduler에 의해 콘테스트가 준비됨 """
     db = next(get_db())
     cnt = db.query(Contest).count()
     contest_name = "changhw Contest Round " + str(cnt + 1)
@@ -72,6 +73,13 @@ async def test_create_contest_with_50_users():
         )
         db.add(contest_member)
     db.commit()
+
+    add_job(
+        handle_contest_ready,
+        run_date=contest.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
+        args=[contest.id],
+        job_id=f"contest_ready_{contest.id}"
+    )
 
     contest_members = db.query(ContestMember).filter(ContestMember.contest_id == contest.id).all()
     assert len(contest_members) == 50

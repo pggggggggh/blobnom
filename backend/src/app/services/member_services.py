@@ -40,6 +40,8 @@ async def get_member_details(handle: str, db: Session) -> MemberDetails:
     for contest_member in contest_members:
         if contest_member.final_rank is None:
             continue
+        if contest_member.contest.is_rated is False:
+            continue
         contest_history = ContestHistory(
             rating_before=contest_member.rating_before,
             rating_after=contest_member.rating_after,

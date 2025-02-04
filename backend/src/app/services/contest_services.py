@@ -129,8 +129,8 @@ async def create_contest(contest_create_request: ContestCreateRequest, db: Sessi
         handle_contest_ready,
         run_date=contest.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
         args=[contest.id],
+        job_id=f"contest_ready_{contest.id}",
     )
-    print(contest.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS))
 
     return {"message": "success"}
 
@@ -143,14 +143,6 @@ async def handle_contest_ready(contest_id: int):
         if not contest:
             return
         if contest.is_deleted or contest.is_started:
-            return
-
-        if len(contest.contest_rooms):  # already set, just start
-            add_job(
-                handle_contest_start,
-                run_date=contest.starts_at,
-                args=[contest.id],
-            )
             return
 
         members = db.query(ContestMember).filter(ContestMember.contest_id == contest_id).all()
@@ -238,6 +230,7 @@ async def handle_contest_ready(contest_id: int):
             handle_contest_start,
             run_date=contest.starts_at,
             args=[contest.id],
+            job_id=f"contest_start_{contest.id}",
         )
 
         for room in rooms:
@@ -264,7 +257,7 @@ async def handle_contest_start(contest_id: int):
         db.add(contest)
         db.commit()
 
-        add_job(handle_contest_end, run_date=contest.ends_at, args=[contest_id])
+        add_job(handle_contest_end, run_date=contest.ends_at, args=[contest_id], job_id=f"contest_end_{contest_id}")
 
         logger.info(f"Contest {contest_id} has started successfully.")
     except Exception as e:

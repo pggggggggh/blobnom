@@ -36,8 +36,8 @@ async def check_unstarted_events():
             run_date=max(room.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
                          datetime.now(pytz.UTC) + timedelta(seconds=5)),
             args=[room.id],
+            job_id=f"room_ready_{room.id}"
         )
-        logger.info(f"Room {room.id} will start at {room.starts_at}")
 
     contests = db.query(Contest).filter(Contest.is_started == False, Contest.is_deleted == False).all()
     for contest in contests:
@@ -45,8 +45,8 @@ async def check_unstarted_events():
             handle_contest_ready,
             run_date=contest.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
             args=[contest.id],
+            job_id=f"contest_ready_{contest.id}"
         )
-        logger.info(f"Contest {contest.id} will start at {contest.starts_at}")
 
     contests = db.query(Contest).filter(Contest.is_started == True, Contest.is_ended == False,
                                         Contest.is_deleted == False).all()
@@ -55,5 +55,5 @@ async def check_unstarted_events():
             handle_contest_end,
             run_date=contest.ends_at,
             args=[contest.id],
+            job_id=f"contest_end_{contest.id}"
         )
-        logger.info(f"Contest {contest.id} will end at {contest.ends_at}")

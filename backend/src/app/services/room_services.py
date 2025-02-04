@@ -147,6 +147,7 @@ async def handle_room_ready(room_id: int):
                 handle_room_start,
                 run_date=max(room.starts_at, datetime.now(pytz.utc)),
                 args=[room.id],
+                job_id=f"room_start_{room_id}"
             )
             return
 
@@ -186,6 +187,7 @@ async def handle_room_ready(room_id: int):
                 handle_room_start,
                 run_date=room.starts_at,
                 args=[room.id],
+                job_id=f"room_start_{room.id}"
             )
 
             logger.info(f"Room {room_id} has set successfully. Will start at {room.starts_at}")

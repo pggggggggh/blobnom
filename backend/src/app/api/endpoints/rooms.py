@@ -312,6 +312,7 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         run_date=max(room_request.starts_at - timedelta(seconds=REGISTER_DEADLINE_SECONDS),
                      datetime.now(pytz.UTC) + timedelta(seconds=5)),
         args=[room.id],
+        job_id=f"room_ready_{room.id}"
     )
 
     return {"success": True, "roomId": room.id}

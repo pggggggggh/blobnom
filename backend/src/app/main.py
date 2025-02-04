@@ -43,15 +43,12 @@ app.include_router(ws_router)
 
 
 async def startup_event():
-    db = SessionLocal()
     try:
         logger.info("Checking unstarted rooms & contests...")
         await check_unstarted_events()
         logger.info("Startup tasks completed successfully")
     except Exception as e:
         logger.error("Error during startup", exc_info=e)
-    finally:
-        db.close()
 
 
 app.add_event_handler('startup', startup_event)
