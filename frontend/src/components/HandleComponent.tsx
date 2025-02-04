@@ -1,17 +1,22 @@
 import {Tooltip} from '@mantine/core';
 import {Link} from "@tanstack/react-router";
 import {getRatingColor} from "../utils/MemberUtils.tsx";
+import {UserSummary} from "../types/UserSummary.tsx";
 
-const HandleComponent = ({user}) => {
+const HandleComponent = ({user, linkToProfile = true}: { user: UserSummary, linkToProfile: boolean }) => {
 
     return (
         <>
             {user.role ? (
-                <Link to={`/members/${user.handle}`}>
-                <span className={`tracking-tighter font-bold ${getRatingColor(user.rating)}`}>
-                    {user.handle}
-                </span>
-                </Link>
+                linkToProfile ?
+                    <Link to={`/members/${user.handle}`}>
+                        <span className={`tracking-tighter font-bold ${getRatingColor(user.rating)}`}>
+                            {user.handle}
+                        </span>
+                    </Link> :
+                    <span className={`tracking-tighter font-bold ${getRatingColor(user.rating)}`}>
+                        {user.handle}
+                    </span>
             ) : (
                 <span className="inline-flex items-center">
                     <Tooltip label="가입되지 않은 회원입니다." withArrow>

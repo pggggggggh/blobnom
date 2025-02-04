@@ -50,7 +50,7 @@ function TeamStatusBox({roomDetail, userColors}) {
                                           rel="noopener noreferrer"
                                           className="no-underline text-white"
                                       >
-                                          <HandleComponent user={player_info.user}/>
+                                          <HandleComponent user={player_info.user} linkToProfile={false}/>
                                       </a>
                                     </span>
                                     {team.users.length > 1 && `(${player_info.indiv_solved_cnt})`}

@@ -42,11 +42,11 @@ const AboutPage = () => {
                     <Group align="flex-start" noWrap>
                         <div style={{flex: 1}}>
                             <Title order={3} mb="md">인접 칸 규칙</Title>
-                            <Text mb="xs">
+                            <Text size="sm" className="text-gray-300">
                                 인접한 칸이란 육각형 게임판 상에서 맞닿은 칸을 의미합니다.
                             </Text>
-                            <Text>
-                                오른쪽의 게임판에서 전체 색칠한 칸 수는 레드팀이 더 많지만,<br/>인접한 칸 수에서 블루팀이 앞서 블루팀의 승리로 판정됩니다.
+                            <Text mb="xs" size="sm" className="text-gray-300">
+                                오른쪽의 게임판에서 전체 색칠한 칸 수는 레드팀이 더 많지만, 인접한 칸 수에서 블루팀이 앞서 블루팀의 승리로 판정됩니다.
                             </Text>
                         </div>
                         <Card.Section>
@@ -54,8 +54,8 @@ const AboutPage = () => {
                                 src="/images/adjacent_screenshot.png"
                                 alt="인접 칸 예시"
                                 style={{
-                                    width: '200px',
-                                    height: 'auto',
+                                    maxWidth: '150px',
+                                    // height: 'auto',
                                 }}
                             />
                         </Card.Section>
