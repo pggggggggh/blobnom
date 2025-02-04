@@ -13,6 +13,7 @@ from src.app.core.enums import Role, ContestType, ModeType
 from src.app.db.models.models import Member, Contest, ContestMember, Room, ContestRoom, User, RoomPlayer
 from src.app.db.session import SessionLocal
 from src.app.schemas.schemas import ContestCreateRequest, ContestSummary, ContestDetails
+from src.app.services.member_services import convert_to_user_summary
 from src.app.services.room_services import handle_room_start, handle_room_ready, get_room_detail
 from src.app.utils.contest_utils import elo_update, codeforces_update
 from src.app.utils.logger import logger
@@ -34,33 +35,45 @@ def get_contest_summary(contest: Contest):
     )
 
 
+import asyncio
+
+
 async def get_contest_details(contest_id: int, db: Session, token_handle: str):
     contest = (
         db.query(Contest)
+        .filter(Contest.id == contest_id)
         .options(
             joinedload(Contest.contest_members).joinedload(ContestMember.member)
         )
         .options(
             joinedload(Contest.contest_rooms).joinedload(ContestRoom.room).joinedload(Room.players)
         )
-        .filter(Contest.id == contest_id)
         .first()
     )
     if not contest:
         raise HTTPException(status_code=404, detail="Contest not found")
 
-    participants = []
-    is_user_registered = False
-    for contest_member in contest.contest_members:
-        participants.append(contest_member.member.handle)
-        if contest_member.member.handle == token_handle:
-            is_user_registered = True
+    users = {
+        member.member.handle: db.query(User).filter(User.handle == member.member.handle).first()
+        for member in contest.contest_members
+    }
+
+    participant_futures = [convert_to_user_summary(user, db) for user in users.values()]
+    participants = await asyncio.gather(*participant_futures)
+
+    is_user_registered = token_handle in users
 
     room_details = {}
     user_room_id = None
     if contest.is_started:
-        for contest_room in contest.contest_rooms:
-            room_info = await get_room_detail(contest_room.room_id, db, token_handle, without_mission_info=True)
+        # 방 정보 조회 병렬 실행
+        room_futures = [
+            get_room_detail(contest_room.room_id, db, token_handle, without_mission_info=True)
+            for contest_room in contest.contest_rooms
+        ]
+        room_infos = await asyncio.gather(*room_futures)
+
+        for contest_room, room_info in zip(contest.contest_rooms, room_infos):
             room_details[contest_room.index] = room_info
             if room_info.is_user_in_room:
                 user_room_id = room_info.id
@@ -68,11 +81,12 @@ async def get_contest_details(contest_id: int, db: Session, token_handle: str):
     return ContestDetails(
         id=contest.id,
         name=contest.name,
+        desc=contest.desc,
         query=contest.query,
         starts_at=contest.starts_at,
         ends_at=contest.ends_at,
         num_participants=len(participants),
-        participants=participants[:20],
+        participants=participants,
         players_per_room=contest.players_per_room,
         missions_per_room=contest.missions_per_room,
         is_user_registered=is_user_registered,

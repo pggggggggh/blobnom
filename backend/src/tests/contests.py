@@ -58,8 +58,8 @@ async def test_create_contest_with_50_users():
         type=ContestType.CONTEST_BOJ_GENERAL,
         missions_per_room=37,
         players_per_room=8,
-        starts_at=datetime.datetime.now(pytz.UTC),
-        ends_at=datetime.datetime.now(pytz.UTC) + timedelta(hours=2),
+        starts_at=datetime.datetime.now(pytz.UTC) + timedelta(minutes=8),
+        ends_at=datetime.datetime.now(pytz.UTC) + timedelta(hours=5),
         is_rated=False
     )
     db.add(contest)

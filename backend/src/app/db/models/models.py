@@ -128,6 +128,7 @@ class Contest(TimestampMixin, Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, nullable=False)
+    desc = Column(String, nullable=True)
     is_deleted = Column(Boolean, default=False)
 
     query = Column(String)

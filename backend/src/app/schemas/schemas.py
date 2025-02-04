@@ -136,11 +136,12 @@ class RoomDetail(BaseModel):
 class ContestDetails(BaseModel):
     id: int
     name: str
+    desc: Optional[str]
     query: str
     starts_at: datetime
     ends_at: datetime
     num_participants: int
-    participants: List[str]
+    participants: List[UserSummary]
     players_per_room: int
     missions_per_room: int
     is_user_registered: bool
