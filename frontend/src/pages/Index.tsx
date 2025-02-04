@@ -128,8 +128,10 @@ const Index: React.FC = () => {
                 ) : (
                     data && (
                         <>
-                            <ContestListComponent contests={data.upcoming_contest_list} cur_datetime={date}
-                                                  border={true}/>
+                            {data.upcoming_contest_list.length > 0 &&
+                                <ContestListComponent contests={data.upcoming_contest_list} cur_datetime={date}
+                                                      border={true}/>
+                            }
                             <RoomListComponent rooms={data.room_list} cur_datetime={date}/>
                         </>
                     )

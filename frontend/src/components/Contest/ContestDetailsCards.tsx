@@ -10,6 +10,7 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
             title: "대회 정보",
             description: [
                 `${!contestDetails.is_rated ? "이 대회는 레이팅을 주지 않습니다." : "이 대회의 결과는 레이팅에 반영됩니다."}`,
+                `대회 시작 5분 전까지 등록/취소가 가능합니다.`,
                 `참가 자격 : ${contestDetails.min_rating != null ? "레이팅 " + contestDetails.min_rating + "~" + contestDetails.max_rating : '모든 유저'}`,
                 `solved.ac 쿼리 : ${contestDetails.query} + 각 방 참가자들이 시도하지 않은 문제`,
                 `각 방에 최대 ${contestDetails.players_per_room}명의 인원이 배정되어 ${contestDetails.missions_per_room}문제를 풀게 됩니다.`,
