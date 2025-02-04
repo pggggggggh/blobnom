@@ -123,6 +123,7 @@ async def create_contest(contest_create_request: ContestCreateRequest, db: Sessi
 
     contest = Contest(
         name=contest_create_request.name,
+        desc=contest_create_request.desc,
         query=contest_create_request.query,
         type=contest_create_request.type,
         missions_per_room=contest_create_request.missions_per_room,
@@ -136,8 +137,6 @@ async def create_contest(contest_create_request: ContestCreateRequest, db: Sessi
     )
     db.add(contest)
     db.commit()
-
-    print(contest.starts_at)
 
     add_job(
         handle_contest_ready,

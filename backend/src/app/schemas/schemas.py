@@ -24,6 +24,7 @@ class RoomCreateRequest(BaseModel):
 
 class ContestCreateRequest(BaseModel):
     name: str
+    desc: Optional[str]
     query: str
     type: ContestType
     missions_per_room: int
