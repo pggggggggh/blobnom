@@ -48,6 +48,15 @@ async def test_create_user():
 
 
 @pytest.mark.asyncio
+async def test_participate_10_users():
+    db = next(get_db())
+    members = db.query(Member).limit(50).all()
+    contest = db.query(Contest).order_by(desc(Contest.created_at)).first()
+    for member in members:
+        await register_contest(contest.id, db, member.handle)
+
+
+@pytest.mark.asyncio
 async def test_create_contest_with_50_users():
     db = next(get_db())
     cnt = db.query(Contest).count()
