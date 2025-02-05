@@ -86,6 +86,7 @@ class RoomMissionInfo(BaseModel):
 class ContestSummary(BaseModel):
     id: int
     name: str
+    desc: Optional[str]
     query: str
     starts_at: datetime
     ends_at: datetime

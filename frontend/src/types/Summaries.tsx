@@ -22,6 +22,7 @@ export interface RoomSummary {
 
 export interface ContestSummary {
     id: number;
+    desc: string;
     name: string;
     query: string;
     starts_at: string;

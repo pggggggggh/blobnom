@@ -24,8 +24,11 @@ const ContestListComponent = ({contests, cur_datetime, border}: {
                                                                                       className="mr-1 "/></Box>
                                     {contest.name}
                                 </Text>
-                                <Text size="sm" c="dimmed">
-                                    쿼리: {contest.query}{contest.min_rating != null ? `, 레이팅 범위: ${contest.min_rating}~${contest.max_rating}` : ''}
+                                <Text
+                                    size="sm"
+                                    className="text-gray-300 truncate w-full overflow-hidden whitespace-nowrap"
+                                >
+                                    {contest.desc}{contest.min_rating != null ? `, 레이팅 범위: ${contest.min_rating}~${contest.max_rating}` : ''}
                                 </Text>
 
                             </Box>

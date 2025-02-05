@@ -23,6 +23,7 @@ from src.app.utils.scheduler import add_job
 def get_contest_summary(contest: Contest):
     return ContestSummary(
         id=contest.id,
+        desc=contest.desc,
         name=contest.name,
         query=contest.query,
         starts_at=contest.starts_at,
