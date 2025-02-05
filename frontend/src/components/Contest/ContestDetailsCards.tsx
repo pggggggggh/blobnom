@@ -22,8 +22,10 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
             title: "대회 규칙",
             description: [
                 "대회 시작 전, 'BOJ 설정 - 보기 - solved.ac 티어'를 '보지 않기'로 설정해주세요.",
+                "대회 중에는 알고리즘 분류를 열람하지 말아주세요.",
                 "해당 문제의 풀이를 직접 검색하는 것을 제외한 모든 검색이 허용됩니다.",
                 "해당 문제의 정답 소스코드를 제외한 모든 소스코드의 복사/붙여넣기가 허용됩니다.",
+                "ChatGPT, Claude 등의 생성형 AI의 사용은 번역 용도 외 금지됩니다.",
                 "타인과 문제에 대한 어떤 논의도 금지됩니다.",
             ],
             icon: RuleIcon,
