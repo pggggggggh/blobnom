@@ -1,10 +1,9 @@
-import {Avatar, Badge, Burger, Button, Drawer, Group, Image, Menu, Stack, Title} from '@mantine/core';
+import {Avatar, Burger, Button, Drawer, Group, Image, Menu, Stack, Title} from '@mantine/core';
 import {useDisclosure, useMediaQuery} from '@mantine/hooks';
 import logo from '../assets/blobnom.png';
 import {Link} from '@tanstack/react-router';
 import {useAuth} from '../context/AuthProvider';
 import {useSearchStore} from "../store/searchStore.ts";
-import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const HeaderComponent = () => {
     const [opened, {toggle, close}] = useDisclosure(false);
@@ -98,50 +97,50 @@ const HeaderComponent = () => {
                     </div>
                 </Group>
 
-                <Group align="center" gap="lg">
-                    {auth.user && (
-                        <Menu shadow="md" width={320} position="bottom-end">
-                            <Menu.Target>
-                                <div className="relative cursor-pointer">
-                                    <NotificationsIcon className="text-gray-300 hover:text-white transition-colors"/>
-                                    {notifications.length > 0 &&
-                                        <Badge
-                                            className="absolute -top-2 -right-2 font-light"
-                                            size="xs"
-                                            variant="filled"
-                                            color="red"
-                                        >
-                                            {notifications.length}
-                                        </Badge>
-                                    }
+                <Group align="center" gap="md">
+                    {/*{auth.user && (*/}
+                    {/*    <Menu shadow="md" width={320} position="bottom-end">*/}
+                    {/*        <Menu.Target>*/}
+                    {/*            <div className="relative cursor-pointer">*/}
+                    {/*                <NotificationsIcon className="text-gray-300 hover:text-white transition-colors"/>*/}
+                    {/*                {notifications.length > 0 &&*/}
+                    {/*                    <Badge*/}
+                    {/*                        className="absolute -top-2 -right-2 font-light"*/}
+                    {/*                        size="xs"*/}
+                    {/*                        variant="filled"*/}
+                    {/*                        color="red"*/}
+                    {/*                    >*/}
+                    {/*                        {notifications.length}*/}
+                    {/*                    </Badge>*/}
+                    {/*                }*/}
 
-                                </div>
-                            </Menu.Target>
-                            <Menu.Dropdown>
-                                <Menu.Label>알림</Menu.Label>
-                                {
-                                    notifications.length > 0 ?
-                                        (
-                                            notifications.map((notification) => (
-                                                <Menu.Item
-                                                    key={notification.id}
-                                                >
-                                                    <div className="flex flex-col">
-                                                        <span className="text-sm">{notification.text}</span>
-                                                        <span
-                                                            className="text-xs text-gray-500">{notification.time}</span>
-                                                    </div>
-                                                </Menu.Item>
-                                            )))
-                                        :
-                                        <Menu.Item
-                                        >
-                                            <span className="text-sm">알림이 없습니다.</span>
-                                        </Menu.Item>
-                                }
-                            </Menu.Dropdown>
-                        </Menu>
-                    )}
+                    {/*            </div>*/}
+                    {/*        </Menu.Target>*/}
+                    {/*        <Menu.Dropdown>*/}
+                    {/*            <Menu.Label>알림</Menu.Label>*/}
+                    {/*            {*/}
+                    {/*                notifications.length > 0 ?*/}
+                    {/*                    (*/}
+                    {/*                        notifications.map((notification) => (*/}
+                    {/*                            <Menu.Item*/}
+                    {/*                                key={notification.id}*/}
+                    {/*                            >*/}
+                    {/*                                <div className="flex flex-col">*/}
+                    {/*                                    <span className="text-sm">{notification.text}</span>*/}
+                    {/*                                    <span*/}
+                    {/*                                        className="text-xs text-gray-500">{notification.time}</span>*/}
+                    {/*                                </div>*/}
+                    {/*                            </Menu.Item>*/}
+                    {/*                        )))*/}
+                    {/*                    :*/}
+                    {/*                    <Menu.Item*/}
+                    {/*                    >*/}
+                    {/*                        <span className="text-sm">알림이 없습니다.</span>*/}
+                    {/*                    </Menu.Item>*/}
+                    {/*            }*/}
+                    {/*        </Menu.Dropdown>*/}
+                    {/*    </Menu>*/}
+                    {/*)}*/}
 
                     {!auth.loading && (auth.user ? (
                         <Group align="center">
