@@ -31,35 +31,36 @@ function TeamStatusBox({roomDetail, userColors}) {
                         <div
                             style={{backgroundColor: userColors[team.team_index][0]}}
                             className="w-4 h-4 rounded-sm"
-                        ></div>
-                        <span className="font-light">
-                            {team.users.map((player_info, idx) => (
-                                <span key={player_info.user.handle}>
-                                    <span
-                                        className={
-                                            team.users.length > 1 &&
-                                            player_info.indiv_solved_cnt > 0 &&
-                                            idx === 0
-                                                ? 'font-bold'
-                                                : ''
-                                        }
-                                    >
-                                      <a
-                                          href={`https://www.acmicpc.net/status?user_id=${player_info.user.handle}`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="no-underline text-white"
-                                      >
-                                          <HandleComponent user={player_info.user} linkToProfile={false}/>
-                                      </a>
-                                    </span>
-                                    {team.users.length > 1 && `(${player_info.indiv_solved_cnt})`}
-                                    {idx < team.users.length - 1 && ', '}
-                                </span>
-                            ))}
-                            &nbsp;: <span
-                            className="font-bold">{team.adjacent_solved_count}</span> ({team.total_solved_count})
-                        </span>
+                        />
+                        <span className="font-light flex items-center">
+        {team.users.map((player_info, idx) => (
+            <span key={player_info.user.handle} className="inline-flex items-center space-x-1">
+                {player_info.is_active && (
+                    <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                )}
+                <span
+                    className={`${
+                        team.users.length > 1 &&
+                        player_info.indiv_solved_cnt > 0 &&
+                        idx === 0
+                            ? 'font-bold'
+                            : ''
+                    }`}
+                >
+                    <a
+                        href={`https://www.acmicpc.net/status?user_id=${player_info.user.handle}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="no-underline text-white"
+                    >
+                        <HandleComponent user={player_info.user} linkToProfile={false}/>
+                    </a>
+                </span>
+                {team.users.length > 1 && `(${player_info.indiv_solved_cnt})`}
+                {idx < team.users.length - 1 && ', '}
+            </span>
+        ))}&nbsp;:&nbsp;<span
+                            className="font-bold">{team.adjacent_solved_count}</span> ({team.total_solved_count})</span>
                     </div>
                 ))}
             </div>

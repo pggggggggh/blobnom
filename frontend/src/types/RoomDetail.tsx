@@ -31,6 +31,7 @@ export interface TeamInfo {
 export interface RoomPlayerInfo {
     user: UserSummary;
     indiv_solved_cnt: number;
+    is_active: boolean;
 }
 
 export interface MissionInfo {
