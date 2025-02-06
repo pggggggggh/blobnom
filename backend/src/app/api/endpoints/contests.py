@@ -47,7 +47,7 @@ async def unregister_contest_endpoint(request: Request, contest_id: int, db: Ses
 
 
 @router.get("/detail/{contest_id}")
-@limiter.limit("20/minute")
+@limiter.limit("30/minute")
 async def contest_detail_endpoint(request: Request, contest_id: int, db: Session = Depends(get_db),
                                   token_handle: str = Depends(get_handle_by_token)):
     response = await get_contest_details(contest_id, db, token_handle)

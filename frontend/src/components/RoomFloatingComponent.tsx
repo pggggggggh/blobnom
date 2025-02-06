@@ -11,6 +11,7 @@ import {userColors} from "../constants/UserColorsFill.tsx";
 import {useAuth} from "../context/AuthProvider.tsx";
 import TeamStatusBox from "./TeamStatusBox.tsx";
 
+
 const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const [timeLeft, setTimeLeft] = useState<string>("");
     const [timeBefore, setTimeBefore] = useState<string>("");
@@ -28,6 +29,7 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
             setTimeBefore(getDiffTime(new Date(), new Date(roomDetail.starts_at)))
         }
     }, [roomDetail]);
+
 
     return (
         <>
@@ -65,7 +67,22 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                             </ActionIcon>
                         )
                 }
-
+                {!roomDetail.is_user_in_room && !roomDetail.is_contest_room && roomDetail.mode_type === "land_grab_solo" && new Date(roomDetail.ends_at) > new Date() &&
+                    <div
+                        className="mt-1">
+                        <Button
+                            variant="light"
+                            onClick={() => {
+                                modals.open({
+                                    title: "입장하기",
+                                    children: <RoomJoinModal roomId={roomDetail.id} is_private={roomDetail.is_private}/>
+                                });
+                            }}
+                        >
+                            참가하기
+                        </Button>
+                    </div>
+                }
             </Box>
 
             {!roomDetail.is_started &&
@@ -83,21 +100,6 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                 </Box>
             }
 
-            {!roomDetail.is_user_in_room && !roomDetail.is_contest_room && roomDetail.mode_type === "land_grab_solo" && new Date(roomDetail.ends_at) > new Date() &&
-                <div
-                    className="p-2 fixed bottom-4 left-4">
-                    <Button
-                        onClick={() => {
-                            modals.open({
-                                title: "입장하기",
-                                children: <RoomJoinModal roomId={roomDetail.id} is_private={roomDetail.is_private}/>
-                            });
-                        }}
-                    >
-                        참가하기
-                    </Button>
-                </div>
-            }
 
             <TeamStatusBox roomDetail={roomDetail} userColors={userColors}/>
         </>);

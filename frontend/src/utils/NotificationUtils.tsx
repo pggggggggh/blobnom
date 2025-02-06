@@ -1,7 +1,7 @@
 import blobnom from "../assets/blobnom.png";
 
 export const requestNotificationPermission = async () => {
-    console.log(Notification.permission)
+    // console.log(Notification.permission)
     if (Notification.permission !== "granted") {
         await Notification.requestPermission();
     }

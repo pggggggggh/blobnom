@@ -1,5 +1,6 @@
 import math
 import os
+import pickle
 import random
 from datetime import datetime, timedelta
 
@@ -8,9 +9,10 @@ from fastapi import HTTPException
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
-from src.app.core.constants import REGISTER_DEADLINE_SECONDS
+from src.app.core.constants import REGISTER_DEADLINE_SECONDS, CONTEST_CACHE_SECONDS
 from src.app.core.enums import Role, ContestType, ModeType
 from src.app.db.models.models import Member, Contest, ContestMember, Room, ContestRoom, User, RoomPlayer
+from src.app.db.redis import get_redis
 from src.app.db.session import SessionLocal
 from src.app.schemas.schemas import ContestCreateRequest, ContestSummary, ContestDetails
 from src.app.services.member_services import convert_to_user_summary
@@ -40,6 +42,13 @@ import asyncio
 
 
 async def get_contest_details(contest_id: int, db: Session, token_handle: str):
+    redis = await get_redis()
+    if redis:
+        cache_key = f"contest:details:{contest_id}"
+        cached_data = await redis.get(cache_key)
+        if cached_data:
+            return pickle.loads(cached_data)
+
     contest = (
         db.query(Contest)
         .filter(Contest.id == contest_id)
@@ -79,7 +88,7 @@ async def get_contest_details(contest_id: int, db: Session, token_handle: str):
             if room_info.is_user_in_room:
                 user_room_id = room_info.id
 
-    return ContestDetails(
+    contest_details = ContestDetails(
         id=contest.id,
         name=contest.name,
         desc=contest.desc,
@@ -99,6 +108,11 @@ async def get_contest_details(contest_id: int, db: Session, token_handle: str):
         min_rating=contest.min_rating,
         max_rating=contest.max_rating,
     )
+
+    if redis:
+        await redis.setex(cache_key, CONTEST_CACHE_SECONDS, pickle.dumps(contest_details))
+
+    return contest_details
 
 
 async def get_contest_list(myContestOnly: bool, db: Session, token_handle: str):

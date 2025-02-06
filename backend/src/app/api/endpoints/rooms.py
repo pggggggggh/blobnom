@@ -13,6 +13,7 @@ from src.app.core.enums import ModeType
 from src.app.core.rate_limit import limiter
 from src.app.db.database import get_db
 from src.app.db.models.models import User, Room, RoomPlayer, RoomMission, Member, Contest
+from src.app.db.redis import get_redis
 from src.app.schemas.schemas import RoomCreateRequest, RoomDeleteRequest
 from src.app.services.contest_services import get_contest_summary
 from src.app.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
@@ -72,7 +73,7 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
 
 
 @router.get("/detail/{id}")
-@limiter.limit("15/minute")
+@limiter.limit("30/minute")
 async def room_detail(request: Request, id: int, db: Session = Depends(get_db),
                       handle: str = Depends(get_handle_by_token)):
     return await get_room_detail(room_id=id, db=db, handle=handle)
@@ -104,6 +105,7 @@ async def delete_room(request: Request, id: int, room_delete_request: RoomDelete
         )
     room.is_deleted = True
     db.commit()
+
     return {"message": "Room deleted successfully"}
 
 
@@ -195,6 +197,11 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
         db.commit()
         await update_score(id, db)
 
+    redis = await get_redis()
+    if redis:
+        cache_key = f"room:{id}:details"
+        await redis.delete(cache_key)
+
     return {"success": True, "solved_mission_list": solved_mission_list}
 
 
@@ -242,6 +249,11 @@ async def room_solved(request: Request, room_id: int = Body(...), problem_id: in
         if verdict is False:
             raise HTTPException(status_code=400, detail="문제가 해결되지 않았습니다. '맞았습니다!!'를 받았는데도 이 메시지가 보인다면 잠시 뒤 다시 시도해주세요.")
         await update_score(room_id, db)
+
+    redis = await get_redis()
+    if redis:
+        cache_key = f"room:{room_id}:details"
+        await redis.delete(cache_key)
 
 
 @router.post("/create")

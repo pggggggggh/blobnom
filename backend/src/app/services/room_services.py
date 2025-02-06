@@ -1,20 +1,25 @@
+import asyncio
+import json
 import math
+import pickle
 from collections import deque
 from datetime import datetime, timedelta
 from typing import Optional
 
 import httpx
 import pytz
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session, joinedload
 from starlette import status
 
-from src.app.api.websocket_router import manager
-from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM
+from src.app.api.sockets import sio, room_send_message
+from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM, ROOM_CACHE_SECONDS
 from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
+from src.app.db.redis import get_redis
 from src.app.db.session import get_db, SessionLocal
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
 from src.app.services.member_services import convert_to_user_summary
+from src.app.services.socket_services import get_sids_in_room
 from src.app.utils.logger import logger
 from src.app.utils.scheduler import add_job
 from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
@@ -39,6 +44,14 @@ async def get_room_summary(room: Room, db: Session) -> RoomSummary:
 
 async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
                           without_mission_info: bool = False) -> RoomDetail:
+    redis = await get_redis()
+    cache_key = f"room:{room_id}:details"
+
+    if redis:
+        cached_data = await redis.get(cache_key)
+        if cached_data:
+            return pickle.loads(cached_data)
+
     query = db.query(Room).filter(Room.id == room_id)
     if not without_mission_info:
         query = query.options(
@@ -63,16 +76,27 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
     team_adj_solved_count_list = [0 for _ in range(MAX_TEAM_PER_ROOM)]
     team_total_solved_count_list = [0 for _ in range(MAX_TEAM_PER_ROOM)]
     team_last_solved_at_list = [None for _ in range(MAX_TEAM_PER_ROOM)]
+    team_indexes = {player.team_index for player in players}
 
-    team_indexes = set()
-    for player in players:
-        team_indexes.add(player.team_index)
+    user_summary_tasks = [convert_to_user_summary(player.user, db) for player in players]
+    user_summaries = await asyncio.gather(*user_summary_tasks)
+
+    active_users = set()
+    if redis:
+        sids = get_sids_in_room(room_id)
+        for sid in sids:
+            handle = await redis.hget("sid_to_handle", sid)
+            if handle:
+                active_users.add(handle.decode('utf-8'))
+
+    for player, user_info in zip(players, user_summaries):
         team_adj_solved_count_list[player.team_index] = player.adjacent_solved_count
         team_total_solved_count_list[player.team_index] = player.total_solved_count
         team_last_solved_at_list[player.team_index] = player.last_solved_at
-        user_info = await convert_to_user_summary(player.user, db)
         team_users[player.team_index].append(
-            {"user": user_info, "indiv_solved_cnt": player.indiv_solved_count})
+            {"user": user_info, "indiv_solved_cnt": player.indiv_solved_count,
+             "is_active": player.user.handle in active_users}
+        )
 
     room_team_info = sorted([
         RoomTeamInfo(
@@ -121,6 +145,8 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
         is_started=room.is_started,
         is_contest_room=room.is_contest_room,
     )
+    if redis:
+        await redis.setex(cache_key, ROOM_CACHE_SECONDS, pickle.dumps(room_detail))
 
     return room_detail
 
@@ -178,8 +204,6 @@ async def handle_room_ready(room_id: int):
                                       index_in_room=idx)
                 db.add(mission)
                 room.missions.append(mission)
-            # await update_solver(room.id, room.missions, room.players, db, client, True)
-            # await update_score(room.id, db)
             db.add(room)
             db.commit()
 
@@ -210,16 +234,17 @@ async def handle_room_start(room_id: int, db: Session = None):
     room.is_started = True
     db.add(room)
     db.commit()
-    await manager.broadcast({
-        "type": "room_started",
-    }, room_id)
+
+    redis = await get_redis()
+    if redis:
+        cache_key = f"room:{room_id}:details"
+        await redis.delete(cache_key)
+    await sio.emit("room_started", room=f"room_{room_id}")
 
     logger.info(f"Room {room_id} has started successfully.")
 
 
 async def update_solver(room_id, missions, room_players, db, client, initial=False):
-    # initial이 True면 방 만들 때이기 때문에
-    # starts_at이 현 시각이 아닌 방 시작 시간과 일치하게 둠
     room = db.query(Room).filter(Room.id == room_id).first()
     if room is None:
         raise HTTPException(status_code=400, detail="Such room does not exist")
@@ -256,11 +281,14 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
             return False
 
         for problem in newly_solved_problems:
-            await manager.broadcast({
-                "type": "problem_solved",
-                "problem_id": problem["pid"],
-                "username": problem["username"],
-            }, room_id)
+            await sio.emit("problem_solved",
+                           {"problem_id": problem["pid"], "username": problem["username"]},
+                           room=f"room_{room_id}")
+            await sio.emit("room_new_message", {
+                "message": f'{problem["username"]}가 {problem["pid"]}를 해결하였습니다.',
+                "time": str(datetime.now(pytz.utc)),
+                "type": "system"
+            }, room=f"room_{room_id}")
 
     return True
 
@@ -360,6 +388,6 @@ async def update_score(room_id, db):
     winner_dict = [player.user.handle for player in room_players if player.team_index == room.winning_team_index]
     room.winner = ", ".join(winner_dict)
     db.add(room)
-
     db.commit()
+
     return

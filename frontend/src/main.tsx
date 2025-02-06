@@ -8,32 +8,31 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { StrictMode, useEffect } from 'react';
+import {useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
-import { RouterProvider } from '@tanstack/react-router';
+import {RouterProvider} from '@tanstack/react-router';
 
 // Import the generated route tree
-import { routeTree } from './routeTree.gen';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import "./main.css";
-import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {ColorSchemeScript, MantineProvider} from "@mantine/core";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import "dayjs/locale/ko";
 import isBetween from 'dayjs/plugin/isBetween';
 import utc from 'dayjs/plugin/utc';
-import { ModalsProvider } from "@mantine/modals";
+import {ModalsProvider} from "@mantine/modals";
 import Theme from "./constants/Theme.tsx";
-import { Notifications } from "@mantine/notifications";
-import { AuthProvider } from "./context/AuthProvider.tsx";
-import { useSearchStore } from './store/searchStore'; // Zustand 스토어 임포트
-
+import {Notifications} from "@mantine/notifications";
+import {AuthProvider} from "./context/AuthProvider.tsx";
+import {useSearchStore} from './store/searchStore'; // Zustand 스토어 임포트
 // Create a new router instance
 // `createRouter` is already used in `router.tsx`, so we can import router from there
-import router from './router'; // Import router
+import router from './router';
+import {SocketProvider} from "./context/SocketProvider.tsx"; // Import router
 
 // Create a QueryClient instance
 const queryClient = new QueryClient();
@@ -47,11 +46,11 @@ dayjs.extend(utc);
 
 // Root 컴포넌트: Zustand와 브라우저 히스토리 동기화
 const AppWrapper: React.FC = () => {
-    const { search, page, activeOnly, setSearch, setPage, setActiveOnly } = useSearchStore();
+    const {search, page, activeOnly, setSearch, setPage, setActiveOnly} = useSearchStore();
 
     // Zustand 상태가 변경될 때마다 브라우저 히스토리에 상태 저장
     useEffect(() => {
-        const state = { search, page, activeOnly };
+        const state = {search, page, activeOnly};
         window.history.pushState(state, '', window.location.pathname);
     }, [search, page, activeOnly]);
 
@@ -59,7 +58,7 @@ const AppWrapper: React.FC = () => {
     useEffect(() => {
         const handlePopState = (event: PopStateEvent) => {
             if (event.state) {
-                const { search, page, activeOnly } = event.state;
+                const {search, page, activeOnly} = event.state;
                 setSearch(search || '');
                 setPage(page || 1);
                 setActiveOnly(activeOnly || false);
@@ -70,7 +69,7 @@ const AppWrapper: React.FC = () => {
 
         // 초기 로드 시 히스토리에 상태가 있다면 Zustand에 설정
         if (window.history.state) {
-            const { search, page, activeOnly } = window.history.state;
+            const {search, page, activeOnly} = window.history.state;
             setSearch(search || '');
             setPage(page || 1);
             setActiveOnly(activeOnly || false);
@@ -83,12 +82,14 @@ const AppWrapper: React.FC = () => {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <ColorSchemeScript forceColorScheme="dark" />
+            <ColorSchemeScript forceColorScheme="dark"/>
             <MantineProvider forceColorScheme="dark" theme={Theme}>
                 <AuthProvider>
                     <ModalsProvider>
-                        <Notifications />
-                        <RouterProvider router={router} />
+                        <SocketProvider>
+                            <Notifications/>
+                            <RouterProvider router={router}/>
+                        </SocketProvider>
                     </ModalsProvider>
                 </AuthProvider>
             </MantineProvider>
@@ -101,8 +102,6 @@ const rootElement = document.getElementById('root')!;
 if (!rootElement.innerHTML) {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
-        <StrictMode>
-            <AppWrapper />
-        </StrictMode>
+        <AppWrapper/>
     );
 }

@@ -30,9 +30,7 @@ const Index: React.FC = () => {
     const [debouncedSearch] = useDebouncedValue(search, 400);
     const actualSearch = debouncedSearch;
 
-
     const {data, isLoading, error} = useRoomList(page - 1, actualSearch, activeOnly, myRoomOnly);
-
 
     const [showNotice, setShowNotice] = useState(true);
     const date = dayjs().utc();

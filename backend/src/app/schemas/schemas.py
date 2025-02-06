@@ -174,3 +174,16 @@ class MemberDetails(BaseModel):
     contest_history: List[ContestHistory]
     num_solved_missions: int
     user_summary: UserSummary
+
+
+class MessagePayload(BaseModel):
+    handle: Optional[str] = None
+    type: str
+    message: str
+    time: str
+    team_index: Optional[int] = None
+
+
+class MessageData(BaseModel):
+    roomId: int
+    payload: MessagePayload
