@@ -81,21 +81,12 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
     user_summary_tasks = [convert_to_user_summary(player.user, db) for player in players]
     user_summaries = await asyncio.gather(*user_summary_tasks)
 
-    active_users = set()
-    if redis:
-        sids = get_sids_in_room(room_id)
-        for sid in sids:
-            handle = await redis.hget("sid_to_handle", sid)
-            if handle:
-                active_users.add(handle.decode('utf-8'))
-
     for player, user_info in zip(players, user_summaries):
         team_adj_solved_count_list[player.team_index] = player.adjacent_solved_count
         team_total_solved_count_list[player.team_index] = player.total_solved_count
         team_last_solved_at_list[player.team_index] = player.last_solved_at
         team_users[player.team_index].append(
-            {"user": user_info, "indiv_solved_cnt": player.indiv_solved_count,
-             "is_active": player.user.handle in active_users}
+            {"user": user_info, "indiv_solved_cnt": player.indiv_solved_count}
         )
 
     room_team_info = sorted([

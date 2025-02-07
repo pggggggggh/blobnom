@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {createFileRoute} from '@tanstack/react-router'
 import {useRoomDetail} from "../../hooks/hooks.tsx";
 import {Box} from "@mantine/core";
@@ -16,6 +16,7 @@ export const Route = createFileRoute('/rooms/$roomId')({
 function RouteComponent() {
     const {roomId} = Route.useParams();
     const {data: roomDetail, isLoading, error, refetch} = useRoomDetail(parseInt(roomId));
+    const [activeUsers, setActiveUsers] = useState<Set<string>>(new Set());
     const socket = useSocket()
 
     const auth = useAuth();
@@ -37,14 +38,20 @@ function RouteComponent() {
             refetch();
         };
 
+        const handleActiveUsers = (data) => {
+            setActiveUsers(new Set(data))
+        }
+
         socket.on("problem_solved", handleProblemSolved);
         socket.on("room_started", handleRoomStarted);
+        socket.on("active_users", handleActiveUsers);
 
         return () => {
             socket.emit("leave_room", {roomId, handle: auth.user});
 
             socket.off("problem_solved", handleProblemSolved);
             socket.off("room_started", handleRoomStarted);
+            socket.off("active_users", handleActiveUsers);
         };
     }, [roomId, socket]);
 
@@ -53,10 +60,11 @@ function RouteComponent() {
 
     return (
         <Box className="relative">
-            <RoomFloatingComponent roomDetail={roomDetail}/>
+            <RoomFloatingComponent roomDetail={roomDetail} activeUsers={activeUsers}/>
             {roomDetail.is_started && <HexComponent roomDetail={roomDetail}/>}
 
             <ChatBoxComponent roomDetails={roomDetail} refetch={refetch}/>
         </Box>
     );
 }
+

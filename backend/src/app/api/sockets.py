@@ -6,7 +6,7 @@ import pytz
 from src.app.db.redis import get_redis
 from src.app.core.socket import sio
 from src.app.schemas.schemas import MessageData
-from src.app.services.socket_services import send_system_message, cache_message
+from src.app.services.socket_services import send_system_message, cache_message, get_sids_in_room
 from src.app.utils.logger import logger
 
 
@@ -39,10 +39,13 @@ async def join_room(sid, data):
         await send_system_message(f"{handle}님이 접속하셨습니다.", room_id)
     redis = await get_redis()
     if redis:
-        cache_key = f"room:{room_id}:messages"
-        messages = await redis.lrange(cache_key, 0, -1)
-        messages = [json.loads(msg) for msg in messages]
-        await sio.emit("previous_messages", messages, to=sid)
+        sids = get_sids_in_room(room_id)
+        active_users = set()
+        for sid in sids:
+            handle = await redis.hget("sid_to_handle", sid)
+            if handle:
+                active_users.add(handle.decode('utf-8'))
+        await sio.emit("active_users", list(active_users))
 
 
 @sio.event
@@ -56,6 +59,15 @@ async def leave_room(sid, data):
     handle = data.get("handle")
     if handle:
         await send_system_message(f"{handle}님이 퇴장하셨습니다.", room_id)
+    redis = await get_redis()
+    if redis:
+        sids = get_sids_in_room(room_id)
+        active_users = set()
+        for sid in sids:
+            handle = await redis.hget("sid_to_handle", sid)
+            if handle:
+                active_users.add(handle.decode('utf-8'))
+        await sio.emit("active_users", list(active_users))
 
 
 @sio.event

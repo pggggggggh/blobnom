@@ -2,7 +2,7 @@ import {useState} from 'react';
 import HandleComponent from "./HandleComponent.tsx";
 import {TeamInfo} from "../types/RoomDetail.tsx";
 
-function TeamStatusBox({roomDetail, userColors}) {
+function TeamStatusBox({roomDetail, userColors, activeUsers}) {
     const [showAll, setShowAll] = useState(true);
 
     const toggleView = () => {
@@ -35,7 +35,7 @@ function TeamStatusBox({roomDetail, userColors}) {
                         <span className="font-light flex items-center">
         {team.users.map((player_info, idx) => (
             <span key={player_info.user.handle} className="inline-flex items-center space-x-1">
-                {player_info.is_active && (
+                {activeUsers.has(player_info.user.handle) && (
                     <span className="w-1 h-1 bg-green-500 rounded-full"></span>
                 )}
                 <span
