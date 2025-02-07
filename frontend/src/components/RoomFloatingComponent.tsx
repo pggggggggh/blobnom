@@ -12,7 +12,7 @@ import {useAuth} from "../context/AuthProvider.tsx";
 import TeamStatusBox from "./TeamStatusBox.tsx";
 
 
-const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
+const RoomFloatingComponent = ({roomDetail, activeUsers}: { roomDetail: RoomDetail, activeUsers: Set<string> }) => {
     const [timeLeft, setTimeLeft] = useState<string>("");
     const [timeBefore, setTimeBefore] = useState<string>("");
     const auth = useAuth()
@@ -101,7 +101,7 @@ const RoomFloatingComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
             }
 
 
-            <TeamStatusBox roomDetail={roomDetail} userColors={userColors}/>
+            <TeamStatusBox roomDetail={roomDetail} userColors={userColors} activeUsers={activeUsers}/>
         </>);
 }
 

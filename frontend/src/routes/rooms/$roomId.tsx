@@ -39,8 +39,9 @@ function RouteComponent() {
         };
 
         const handleActiveUsers = (data) => {
-            setActiveUsers(new Set(data))
-        }
+            setActiveUsers(new Set(Array.isArray(data) ? data : []));
+        };
+
 
         socket.on("problem_solved", handleProblemSolved);
         socket.on("room_started", handleRoomStarted);
