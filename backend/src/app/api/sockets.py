@@ -36,7 +36,7 @@ async def join_room(sid, data):
     handle = data.get("handle")
     if handle:
         print(f"{handle} joined {room_id}")
-        # await send_system_message(f"{handle}님이 접속하셨습니다.", room_id)
+        await send_system_message(f"{handle}님이 접속하셨습니다.", room_id)
     redis = await get_redis()
     if redis:
         cache_key = f"room:{room_id}:messages"
@@ -62,8 +62,8 @@ async def leave_room(sid, data):
     if room_id:
         await sio.leave_room(sid, f"room_{room_id}")
     handle = data.get("handle")
-    # if handle:
-    #     await send_system_message(f"{handle}님이 퇴장하셨습니다.", room_id)
+    if handle:
+        await send_system_message(f"{handle}님이 퇴장하셨습니다.", room_id)
     redis = await get_redis()
     if redis:
         sids = get_sids_in_room(room_id)
