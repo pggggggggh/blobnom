@@ -13,7 +13,6 @@ from src.app.utils.logger import logger
 @sio.event
 async def connect(sid, environ, auth):
     handle = auth.get("handle")
-    print(handle)
     print("connect", sid, handle)
     if handle:
         redis = await get_redis()
