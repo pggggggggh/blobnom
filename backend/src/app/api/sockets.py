@@ -39,6 +39,11 @@ async def join_room(sid, data):
         # await send_system_message(f"{handle}님이 접속하셨습니다.", room_id)
     redis = await get_redis()
     if redis:
+        cache_key = f"room:{room_id}:messages"
+        messages = await redis.lrange(cache_key, 0, -1)
+        messages = [json.loads(msg) for msg in messages]
+        await sio.emit("previous_messages", messages, to=sid)
+
         sids = get_sids_in_room(room_id)
         active_users = set()
         for sid in sids:
