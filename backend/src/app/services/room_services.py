@@ -12,14 +12,14 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session, joinedload
 from starlette import status
 
-from src.app.api.sockets import sio, room_send_message
+from src.app.core.socket import sio
 from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM, ROOM_CACHE_SECONDS
 from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
 from src.app.db.redis import get_redis
 from src.app.db.session import get_db, SessionLocal
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
 from src.app.services.member_services import convert_to_user_summary
-from src.app.services.socket_services import get_sids_in_room
+from src.app.services.socket_services import get_sids_in_room, send_system_message
 from src.app.utils.logger import logger
 from src.app.utils.scheduler import add_job
 from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
@@ -284,11 +284,7 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
             await sio.emit("problem_solved",
                            {"problem_id": problem["pid"], "username": problem["username"]},
                            room=f"room_{room_id}")
-            await sio.emit("room_new_message", {
-                "message": f'{problem["username"]}가 {problem["pid"]}를 해결하였습니다.',
-                "time": str(datetime.now(pytz.utc)),
-                "type": "system"
-            }, room=f"room_{room_id}")
+            await send_system_message(f'{problem["username"]}가 {problem["pid"]}를 해결하였습니다.', room_id)
 
     return True
 

@@ -5,13 +5,11 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from starlette.middleware.cors import CORSMiddleware
 
+from src.app.api import sockets
 from src.app.api.core_router import router as core_router
-from src.app.api.sockets import sio_app
 from src.app.core.rate_limit import limiter
-from src.app.db.database import SessionLocal
-from src.app.db.models import models
+from src.app.core.socket import sio_app
 from src.app.db.redis import monitor_redis
-from src.app.db.session import engine
 from src.app.utils.logger import logger
 from src.app.utils.misc_utils import check_unstarted_events
 

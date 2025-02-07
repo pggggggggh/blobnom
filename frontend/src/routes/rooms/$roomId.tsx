@@ -21,9 +21,7 @@ function RouteComponent() {
     const auth = useAuth();
 
     useEffect(() => {
-        if (!roomId || !socket) return;
-
-        socket.emit("join_room", {roomId, handle: auth.user});
+        if (!socket) return;
 
         const handleProblemSolved = (data) => {
             requestNotificationPermission().then(() => {

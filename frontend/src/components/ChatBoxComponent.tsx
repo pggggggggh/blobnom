@@ -27,25 +27,31 @@ const ChatBoxComponent = ({roomDetails, refetch}: { roomDetails: RoomDetail, ref
             }
             if (myTeamIndex != null) break;
         }
-    });
+    }, [roomDetails.team_info]);
 
     useEffect(() => {
         if (!socket) return;
+        socket.emit("join_room", {roomId: roomDetails.id, handle: auth.user});
+        const handlePreviousMessages = (data: ChatMessage[]) => {
+            setMessages(data)
+        }
         const handleNewMessage = (data: ChatMessage) => {
             if (data.type == "system") refetch();
             setMessages(prevMessages => [...prevMessages, data]);
         };
         socket.on("room_new_message", handleNewMessage);
+        socket.on("previous_messages", handlePreviousMessages);
         return () => {
             socket.off("room_new_message", handleNewMessage);
+            socket.off("previous_messages", handlePreviousMessages);
         };
-    }, [roomDetails.id, socket]);
+    }, [socket, roomDetails.id]);
 
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({behavior: "smooth"});
         }
-    }, [messages]);
+    }, [roomDetails.id, messages]);
 
     const handleSendMessage = (msg: string) => {
         const message: ChatMessage = {
