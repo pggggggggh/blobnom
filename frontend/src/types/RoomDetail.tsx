@@ -3,6 +3,7 @@ import {UserSummary} from "./UserSummary.tsx";
 export interface RoomDetail {
     id: number;
     name: string;
+    query: string;
     is_started: boolean;
     starts_at: string;
     ends_at: string;
