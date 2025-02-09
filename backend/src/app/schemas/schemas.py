@@ -120,7 +120,7 @@ class RoomDetail(BaseModel):
     ends_at: Optional[datetime]
     id: int
     name: str
-    query: str
+    query: Optional[str] = None
     owner: str
     is_private: bool
     is_user_in_room: bool
