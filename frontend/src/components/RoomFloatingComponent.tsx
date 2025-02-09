@@ -35,9 +35,11 @@ const RoomFloatingComponent = ({roomDetail, activeUsers}: { roomDetail: RoomDeta
         <>
             <Box className="absolute ">
                 <Text className="text-3xl font-extralight text-zinc-50 ">{roomDetail.name}</Text>
-                <Text className="text-xs font-extralight text-gray-300 mb-2">
-                    {roomDetail.query}
-                </Text>
+                {roomDetail.query &&
+                    <Text className="text-xs font-extralight text-gray-300 mb-2">
+                        {roomDetail.query}
+                    </Text>
+                }
                 <Text className="text-lg font-extralight text-zinc-50">
                     {roomDetail.is_started
                         ? timeLeft
