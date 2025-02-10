@@ -46,6 +46,8 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
                           without_mission_info: bool = False) -> RoomDetail:
     redis = await get_redis()
     cache_key = f"room:{room_id}:details"
+    if without_mission_info:
+        cache_key += ":without_mission_info"
 
     if redis:
         cached_data = await redis.get(cache_key)
