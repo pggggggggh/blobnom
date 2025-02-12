@@ -50,7 +50,7 @@ const SetRoomQuery = ({
 
 
     useEffect(() => {
-        setAddedQuery(`contestid:${contestIdRange[0]}-${contestIdRange[1]}`)
+        if (platform === Platform.CODEFORCES) setAddedQuery(`contestid:${contestIdRange[0]}-${contestIdRange[1]}`)
     }, [contestIdRange]);
 
     useEffect(() => {
