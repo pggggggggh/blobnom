@@ -124,6 +124,9 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
             for mission in sorted(missions, key=lambda m: m.index_in_room)
         ]
 
+    is_owner_a_member = True if room.owner is not None and (db.query(Member).filter(
+        Member.handle == room.owner.handle).first() is not None) else False
+
     room_detail = RoomDetail(
         starts_at=room.starts_at,
         ends_at=room.ends_at,
@@ -131,11 +134,10 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
         name=room.name,
         query=room.query,
         platform=room.platform,
+        is_owner_a_member=is_owner_a_member,
         owner=room.owner.handle if room.owner else "",
         is_private=room.is_private,
         is_user_in_room=is_user_in_room,
-        is_owner_a_member=True if db.query(Member).filter(
-            Member.handle == room.owner.handle).first() is not None else False,
         mode_type=room.mode_type,
         num_missions=room.num_mission,
         team_info=room_team_info,
