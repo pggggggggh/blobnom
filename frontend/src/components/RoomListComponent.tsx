@@ -32,7 +32,7 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                                 <Text fw={200} size="sm" c="dimmed">
                                     방장:&nbsp;
                                     {
-                                        <HandleComponent user={room.owner}/>
+                                        room.owner && <HandleComponent user={room.owner}/>
                                     }
                                 </Text>
                             </Box>
