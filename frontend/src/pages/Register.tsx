@@ -33,7 +33,7 @@ export default function Register() {
     function handleCopyToken() {
         if (solvedTokenData?.token) {
             navigator.clipboard.writeText(solvedTokenData.token).then(() => {
-                alert("토큰이 클립보드에 복사되었습니다!");
+                // alert("토큰이 클립보드에 복사되었습니다!");
             });
         }
     }
