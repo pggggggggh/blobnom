@@ -283,7 +283,7 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         unfreeze_offset_minutes=room_request.unfreeze_offset_minutes,
     )
     db.add(room)
-    db.commit()
+    db.flush()
 
     for idx, (username, team_idx) in enumerate(room_request.handles.items()):
         member = db.query(Member).filter(Member.handle == username).first()
@@ -301,7 +301,8 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         )
         room.players.append(room_player)
         db.add(room_player)
-        db.commit()
+        db.flush()
+    db.commit()
 
     add_job(
         handle_room_ready,
