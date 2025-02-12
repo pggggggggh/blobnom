@@ -146,7 +146,7 @@ async def get_solved_problem_list(problem_ids, handle, platform):
                                             params={"query": query})
                 items = response.json()["items"]
                 for item in items:
-                    solved_problems.add(item["problemId"])
+                    solved_problems.add(str(item["problemId"]))
         else:
             response = await client.get(f"https://codeforces.com/api/user.status?handle={handle}")
             results = response.json()["result"]
