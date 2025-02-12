@@ -29,6 +29,7 @@ async def get_room_summary(room: Room, db: Session) -> RoomSummary:
     return RoomSummary(
         id=room.id,
         name=room.name,
+        platform=room.platform,
         starts_at=room.starts_at,
         ends_at=room.ends_at,
         owner=await convert_to_user_summary(room.owner, db) if room.owner else None,
@@ -127,6 +128,7 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
         id=room.id,
         name=room.name,
         query=room.query,
+        platform=room.platform,
         owner=room.owner.handle if room.owner else "",
         is_private=room.is_private,
         is_user_in_room=is_user_in_room,
@@ -173,42 +175,41 @@ async def handle_room_ready(room_id: int):
 
         logger.info(f"{room_id} getting ready")
 
-        async with httpx.AsyncClient() as client:
-            new_query = room.query
-            for player in room.players:
-                new_query += f" !@{player.user.handle}"
+        new_query = room.query
+        for player in room.players:
+            new_query += f" !@{player.user.handle}"
 
-            logger.info(new_query)
-            problems = await fetch_problems(new_query)
-            if len(problems) < room.num_mission:
-                logger.info(f"Room with id {room_id} has no sufficient problems.")
-                room.is_deleted = True
-                db.add(room)
-                db.commit()
-                return
-
-            room.query = new_query
+        logger.info(new_query)
+        problems = await fetch_problems(new_query)
+        if len(problems) < room.num_mission:
+            logger.info(f"Room with id {room_id} has no sufficient problems.")
+            room.is_deleted = True
             db.add(room)
             db.commit()
+            return
 
-            problems = problems[:room.num_mission]
+        room.query = new_query
+        db.add(room)
+        db.commit()
 
-            for idx, problem in enumerate(problems):
-                mission = RoomMission(problem_id=problem["id"], difficulty=problem["difficulty"], room_id=room.id,
-                                      index_in_room=idx)
-                db.add(mission)
-                room.missions.append(mission)
-            db.add(room)
-            db.commit()
+        problems = problems[:room.num_mission]
 
-            add_job(
-                handle_room_start,
-                run_date=room.starts_at,
-                args=[room.id],
-                job_id=f"room_start_{room.id}"
-            )
+        for idx, problem in enumerate(problems):
+            mission = RoomMission(problem_id=problem["id"], difficulty=problem["difficulty"], room_id=room.id,
+                                  index_in_room=idx)
+            db.add(mission)
+            room.missions.append(mission)
+        db.add(room)
+        db.commit()
 
-            logger.info(f"Room {room_id} has set successfully. Will start at {room.starts_at}")
+        add_job(
+            handle_room_start,
+            run_date=room.starts_at,
+            args=[room.id],
+            job_id=f"room_start_{room.id}"
+        )
+
+        logger.info(f"Room {room_id} has set successfully. Will start at {room.starts_at}")
     except Exception as e:
         logger.info(f"Error setting room {room_id}: {e}")
     finally:

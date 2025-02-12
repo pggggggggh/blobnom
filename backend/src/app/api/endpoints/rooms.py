@@ -45,8 +45,8 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
                  .filter(Room.ends_at > datetime.now(tz=pytz.UTC))
                  )
     if myRoomOnly and token_handle is not None:  # 비회원으로 요청 들어온 경우 무시
-        user = db.query(User).filter(User.handle == token_handle).first()
-        if user:
+        member = db.query(Member).filter(Member.handle == token_handle).first()
+        for user in member.users:
             query = query.join(RoomPlayer).filter(RoomPlayer.user_id == user.id)
 
     total_rooms = query.count()
@@ -88,7 +88,7 @@ async def delete_room(request: Request, id: int, room_delete_request: RoomDelete
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
-    owner_member = db.query(Member).filter(Member.handle == room.owner.handle).first()
+    owner_member = room.owner.member
 
     if owner_member is None:
         if verify_password(room_delete_request.password, room.edit_pwd) is False:
@@ -140,22 +140,19 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
         raise HTTPException(status_code=400, detail="이미 존재하는 유저입니다.")
 
     if token_handle is None:  # 비회원 조인 시
-        existing_member = db.query(Member).filter(Member.handle == handle).first()
-        if existing_member is not None:
+        existing_user = db.query(User).filter(User.handle == handle, User.platform == room.platform).first()
+        if existing_user is not None and existing_user.member is not None:
             raise HTTPException(status_code=400, detail="가입된 유저입니다. 로그인해주시기 바랍니다.")
     else:
-        handle = token_handle
+        member = db.query(Member).filter(Member.handle == handle).first()
+        user = db.query(User).filter(User.member_id == member.id, User.platform == room.platform).first()
+        handle = user.handle
 
-    query = "@" + handle
-    solved_problems = await search_problems(query)
-    if len(solved_problems) == 0:
-        raise HTTPException(status_code=400, detail="유효하지 않은 핸들입니다.")
-
-    if not db.query(User).filter(User.handle == handle).first():
-        user = User(handle=handle)
+    if not db.query(User).filter(User.handle == handle, User.platform == room.platform).first():
+        user = User(handle=handle, platform=room.platform)
         db.add(user)
         db.flush()
-    user = db.query(User).filter(User.handle == handle).first()
+    user = db.query(User).filter(User.member_id == member.id, User.platform == room.platform).first()
 
     solved_mission_list = []
 
@@ -265,13 +262,15 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
 
     owner = None
     if token_handle is None:
-        owner = db.query(User).filter(User.handle == room_request.owner_handle).first()
+        owner = db.query(User).filter(User.handle == room_request.owner_handle,
+                                      User.platform == room_request.platform).first()
         if not owner:
-            owner = User(handle=room_request.owner_handle)
+            owner = User(handle=room_request.owner_handle, platform=room_request.platform)
             db.add(owner)
             db.flush()
     else:
-        owner = db.query(User).filter(User.handle == token_handle).first()
+        member = db.query(Member).filter(Member.handle == token_handle)
+        owner = db.query(User).filter(User.member_id == member, User.platform == room_request.platform).first()
 
     if token_handle is None and owner is not None and owner.member is not None:
         raise HTTPException(status_code=400, detail="가입된 유저입니다. 로그인해주시기 바랍니다.")
@@ -286,6 +285,7 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         name=room_request.title,
         query=room_request.query,
         owner=owner,
+        platform=room_request.platform,
         num_mission=num_mission,
         entry_pwd=hash_password(room_request.entry_pin) if room_request.entry_pin else None,
         edit_pwd=hash_password(room_request.edit_password) if room_request.edit_password else None,
@@ -303,9 +303,9 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
 
     for idx, (username, team_idx) in enumerate(room_request.handles.items()):
         print(username, team_idx)
-        user = db.query(User).filter(User.handle == username).first()
+        user = db.query(User).filter(User.handle == username, User.platform == room.platform).first()
         if not user:
-            user = User(handle=username.lower())
+            user = User(handle=username.lower(), platform=room.platform)
             db.add(user)
             db.flush()
         room_player = RoomPlayer(

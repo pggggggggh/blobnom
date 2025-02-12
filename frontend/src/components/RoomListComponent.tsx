@@ -1,4 +1,4 @@
-import {Badge, Box, Button, Card, Group, Stack, Text} from "@mantine/core";
+import {Badge, Box, Button, Card, Group, Image, Stack, Text} from "@mantine/core";
 import {Link} from "@tanstack/react-router";
 import {RoomSummary} from "../types/Summaries.tsx";
 import TokenOutlinedIcon from '@mui/icons-material/TokenOutlined';
@@ -6,8 +6,12 @@ import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import dayjs, {Dayjs} from "dayjs";
 import HandleComponent from "./HandleComponent.tsx";
+import logo_boj from "/platforms/boj.png";
+import logo_codeforces from "/platforms/codeforces.png";
+import {Platform} from "../types/Platforms.tsx";
 
 const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_datetime: Dayjs }) => {
+    console.log(rooms)
     return (
         <Stack gap="sm">
             {rooms?.map((room) => {
@@ -21,10 +25,12 @@ const RoomListComponent = ({rooms, cur_datetime}: { rooms: RoomSummary[], cur_da
                     >
                         <Group justify="space-between">
                             <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
-                                <Text fw={300} size="lg">
-                                    {room.is_private && <LockIcon fontSize={"inherit"} className="mr-1 "/>}
+                                <Text fw={300} size="lg" className="flex items-center gap-1">
+                                    {room.is_private && <LockIcon fontSize={"inherit"} className="mr-1"/>}
+                                    <Image w={16} src={room.platform == Platform.BOJ ? logo_boj : logo_codeforces}/>
                                     {room.name}
                                 </Text>
+
                                 <Text fw={200} size="sm" c="dimmed">
                                     방장:&nbsp;
                                     {

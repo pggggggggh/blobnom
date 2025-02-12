@@ -1,4 +1,5 @@
 import {UserSummary} from "./UserSummary.tsx";
+import {Platform} from "./Platforms.tsx";
 
 export interface MainData {
     total_pages: number;
@@ -9,6 +10,7 @@ export interface MainData {
 export interface RoomSummary {
     id: number;
     name: string;
+    platform: Platform;
     starts_at: string;
     ends_at: string;
     owner: UserSummary;

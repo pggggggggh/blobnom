@@ -2,7 +2,7 @@ from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, Boolean, E
 from sqlalchemy.orm import relationship
 
 from src.app.core.constants import MAX_TEAM_PER_ROOM
-from src.app.core.enums import ProblemType, ModeType, ContestType, Role
+from src.app.core.enums import Platform, ModeType, ContestType, Role
 from src.app.db.database import Base, TimestampMixin
 
 
@@ -18,6 +18,7 @@ class User(TimestampMixin, Base):
     owned_rooms = relationship("Room", back_populates="owner", foreign_keys="[Room.owner_id]")
     user_rooms = relationship("RoomPlayer", back_populates="user")
     solved_missions = relationship("RoomMission", back_populates="solved_user")
+    platform = Column(Enum(Platform), nullable=False, default=Platform.BOJ)
 
 
 class Member(TimestampMixin, Base):
@@ -31,6 +32,7 @@ class Member(TimestampMixin, Base):
 
     rating = Column(Integer, default=1200)
 
+    users = relationship("User", back_populates="member")
     registered_contests = relationship("ContestMember", back_populates="member")
 
 
@@ -58,6 +60,7 @@ class Room(TimestampMixin, Base):
 
     unfreeze_offset_minutes = Column(Integer, nullable=True)
     mode_type = Column(Enum(ModeType), nullable=False, default=ModeType.LAND_GRAB_SOLO)
+    platform = Column(Enum(Platform), nullable=False)
     winning_team_index = Column(Integer, default=0)
 
     winner = Column(String, nullable=False, default="")
@@ -76,8 +79,8 @@ class RoomMission(TimestampMixin, Base):
     id = Column(Integer, primary_key=True)
     index_in_room = Column(Integer, nullable=False)
 
-    problem_type = Column(Enum(ProblemType), nullable=False, default=ProblemType.BOJ)
-    problem_id = Column(Integer)
+    platform = Column(Enum(Platform), nullable=False, default=Platform.BOJ)
+    problem_id = Column(String)
     difficulty = Column(Integer, default=0)
 
     room_id = Column(ForeignKey("rooms.id"))

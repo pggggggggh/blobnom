@@ -1,4 +1,4 @@
-import {ActionIcon, Box, Button, Text} from "@mantine/core";
+import {ActionIcon, Box, Button, Image, Text} from "@mantine/core";
 import {RoomDetail} from "../types/RoomDetail.tsx";
 import RoomJoinModal from "./Modals/RoomJoinModal.tsx";
 import {modals} from "@mantine/modals";
@@ -10,6 +10,9 @@ import RoomDeleteModal from "./Modals/RemoveModal.tsx";
 import {userColors} from "../constants/UserColorsFill.tsx";
 import {useAuth} from "../context/AuthProvider.tsx";
 import TeamStatusBox from "./TeamStatusBox.tsx";
+import {Platform} from "../types/Platforms.tsx";
+import logo_boj from "/platforms/boj.png";
+import logo_codeforces from "/platforms/codeforces.png";
 
 
 const RoomFloatingComponent = ({roomDetail, activeUsers}: { roomDetail: RoomDetail, activeUsers: Set<string> }) => {
@@ -34,6 +37,7 @@ const RoomFloatingComponent = ({roomDetail, activeUsers}: { roomDetail: RoomDeta
     return (
         <>
             <Box className="absolute ">
+                <Image w={16} src={roomDetail.platform == Platform.BOJ ? logo_boj : logo_codeforces}/>
                 <Text className="text-3xl font-extralight text-zinc-50 ">{roomDetail.name}</Text>
                 {roomDetail.query &&
                     <Text className="text-xs font-extralight text-gray-300 mb-2 max-w-xs truncate">

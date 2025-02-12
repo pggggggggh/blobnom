@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 
+from src.app.core.enums import Platform
 from src.app.db.models.models import SolvedacToken, Member, User, RoomMission, ContestMember
 from src.app.schemas.schemas import RegisterRequest, LoginRequest, UserSummary, MemberDetails, ContestHistory
 from src.app.utils.security_utils import hash_password, verify_password, create_access_token
@@ -30,8 +31,9 @@ async def get_member_details(handle: str, db: Session) -> MemberDetails:
     member = db.query(Member).filter(Member.handle == handle).first()
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
-    user = db.query(User).filter(User.handle == handle).first()
-    num_solved_missions = db.query(RoomMission).filter(RoomMission.solved_user_id == user.id).count()
+    num_solved_missions = 0
+    for user in member.users:
+        num_solved_missions += db.query(RoomMission).filter(RoomMission.solved_user_id == user.id).count()
 
     contest_history_list = []
     contest_members = db.query(ContestMember).filter(ContestMember.member_id == member.id).options(
@@ -110,6 +112,7 @@ async def register(register_request: RegisterRequest, db: Session):
     if not user:
         user = User(
             handle=member.handle,
+            platform=Platform.BOJ
         )
     user.member = member
     db.add(user)

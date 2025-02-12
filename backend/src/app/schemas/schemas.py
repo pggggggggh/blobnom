@@ -3,7 +3,7 @@ from typing import List, Optional, Dict
 
 from pydantic import BaseModel
 
-from src.app.core.enums import ModeType, ContestType
+from src.app.core.enums import ModeType, ContestType, Platform
 
 
 class RoomCreateRequest(BaseModel):
@@ -16,6 +16,7 @@ class RoomCreateRequest(BaseModel):
     is_private: bool
     max_players: int
     edit_password: str
+    platform: Platform
     entry_pin: str
     unfreeze_offset_minutes: Optional[int]
     starts_at: datetime
@@ -100,6 +101,7 @@ class ContestSummary(BaseModel):
 class RoomSummary(BaseModel):
     id: int
     name: str
+    platform: Platform
     starts_at: datetime
     ends_at: datetime
     owner: Optional[UserSummary] = None
@@ -120,6 +122,7 @@ class RoomDetail(BaseModel):
     ends_at: Optional[datetime]
     id: int
     name: str
+    platform: Platform
     query: Optional[str] = None
     owner: str
     is_private: bool

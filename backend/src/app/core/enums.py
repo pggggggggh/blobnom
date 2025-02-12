@@ -6,7 +6,7 @@ class Role(enum.Enum):
     MEMBER = "member"
 
 
-class ProblemType(enum.Enum):
+class Platform(enum.Enum):
     BOJ = "boj"
     CODEFORCES = "codeforces"
 

@@ -1,9 +1,11 @@
 import {UserSummary} from "./UserSummary.tsx";
+import {Platform} from "./Platforms.tsx";
 
 export interface RoomDetail {
     id: number;
     name: string;
     query: string;
+    platform: Platform;
     is_started: boolean;
     starts_at: string;
     ends_at: string;
