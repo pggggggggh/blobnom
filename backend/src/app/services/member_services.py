@@ -8,22 +8,36 @@ from sqlalchemy.orm import Session, joinedload
 
 from src.app.core.enums import Platform
 from src.app.db.models.models import SolvedacToken, Member, User, RoomMission, ContestMember
-from src.app.schemas.schemas import RegisterRequest, LoginRequest, UserSummary, MemberDetails, ContestHistory
+from src.app.schemas.schemas import RegisterRequest, LoginRequest, UserSummary, MemberDetails, ContestHistory, \
+    BindRequest
 from src.app.utils.security_utils import hash_password, verify_password, create_access_token
-from src.app.utils.solvedac_utils import fetch_user_info
+from src.app.utils.platforms_utils import token_validate
+
+
+async def convert_to_member_summary(member: Member, db: Session) -> UserSummary:
+    users = db.query(User).filter(User.member_id == member.id).all()
+    accounts = {}
+    for user in users:
+        accounts[user.platform] = user.handle
+    return UserSummary(
+        handle=member.handle,
+        rating=member.rating,
+        role=member.role,
+        accounts=accounts
+    )
 
 
 async def convert_to_user_summary(user: User, db: Session) -> UserSummary:
-    member = db.query(Member).filter(Member.handle == user.handle).first()
-    role = None
-    rating = None
+    # 아직 비회원 정보가 user에 남아있기에 사용하는 레거시 함수, 삭제 예정
+    handle = user.handle
+    member = user.member
     if member is not None:
-        role = member.role
-        rating = member.rating
+        return await convert_to_member_summary(member, db)
     return UserSummary(
-        handle=user.handle,
-        rating=rating,
-        role=role,
+        handle=handle,
+        rating=None,
+        role=None,
+        accounts={Platform.BOJ: handle}
     )
 
 
@@ -67,7 +81,7 @@ async def get_member_details(handle: str, db: Session) -> MemberDetails:
     )
 
 
-async def create_solvedac_token(db: Session):
+async def create_token(db: Session):
     token_str = str(uuid.uuid4())
     token = SolvedacToken(
         token=token_str,
@@ -90,22 +104,14 @@ async def register(register_request: RegisterRequest, db: Session):
             status_code=409,
             detail="Handle or email already taken"
         )
-    user_info = await fetch_user_info(register_request.handle)
-    if user_info is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    bio = user_info["bio"]
-    solvedac_token = db.query(SolvedacToken).filter(SolvedacToken.token == bio).first()
-    if solvedac_token is None or solvedac_token.expires_at < datetime.now(pytz.utc) or solvedac_token.is_used:
-        raise HTTPException(status_code=400, detail="Token validation failed")
+    await token_validate(register_request.handle, "BOJ", db)
 
     member = Member(
         handle=register_request.handle.lower(),
         email=register_request.email.lower(),
         password=hash_password(register_request.password),
     )
-    solvedac_token.is_used = True
     db.add(member)
-    db.add(solvedac_token)
     db.flush()
 
     user = db.query(User).filter(User.handle == member.handle).first()
@@ -132,3 +138,25 @@ async def login(login_request: LoginRequest, db: Session):
     # if login_request.remember_me:
     #     td = timedelta(days=30)
     return create_access_token(data={"sub": member.handle}, expires_delta=td)
+
+
+async def bind_account(bind_request: BindRequest, member_handle: str, db: Session):
+    await token_validate(bind_request.handle, bind_request.platform, db)
+
+    member = db.query(Member).filter(Member.handle == member_handle).first()
+    existing_user = db.query(User).filter(User.handle == bind_request.handle,
+                                          User.platform == bind_request.platform).first()
+    if existing_user:
+        raise HTTPException(status_code=409, detail="이미 연동된 핸들입니다.")
+
+    user = db.query(User).filter(User.member_id == member.id, User.platform == bind_request.platform).first()
+    if user:
+        user.handle = bind_request.handle.lower()
+    else:
+        user = User(
+            handle=bind_request.handle.lower(),
+            member_id=member.id,
+            platform=bind_request.platform,
+        )
+    db.add(user)
+    db.commit()

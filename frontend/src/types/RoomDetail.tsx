@@ -38,7 +38,8 @@ export interface RoomPlayerInfo {
 }
 
 export interface MissionInfo {
-    problem_id: number;
+    platform: Platform;
+    problem_id: string;
     solved_at: string | null;
     solved_player_index: number | null;
     solved_team_index: number;

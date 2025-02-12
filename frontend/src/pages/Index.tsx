@@ -82,14 +82,17 @@ const Index: React.FC = () => {
                         leftSection={<SearchIcon aria-label="검색 아이콘"/>}
                         value={search}
                         onChange={(event) => handleSearchChange(event.currentTarget.value)}
-                        className="flex-1 min-w-0 mr-2"
+                        className="flex-1 min-w-0"
                         aria-label="방 검색"
                     />
-                    <Link to="/create" className="flex-shrink-0">
-                        <Button fw={300} leftSection={<AddIcon/>}>
-                            방 만들기
-                        </Button>
-                    </Link>
+                    {
+                        auth.user &&
+                        <Link to="/create" className="flex-shrink-0 ml-2">
+                            <Button fw={300} leftSection={<AddIcon/>}>
+                                방 만들기
+                            </Button>
+                        </Link>
+                    }
 
                 </Group>
 

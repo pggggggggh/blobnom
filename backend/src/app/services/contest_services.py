@@ -15,7 +15,7 @@ from src.app.db.models.models import Member, Contest, ContestMember, Room, Conte
 from src.app.db.redis import get_redis
 from src.app.db.session import SessionLocal
 from src.app.schemas.schemas import ContestCreateRequest, ContestSummary, ContestDetails
-from src.app.services.member_services import convert_to_user_summary
+from src.app.services.member_services import convert_to_user_summary, convert_to_member_summary
 from src.app.services.room_services import handle_room_start, handle_room_ready, get_room_detail
 from src.app.utils.contest_utils import elo_update, codeforces_update
 from src.app.utils.logger import logger
@@ -63,15 +63,14 @@ async def get_contest_details(contest_id: int, db: Session, token_handle: str):
     if not contest:
         raise HTTPException(status_code=404, detail="Contest not found")
 
-    users = {
-        member.member.handle: db.query(User).filter(User.handle == member.member.handle).first()
-        for member in contest.contest_members
-    }
-
-    participant_futures = [convert_to_user_summary(user, db) for user in users.values()]
+    participant_futures = [convert_to_member_summary(cm.member, db) for cm in contest.contest_members]
     participants = await asyncio.gather(*participant_futures)
 
-    is_user_registered = token_handle in users
+    if token_handle:
+        member = db.query(Member).filter(Member.handle == token_handle).first()
+        is_user_registered = member in contest.contest_members
+    else:
+        is_user_registered = False
 
     room_details = {}
     user_room_id = None

@@ -1,6 +1,6 @@
 import React from 'react';
 import {useForm} from '@mantine/form';
-import {Button, Container, Stack, Title} from '@mantine/core';
+import {Button, Container, Radio, Stack, Title} from '@mantine/core';
 import {RoomForm} from '../types/RoomForm';
 import {
     SetRoomOwner,
@@ -13,6 +13,7 @@ import {
 } from '../components/RoomForm';
 import {useCreateRoom} from '../hooks/hooks';
 import {useAuth} from "../context/AuthProvider.tsx";
+import {Platform} from "../types/Platforms.tsx";
 
 function CreateRoom() {
     const auth = useAuth();
@@ -24,6 +25,7 @@ function CreateRoom() {
 
     const form = useForm<RoomForm>({
         initialValues: {
+            platform: Platform.BOJ,
             owner_handle: '',
             edit_password: '',
             handles: auth.user ? {[auth.user]: 0} : {},
@@ -102,11 +104,13 @@ function CreateRoom() {
 
                     <SetRoomTitle titleProps={form.getInputProps('title')}/>
 
+
                     <SetRoomPin
                         isPrivateProps={form.getInputProps('is_private', {type: 'checkbox'})}
                         entryPinProps={form.getInputProps('entry_pin')}
                         onClearPin={() => form.setFieldValue('entry_pin', '')}
                     />
+
 
                     {!auth.user &&
                         <SetRoomOwner
@@ -114,7 +118,19 @@ function CreateRoom() {
                             passwordProps={form.getInputProps('edit_password')}
                         />}
 
+                    <Radio.Group
+                        {...form.getInputProps('platform')}
+                        required
+                        label="문제 출처"
+
+                    >
+                        <Radio value={Platform.BOJ} label="백준"/>
+                        <Radio value={Platform.CODEFORCES} label="코드포스"/>
+                    </Radio.Group>
+
+
                     <SetRoomQuery
+                        platform={form.values.platform}
                         queryValue={form.values.query}
                         queryProps={form.getInputProps('query')}
                         handleValue={form.values.handles}

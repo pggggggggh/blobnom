@@ -1,10 +1,11 @@
 import {useMemberDetail} from "../hooks/hooks.tsx";
-import {Avatar, Card, Container, Text, Title} from "@mantine/core";
+import {Avatar, Card, Container, Group, Text, Title} from "@mantine/core";
 import {Route} from "../routes/members/$handle.tsx";
 import RatingChartComponent from "../components/RatingChartComponent.tsx";
-import {getRatingColor} from "../utils/MemberUtils.tsx";
+import {getRatingColor} from "../utils/MiscUtils.tsx";
 import React from "react";
 import HandleComponent from "../components/HandleComponent.tsx";
+import PlatformIcons from "../constants/PlatformIcons.tsx";
 
 const MemberProfilePage = () => {
     const {handle} = Route.useParams();
@@ -29,9 +30,22 @@ const MemberProfilePage = () => {
                     {memberDetails.bio || "사용자의 자기소개가 없습니다."}
                 </Text>
             </div>
-
-            {/* Stats Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                {Object.entries(memberDetails.user_summary.accounts).map(([key, value]) => (
+                    <Card shadow="sm" padding="md" radius="md" key={key} className="flex items-center">
+                        <Group className="w-full">
+                            {PlatformIcons[key]}
+                            <div>
+                                <Text size="sm" className="text-gray-300">
+                                    {key.toUpperCase()} 계정
+                                </Text>
+                                <Text className="text-lg font-semibold">{value}</Text>
+                            </div>
+                        </Group>
+                    </Card>
+                ))}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 <Card shadow="sm" padding="lg" radius="md" className="text-center">
                     <Text size="lg" className="">해결한 문제 수</Text>
                     <Text className="text-2xl font-bold">{memberDetails.num_solved_missions}</Text>

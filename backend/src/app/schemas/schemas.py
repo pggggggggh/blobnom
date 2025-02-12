@@ -49,6 +49,11 @@ class LoginRequest(BaseModel):
     remember_me: bool
 
 
+class BindRequest(BaseModel):
+    handle: str
+    platform: Platform
+
+
 class RoomDeleteRequest(BaseModel):
     password: str
 
@@ -58,6 +63,7 @@ class UserSummary(BaseModel):
     role: Optional[str] = None  # 비회원일 경우 None
     rating: Optional[int] = None
     guild_mark: Optional[str] = None
+    accounts: Dict[str, str]
 
 
 class RoomTeamInfo(BaseModel):
@@ -72,7 +78,8 @@ class RoomTeamInfo(BaseModel):
 
 
 class RoomMissionInfo(BaseModel):
-    problem_id: int
+    problem_id: str
+    platform: Platform
     index_in_room: int
     solved_at: Optional[datetime]
     solved_player_index: Optional[int]

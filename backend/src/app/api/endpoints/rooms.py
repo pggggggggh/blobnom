@@ -1,6 +1,7 @@
 import math
 import random
 from datetime import datetime, timedelta
+from typing import Optional
 
 import httpx
 import pytz
@@ -21,7 +22,7 @@ from src.app.services.room_services import get_room_summary, get_room_detail, up
     handle_room_ready, fetch_problems
 from src.app.utils.scheduler import add_job
 from src.app.utils.security_utils import hash_password, verify_password, get_handle_by_token
-from src.app.utils.solvedac_utils import search_problems
+from src.app.utils.platforms_utils import search_problems
 
 router = APIRouter()
 
@@ -32,7 +33,7 @@ async def room_list(request: Request, page: int, search: str = "", activeOnly: b
                     db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
     query = (
         db.query(Room)
-        .options(joinedload(Room.owner).joinedload(User.member))  # owner의 member까지 미리 로드
+        .options(joinedload(Room.owner))
         .filter(Room.name.ilike(f"%{search}%"))
         .filter(Room.is_deleted == False)
         .filter(Room.is_contest_room == False)
@@ -88,7 +89,7 @@ async def delete_room(request: Request, id: int, room_delete_request: RoomDelete
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
 
-    owner_member = room.owner.member
+    owner_member = room.owner
 
     if owner_member is None:
         if verify_password(room_delete_request.password, room.edit_pwd) is False:
@@ -111,10 +112,14 @@ async def delete_room(request: Request, id: int, room_delete_request: RoomDelete
 
 @router.post("/join/{id}")
 @limiter.limit("5/minute")
-async def room_join(request: Request, id: int, handle: str = Body(...), password: str = Body(None),
+async def room_join(request: Request,
+                    id: int,
+                    password: Optional[str] = Body(None),
                     db: Session = Depends(get_db),
                     token_handle: str = Depends(get_handle_by_token)):
     room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
+    if token_handle is None:
+        raise HTTPException(status_code=401)
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
     now = datetime.now(tz=pytz.UTC)
@@ -136,29 +141,21 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
     if len(room_players) >= room.max_players:
         raise HTTPException(status_code=400, detail="인원이 가득 찼습니다.")
 
-    if any(player.user.handle == handle for player in room_players):
+    if any(player.user.member and player.user.member.handle == token_handle for player in room_players):
         raise HTTPException(status_code=400, detail="이미 존재하는 유저입니다.")
 
-    if token_handle is None:  # 비회원 조인 시
-        existing_user = db.query(User).filter(User.handle == handle, User.platform == room.platform).first()
-        if existing_user is not None and existing_user.member is not None:
-            raise HTTPException(status_code=400, detail="가입된 유저입니다. 로그인해주시기 바랍니다.")
-    else:
-        member = db.query(Member).filter(Member.handle == handle).first()
-        user = db.query(User).filter(User.member_id == member.id, User.platform == room.platform).first()
-        handle = user.handle
+    member = db.query(Member).filter(Member.handle == token_handle).first()
+    user = db.query(User).filter(User.member_id == member.id, User.platform == room.platform).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="해당 플랫폼의 방을 이용하려면 먼저 연동하셔야 합니다.")
 
-    if not db.query(User).filter(User.handle == handle, User.platform == room.platform).first():
-        user = User(handle=handle, platform=room.platform)
-        db.add(user)
-        db.flush()
     user = db.query(User).filter(User.member_id == member.id, User.platform == room.platform).first()
 
     solved_mission_list = []
 
     if room.is_started:
         unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
-        solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, handle)
+        solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, user.handle, room.platform)
         if token_handle is None and not room.is_private and len(solved_mission_list) > 2:  # 비회원의 경우에만 제한
             raise HTTPException(status_code=400, detail="비회원은 이미 해결한 문제가 2문제를 초과하면 참여할 수 없습니다.")
 
@@ -180,19 +177,19 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
     db.add(player)
     db.commit()
 
-    if room.is_started and token_handle is None:  # 비회원인 경우, 가입하자마자 솔브 처리
-        missions = db.query(RoomMission).filter(
-            RoomMission.problem_id.in_(solved_mission_list),
-            RoomMission.room_id == id
-        ).all()
-        for mission in missions:
-            mission.solved_at = room.starts_at
-            mission.solved_room_player_id = player.id
-            mission.solved_team_index = team_index
-            mission.solved_user = user
-            db.add(mission)
-        db.commit()
-        await update_score(id, db)
+    # if room.is_started and token_handle is None:  # 비회원인 경우, 가입하자마자 솔브 처리
+    #     missions = db.query(RoomMission).filter(
+    #         RoomMission.problem_id.in_(solved_mission_list),
+    #         RoomMission.room_id == id
+    #     ).all()
+    #     for mission in missions:
+    #         mission.solved_at = room.starts_at
+    #         mission.solved_room_player_id = player.id
+    #         mission.solved_team_index = team_index
+    #         mission.solved_user = user
+    #         db.add(mission)
+    #     db.commit()
+    #     await update_score(id, db)
 
     redis = await get_redis()
     if redis:
@@ -204,7 +201,7 @@ async def room_join(request: Request, id: int, handle: str = Body(...), password
 
 @router.post("/solved")
 @limiter.limit("10/minute")
-async def room_solved(request: Request, room_id: int = Body(...), problem_id: int = Body(...),
+async def room_solved(request: Request, room_id: int = Body(...), problem_id: str = Body(...),
                       db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
     room = (db.query(Room)
             .options(joinedload(Room.players))
@@ -212,6 +209,8 @@ async def room_solved(request: Request, room_id: int = Body(...), problem_id: in
             .filter(Room.id == room_id)
             .first())
 
+    if not token_handle:
+        raise HTTPException(status_code=401)
     if not room:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
     if datetime.now(tz=pytz.UTC) > room.ends_at:
@@ -228,19 +227,13 @@ async def room_solved(request: Request, room_id: int = Body(...), problem_id: in
 
     async with httpx.AsyncClient() as client:
         target_players = []
-        if token_handle is None:
-            players = room.players
-            for player in players:
-                if player.user.member is None:
-                    target_players.append(player)
-            random.shuffle(target_players)
-        else:
-            for player in room.players:
-                if player.user.handle == token_handle:
-                    target_players.append(player)
-                    break
-            if len(target_players) == 0:
-                raise HTTPException(status_code=400, detail="You are not in this room")
+        member = db.query(Member).filter(Member.handle == token_handle).first()
+        for player in room.players:
+            if player.user.member == member:
+                target_players.append(player)
+                break
+        if len(target_players) == 0:
+            raise HTTPException(status_code=400, detail="You are not in this room")
 
         verdict = await update_solver(room_id, [mission], target_players, db, client)
         if verdict is False:
@@ -262,21 +255,12 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
 
     owner = None
     if token_handle is None:
-        owner = db.query(User).filter(User.handle == room_request.owner_handle,
-                                      User.platform == room_request.platform).first()
-        if not owner:
-            owner = User(handle=room_request.owner_handle, platform=room_request.platform)
-            db.add(owner)
-            db.flush()
+        raise HTTPException(status_code=401)
     else:
-        member = db.query(Member).filter(Member.handle == token_handle)
-        owner = db.query(User).filter(User.member_id == member, User.platform == room_request.platform).first()
+        owner = db.query(Member).filter(Member.handle == token_handle).first()
 
-    if token_handle is None and owner is not None and owner.member is not None:
-        raise HTTPException(status_code=400, detail="가입된 유저입니다. 로그인해주시기 바랍니다.")
-
-    problem_ids = await fetch_problems(room_request.query)  # 방 생성 시 문제 모자란지 테스트
     num_mission = 3 * room_request.size * (room_request.size + 1) + 1
+    problem_ids = await fetch_problems(room_request.query, num_mission, room_request.platform)  # 방 생성 시 문제 모자란지 테스트
 
     if len(problem_ids) < num_mission:
         raise HTTPException(status_code=400, detail="쿼리에 해당하는 문제 수가 너무 적습니다.")
@@ -302,12 +286,12 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
     db.commit()
 
     for idx, (username, team_idx) in enumerate(room_request.handles.items()):
-        print(username, team_idx)
-        user = db.query(User).filter(User.handle == username, User.platform == room.platform).first()
+        member = db.query(Member).filter(Member.handle == username).first()
+        if not member:
+            raise HTTPException(status_code=400, detail="참가자 중 존재하지 않는 회원이 있습니다.")
+        user = db.query(User).filter(User.member_id == member.id, User.platform == room_request.platform).first()
         if not user:
-            user = User(handle=username.lower(), platform=room.platform)
-            db.add(user)
-            db.flush()
+            raise HTTPException(status_code=400, detail="참가자 중 해당 플랫폼 연동이 완료되지 않은 회원이 있습니다.")
         room_player = RoomPlayer(
             user_id=user.id,
             room_id=room.id,
@@ -317,7 +301,7 @@ async def room_create(request: Request, room_request: RoomCreateRequest, db: Ses
         )
         room.players.append(room_player)
         db.add(room_player)
-    db.commit()
+        db.commit()
 
     add_job(
         handle_room_ready,

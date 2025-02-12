@@ -159,6 +159,9 @@ const HeaderComponent = () => {
                                     <Menu.Item component={Link} to={`members/${auth.user}`}>
                                         내 정보
                                     </Menu.Item>
+                                    <Menu.Item color="" component={Link} to="members/settings">
+                                        계정 연동
+                                    </Menu.Item>
                                     <Menu.Item color="red" component={Link} to="/logout">
                                         로그아웃
                                     </Menu.Item>

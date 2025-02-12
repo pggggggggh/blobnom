@@ -2,7 +2,7 @@ import {api} from "./instance.tsx";
 import {RoomDetail} from "../types/RoomDetail.tsx";
 import {MainData} from "../types/Summaries.tsx";
 import {RoomForm} from "../types/RoomForm.tsx";
-import {LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
+import {BindPayload, LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
 import {ContestDetail} from "../types/ContestDetail.tsx";
 import {MemberDetails} from "../types/MemberDetails.tsx";
 
@@ -40,8 +40,13 @@ export const postSolveProblem = async (data: { roomId: number; problemId: number
     return response.data;
 }
 
-export const postJoinRoom = async (data: { roomId: number; handle: string; password: string; }) => {
-    const response = await api.post(`/rooms/join/${data.roomId}`, {handle: data.handle, password: data.password});
+export const postJoinRoom = async (data: { roomId: number; password: string | null; }) => {
+    let response;
+    if (data.password != null) {
+        response = await api.post(`/rooms/join/${data.roomId}`, {password: data.password});
+    } else {
+        response = await api.post(`/rooms/join/${data.roomId}`);
+    }
     return response.data;
 }
 export const postRegisterContest = async (data: { contestId: number }) => {
@@ -55,6 +60,7 @@ export const postUnregisterContest = async (data: { contestId: number }) => {
 }
 
 export const postCreateRoom = async (data: RoomForm) => {
+    console.log(data)
     const response = await api.post(`/rooms/create`, data);
     return response.data;
 }
@@ -79,5 +85,10 @@ export async function fetchSolvedAcToken(): Promise<SolvedAcTokenResponse> {
 
 export async function postRegister(payload: RegisterPayload): Promise<{ result: 'success' }> {
     const response = await api.post<{ result: 'success' }>('/auth/register', payload);
+    return response.data;
+}
+
+export async function postBindAccount(payload: BindPayload): Promise<{ result: 'success' }> {
+    const response = await api.post<{ result: 'success' }>('/auth/bind', payload);
     return response.data;
 }

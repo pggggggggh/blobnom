@@ -1,9 +1,9 @@
 import {Tooltip} from '@mantine/core';
 import {Link} from "@tanstack/react-router";
-import {getRatingColor} from "../utils/MemberUtils.tsx";
+import {getRatingColor} from "../utils/MiscUtils.tsx";
 import {UserSummary} from "../types/UserSummary.tsx";
 
-const HandleComponent = ({user, linkToProfile = true}: { user: UserSummary, linkToProfile: boolean }) => {
+const HandleComponent = ({user, linkToProfile = true}: { user: UserSummary, linkToProfile?: boolean }) => {
 
     return (
         <>

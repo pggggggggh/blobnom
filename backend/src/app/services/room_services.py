@@ -18,11 +18,11 @@ from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
 from src.app.db.redis import get_redis
 from src.app.db.session import get_db, SessionLocal
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
-from src.app.services.member_services import convert_to_user_summary
+from src.app.services.member_services import convert_to_user_summary, convert_to_member_summary
 from src.app.services.socket_services import get_sids_in_room, send_system_message
 from src.app.utils.logger import logger
 from src.app.utils.scheduler import add_job
-from src.app.utils.solvedac_utils import fetch_problems, get_solved_problem_list
+from src.app.utils.platforms_utils import fetch_problems, get_solved_problem_list
 
 
 async def get_room_summary(room: Room, db: Session) -> RoomSummary:
@@ -32,7 +32,7 @@ async def get_room_summary(room: Room, db: Session) -> RoomSummary:
         platform=room.platform,
         starts_at=room.starts_at,
         ends_at=room.ends_at,
-        owner=await convert_to_user_summary(room.owner, db) if room.owner else None,
+        owner=await convert_to_member_summary(room.owner, db) if room.owner else None,
         num_players=len(room.players),
         max_players=room.max_players,
         num_missions=room.num_mission,
@@ -50,10 +50,10 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
     if without_mission_info:
         cache_key += ":without_mission_info"
 
-    if redis:
-        cached_data = await redis.get(cache_key)
-        if cached_data:
-            return pickle.loads(cached_data)
+    # if redis:
+    #     cached_data = await redis.get(cache_key)
+    #     if cached_data:
+    #         return pickle.loads(cached_data)
 
     query = db.query(Room).filter(Room.id == room_id)
     if not without_mission_info:
@@ -71,7 +71,8 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
     players = room.players
     is_user_in_room = False
     for player in players:
-        if player.user.handle == handle:
+        if player.user.member and player.user.member.handle == handle:
+            print(player.user.member.handle)
             is_user_in_room = True
             break
 
@@ -111,6 +112,7 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
     else:
         room_mission_info = [
             RoomMissionInfo(
+                platform=mission.platform,
                 problem_id=mission.problem_id,
                 index_in_room=mission.index_in_room,
                 solved_at=mission.solved_at,
@@ -180,7 +182,7 @@ async def handle_room_ready(room_id: int):
             new_query += f" !@{player.user.handle}"
 
         logger.info(new_query)
-        problems = await fetch_problems(new_query)
+        problems = await fetch_problems(new_query, room.num_mission, room.platform)
         if len(problems) < room.num_mission:
             logger.info(f"Room with id {room_id} has no sufficient problems.")
             room.is_deleted = True
@@ -196,7 +198,7 @@ async def handle_room_ready(room_id: int):
 
         for idx, problem in enumerate(problems):
             mission = RoomMission(problem_id=problem["id"], difficulty=problem["difficulty"], room_id=room.id,
-                                  index_in_room=idx)
+                                  index_in_room=idx, platform=room.platform)
             db.add(mission)
             room.missions.append(mission)
         db.add(room)
@@ -252,7 +254,7 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
 
     newly_solved_problems = []
     for player in room_players:
-        solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.handle)
+        solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.handle, room.platform)
         for mission in missions:
             if not mission.solved_at and mission.problem_id in solved_problem_list:
                 newly_solved_problems.append(

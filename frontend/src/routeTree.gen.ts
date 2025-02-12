@@ -19,6 +19,7 @@ import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as ContestsIndexImport } from './routes/contests/index'
 import { Route as RoomsRoomIdImport } from './routes/rooms/$roomId'
+import { Route as MembersSettingsImport } from './routes/members/settings'
 import { Route as MembersHandleImport } from './routes/members/$handle'
 import { Route as ContestsContestIdImport } from './routes/contests/$contestId'
 
@@ -69,6 +70,12 @@ const ContestsIndexRoute = ContestsIndexImport.update({
 const RoomsRoomIdRoute = RoomsRoomIdImport.update({
   id: '/rooms/$roomId',
   path: '/rooms/$roomId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const MembersSettingsRoute = MembersSettingsImport.update({
+  id: '/members/settings',
+  path: '/members/settings',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -144,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MembersHandleImport
       parentRoute: typeof rootRoute
     }
+    '/members/settings': {
+      id: '/members/settings'
+      path: '/members/settings'
+      fullPath: '/members/settings'
+      preLoaderRoute: typeof MembersSettingsImport
+      parentRoute: typeof rootRoute
+    }
     '/rooms/$roomId': {
       id: '/rooms/$roomId'
       path: '/rooms/$roomId'
@@ -172,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/members/$handle': typeof MembersHandleRoute
+  '/members/settings': typeof MembersSettingsRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
   '/contests': typeof ContestsIndexRoute
 }
@@ -185,6 +200,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/members/$handle': typeof MembersHandleRoute
+  '/members/settings': typeof MembersSettingsRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
   '/contests': typeof ContestsIndexRoute
 }
@@ -199,6 +215,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/members/$handle': typeof MembersHandleRoute
+  '/members/settings': typeof MembersSettingsRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
   '/contests/': typeof ContestsIndexRoute
 }
@@ -214,6 +231,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/contests/$contestId'
     | '/members/$handle'
+    | '/members/settings'
     | '/rooms/$roomId'
     | '/contests'
   fileRoutesByTo: FileRoutesByTo
@@ -226,6 +244,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/contests/$contestId'
     | '/members/$handle'
+    | '/members/settings'
     | '/rooms/$roomId'
     | '/contests'
   id:
@@ -238,6 +257,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/contests/$contestId'
     | '/members/$handle'
+    | '/members/settings'
     | '/rooms/$roomId'
     | '/contests/'
   fileRoutesById: FileRoutesById
@@ -252,6 +272,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ContestsContestIdRoute: typeof ContestsContestIdRoute
   MembersHandleRoute: typeof MembersHandleRoute
+  MembersSettingsRoute: typeof MembersSettingsRoute
   RoomsRoomIdRoute: typeof RoomsRoomIdRoute
   ContestsIndexRoute: typeof ContestsIndexRoute
 }
@@ -265,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ContestsContestIdRoute: ContestsContestIdRoute,
   MembersHandleRoute: MembersHandleRoute,
+  MembersSettingsRoute: MembersSettingsRoute,
   RoomsRoomIdRoute: RoomsRoomIdRoute,
   ContestsIndexRoute: ContestsIndexRoute,
 }
@@ -287,6 +309,7 @@ export const routeTree = rootRoute
         "/register",
         "/contests/$contestId",
         "/members/$handle",
+        "/members/settings",
         "/rooms/$roomId",
         "/contests/"
       ]
@@ -314,6 +337,9 @@ export const routeTree = rootRoute
     },
     "/members/$handle": {
       "filePath": "members/$handle.tsx"
+    },
+    "/members/settings": {
+      "filePath": "members/settings.tsx"
     },
     "/rooms/$roomId": {
       "filePath": "rooms/$roomId.tsx"

@@ -10,3 +10,14 @@ export const getRatingColor = (rating) => {
     return "text-gray-400";
 };
 
+export const getRatingFill = (rating) => {
+    if (rating >= 2600) return "fill-red-600";
+    if (rating >= 2400) return "fill-red-600";
+    if (rating >= 2100) return "fill-orange-500";
+    if (rating >= 1900) return "fill-purple-500";
+    if (rating >= 1600) return "fill-blue-500";
+    if (rating >= 1400) return "fill-cyan-400";
+    if (rating >= 1200) return "fill-green-500";
+    return "fill-gray-400";
+};
+

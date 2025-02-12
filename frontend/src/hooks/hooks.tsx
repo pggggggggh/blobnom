@@ -1,6 +1,6 @@
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {RoomDetail} from "../types/RoomDetail.tsx";
-import {LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
+import {BindPayload, LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
 import {
     deleteRoom,
     fetchContestDetail,
@@ -9,6 +9,7 @@ import {
     fetchMemberDetails,
     fetchRoomDetail,
     fetchSolvedAcToken,
+    postBindAccount,
     postCreateRoom,
     postJoinRoom,
     postLogin,
@@ -189,6 +190,39 @@ export const useFetchSolvedAcToken = () => {
         enabled: false,
     });
 };
+
+
+export const useBindAccount = () => {
+    return useMutation({
+        mutationFn: (payload: BindPayload) => postBindAccount(payload),
+        onSuccess: () => {
+            modals.open({
+                children: (
+                    <InfoModal detailMessage="연동이 완료되었습니다."/>
+                ),
+                onClose: () => {
+                    window.location.href = "/"
+                }
+            });
+        },
+        onError: (error: any) => {
+            console.log(error);
+            let detailMessage = "회원가입 중 오류가 발생했습니다.";
+            if (error?.response) {
+                if (error.response.status === 400) {
+                    detailMessage = "토큰 검증에 실패했습니다.";
+                } else if (error.response.status === 404) {
+                    detailMessage = "존재하지 않는 사용자입니다.";
+                } else if (error.response.status === 429) {
+                    detailMessage = "잠시 후 시도해주세요.";
+                }
+            }
+            modals.open({
+                children: <ErrorModal detailMessage={detailMessage}/>,
+            });
+        }
+    });
+}
 
 
 export const useRegister = () => {

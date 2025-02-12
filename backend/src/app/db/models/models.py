@@ -15,7 +15,6 @@ class User(TimestampMixin, Base):
     member_id = Column(ForeignKey("members.id"), nullable=True)
 
     member = relationship("Member")
-    owned_rooms = relationship("Room", back_populates="owner", foreign_keys="[Room.owner_id]")
     user_rooms = relationship("RoomPlayer", back_populates="user")
     solved_missions = relationship("RoomMission", back_populates="solved_user")
     platform = Column(Enum(Platform), nullable=False, default=Platform.BOJ)
@@ -33,6 +32,7 @@ class Member(TimestampMixin, Base):
     rating = Column(Integer, default=1200)
 
     users = relationship("User", back_populates="member")
+    owned_rooms = relationship("Room", back_populates="owner", foreign_keys="[Room.owner_id]")
     registered_contests = relationship("ContestMember", back_populates="member")
 
 
@@ -55,8 +55,8 @@ class Room(TimestampMixin, Base):
     max_players = Column(Integer, default=MAX_TEAM_PER_ROOM)
     is_private = Column(Boolean)
 
-    owner_id = Column(ForeignKey("users.id"), nullable=True)
-    owner = relationship("User", foreign_keys=[owner_id], back_populates="owned_rooms")
+    owner_id = Column(ForeignKey("members.id"), nullable=True)
+    owner = relationship("Member", foreign_keys=[owner_id], back_populates="owned_rooms")
 
     unfreeze_offset_minutes = Column(Integer, nullable=True)
     mode_type = Column(Enum(ModeType), nullable=False, default=ModeType.LAND_GRAB_SOLO)

@@ -1,6 +1,6 @@
 import ReactApexChart from "react-apexcharts";
 import {ContestHistory} from "../types/MemberDetails.tsx";
-import {getRatingColor} from "../utils/MemberUtils.tsx";
+import {getRatingColor} from "../utils/MiscUtils.tsx";
 
 const RatingChartComponent = ({contestHistory}: { contestHistory: ContestHistory[] }) => {
     if (contestHistory.length === 0) {

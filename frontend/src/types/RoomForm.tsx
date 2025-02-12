@@ -1,9 +1,12 @@
+import {Platform} from "./Platforms.tsx";
+
 export interface RoomForm {
     owner_handle: string;
     edit_password: string;
     handles: { [key: string]: number };
     is_teammode: boolean;
     mode: string;
+    platform: Platform;
     title: string;
     query: string;
     size: number;
