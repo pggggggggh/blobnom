@@ -104,7 +104,7 @@ async def register(register_request: RegisterRequest, db: Session):
             status_code=409,
             detail="Handle or email already taken"
         )
-    await token_validate(register_request.handle, "BOJ", db)
+    await token_validate(register_request.handle, Platform.BOJ, db)
 
     member = Member(
         handle=register_request.handle.lower(),

@@ -13,9 +13,13 @@ const RoomJoinModal = ({roomId, is_private}: { roomId: number, is_private: boole
         mode: 'uncontrolled',
         initialValues: {
             // handle: '',
-            password: null,
+            password: "",
         },
         validate: {
+            password: (value) => {
+                if (!is_private) return null;
+                if (value.length == 0) return "비밀번호를 입력해주세요."
+            }
             // handle: (value) => {
             //     if (auth.user) return null;
             //     if (!/^[a-z0-9_]{1,50}$/.test(value)) {

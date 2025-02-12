@@ -66,7 +66,7 @@ export const postCreateRoom = async (data: RoomForm) => {
 }
 
 export const deleteRoom = async (data: { roomId: number; password: string }) => {
-    const response = await api.post(`/rooms/delete/${data.roomId}`, {roomId: data.roomId, password: data.password});
+    const response = await api.post(`/rooms/delete/${data.roomId}`, {password: data.password});
     return response.data;
 };
 

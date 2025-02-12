@@ -99,8 +99,9 @@ const ChatBoxComponent = ({roomDetails, refetch}: { roomDetails: RoomDetail, ref
                                                     {msg.message}
                                                 </Text>
                                                 <Text className="min-w-12 text-gray-400 text-xs ml-2">
-                                                    {dayjs(msg.time).fromNow()}
+                                                    {dayjs().isBefore(msg.time) ? "지금" : dayjs(msg.time).fromNow()}
                                                 </Text>
+
                                             </>
                                             :
                                             <>

@@ -15,7 +15,7 @@ from src.app.core.rate_limit import limiter
 from src.app.db.database import get_db
 from src.app.db.models.models import User, Room, RoomPlayer, RoomMission, Member, Contest
 from src.app.db.redis import get_redis
-from src.app.schemas.schemas import RoomCreateRequest, RoomDeleteRequest
+from src.app.schemas.schemas import RoomCreateRequest, RoomDeleteRequest, RoomJoinRequest
 from src.app.services.contest_services import get_contest_summary
 from src.app.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
     get_solved_problem_list, \
@@ -114,7 +114,7 @@ async def delete_room(request: Request, id: int, room_delete_request: RoomDelete
 @limiter.limit("5/minute")
 async def room_join(request: Request,
                     id: int,
-                    password: Optional[str] = Body(None),
+                    room_join_request: RoomJoinRequest,
                     db: Session = Depends(get_db),
                     token_handle: str = Depends(get_handle_by_token)):
     room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
@@ -128,7 +128,7 @@ async def room_join(request: Request,
 
     if room.mode_type == ModeType.LAND_GRAB_TEAM:
         raise HTTPException(status_code=400, detail="팀전에는 참여할 수 없습니다.")
-    if room.is_private and verify_password(password, room.entry_pwd) is False:
+    if room.is_private and verify_password(room_join_request.password, room.entry_pwd) is False:
         raise HTTPException(status_code=400, detail="비밀번호가 틀립니다.")
 
     room_players = (

@@ -58,6 +58,10 @@ class RoomDeleteRequest(BaseModel):
     password: str
 
 
+class RoomJoinRequest(BaseModel):
+    password: str
+
+
 class UserSummary(BaseModel):
     handle: str
     role: Optional[str] = None  # 비회원일 경우 None

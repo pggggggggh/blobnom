@@ -41,7 +41,7 @@ export default function SettingsPage() {
         <Container size="xs" my="xl">
             <form onSubmit={form.onSubmit(onRegister)}>
                 <Box mb="md">
-                    <Title order={2}>계정 연동</Title>
+                    <Title order={2}>Codeforces 계정 연동</Title>
                     <Text>
                         Codeforces 로그인 후,{' '}
                         <Anchor href="https://codeforces.com/settings/social" target="_blank" rel="noopener noreferrer">

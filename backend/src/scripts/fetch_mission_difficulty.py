@@ -4,7 +4,7 @@ import requests
 from sqlalchemy.orm import Session
 
 from src.app.db.database import get_db
-from src.app.db.models.models import RoomMission
+from src.app.db.models.models import RoomMission, Room, User
 
 
 def get_mission_difficulty(problem_ids):
@@ -40,7 +40,3 @@ def update_difficulty(batch_size=50):
                 problem.difficulty = difficulties[problem.problem_id]
                 db.add(problem)
         db.commit()
-
-
-if __name__ == "__main__":
-    update_difficulty()

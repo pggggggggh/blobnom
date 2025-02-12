@@ -207,12 +207,14 @@ export const useBindAccount = () => {
         },
         onError: (error: any) => {
             console.log(error);
-            let detailMessage = "회원가입 중 오류가 발생했습니다.";
+            let detailMessage = "연동 중 오류가 발생했습니다.";
             if (error?.response) {
                 if (error.response.status === 400) {
-                    detailMessage = "토큰 검증에 실패했습니다.";
+                    detailMessage = "토큰 검증에 실패했습니다. 적용되는 데 시간이 걸릴 수 있으니 잠시만 기다려주세요.";
                 } else if (error.response.status === 404) {
                     detailMessage = "존재하지 않는 사용자입니다.";
+                } else if (error.response.status === 409) {
+                    detailMessage = "이미 다른 계정과 연동된 핸들입니다.";
                 } else if (error.response.status === 429) {
                     detailMessage = "잠시 후 시도해주세요.";
                 }

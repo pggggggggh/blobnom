@@ -22,7 +22,7 @@ async def token_validate(handle, platform, db: Session):
         if platform == Platform.BOJ:
             response = await client.get(f"https://solved.ac/api/v3/user/show?handle={handle}")
             if response.status_code == 404:
-                return None
+                raise HTTPException(status_code=404, detail="User not found")
             user_info = response.json()
             if user_info is None:
                 raise HTTPException(status_code=404, detail="User not found")
@@ -38,7 +38,7 @@ async def token_validate(handle, platform, db: Session):
             response = await client.get(f"https://codeforces.com/api/user.info?handles={handle}")
             data = response.json()
             if data["status"] == "FAILED":
-                raise HTTPException(status_code=400, detail=data["comment"])
+                raise HTTPException(status_code=404, detail="User not found")
             user_info = data["result"][0]
             candi = []
             candi.append(user_info.get("firstName", ""))
@@ -50,6 +50,8 @@ async def token_validate(handle, platform, db: Session):
                     continue
                 return True
             raise HTTPException(status_code=400, detail="Token validation failed")
+        else:
+            raise HTTPException(status_code=404, detail="Unknown platform")
 
 
 async def fetch_problems(query, num_problems, platform):
