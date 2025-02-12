@@ -55,7 +55,7 @@ function TeamStatusBox({roomDetail, userColors, activeUsers}) {
                                         </Menu.Target>
                                         <Menu.Dropdown>
                                             <Menu.Item component="a"
-                                                       href={`http://localhost:5173/members/${player_info.user.handle}`}
+                                                       href={`/members/${player_info.user.handle}`}
                                                        target="_blank">
                                                 프로필 보기
                                             </Menu.Item>
