@@ -84,7 +84,7 @@ const SetRoomQuery = ({
                                 <Text>~</Text>
                                 <NumberInput
                                     value={contestIdRange[1]}
-                                    onChange={(v) => setContestIdRange([contestIdRange[1], v])}
+                                    onChange={(v) => setContestIdRange([contestIdRange[0], v])}
                                 />
                             </Group>
                         </Input.Wrapper>
