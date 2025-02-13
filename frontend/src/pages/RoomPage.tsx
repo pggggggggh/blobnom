@@ -117,7 +117,7 @@ export default function RoomPage() {
         };
     }, [roomDetails?.id]);
 
-    if ((error as AxiosError)?.status === 404) return <NotFound/>;
+    if ((error as AxiosError)?.status === 404 || (error as AxiosError)?.status === 422) return <NotFound/>;
     if (isLoading) return <div></div>;
 
     return (

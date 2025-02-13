@@ -38,7 +38,7 @@ import {isAxiosError} from "axios";
 
 // source : https://github.com/TanStack/query/discussions/372
 const MAX_RETRIES = 3
-const HTTP_STATUS_TO_NOT_RETRY = [400, 401, 403, 404];
+const HTTP_STATUS_TO_NOT_RETRY = [400, 401, 403, 404, 422];
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
