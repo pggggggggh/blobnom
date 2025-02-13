@@ -1,75 +1,25 @@
 import {ActionIcon, Box, ScrollArea, Text} from "@mantine/core";
 import {useEffect, useRef, useState} from "react";
-import {useAuth} from "../context/AuthProvider.tsx";
+import {useAuth} from "../../context/AuthProvider.tsx";
 import MinimizeIcon from '@mui/icons-material/Minimize';
-import {ChatMessage} from "../types/ChatMessage.tsx";
-import {RoomDetail} from "../types/RoomDetail.tsx";
+import {ChatMessage} from "../../types/ChatMessage.tsx";
 import dayjs from "dayjs";
-import {useSocket} from "../context/SocketProvider.tsx";
 
-const ChatBoxComponent = ({roomDetails, refetch}: { roomDetails: RoomDetail, refetch: any }) => {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage[], handleSendMessage: any }) => {
     const auth = useAuth()
     const [isChatMinimized, setIsChatMinimized] = useState(false);
-    const [myTeamIndex, setMyTeamIndex] = useState(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
-    const socket = useSocket()
-
-    useEffect(() => {
-        if (!auth.user) return;
-        for (let i = 0; i < roomDetails.team_info.length; i++) {
-            for (const user of roomDetails.team_info[i].users) {
-                if (user.user.handle == auth.user) {
-                    setMyTeamIndex(i)
-                    break;
-                }
-            }
-            if (myTeamIndex != null) break;
-        }
-    }, [roomDetails.team_info]);
-
-    useEffect(() => {
-        if (!socket) return;
-        socket.emit("join_room", {roomId: roomDetails.id, handle: auth.user});
-        const handlePreviousMessages = (data: ChatMessage[]) => {
-            setMessages(data)
-        }
-        const handleNewMessage = (data: ChatMessage) => {
-            if (data.type == "system") refetch();
-            setMessages(prevMessages => [...prevMessages, data]);
-        };
-        socket.on("room_new_message", handleNewMessage);
-        socket.on("previous_messages", handlePreviousMessages);
-        return () => {
-            socket.off("room_new_message", handleNewMessage);
-            socket.off("previous_messages", handlePreviousMessages);
-        };
-    }, [socket, roomDetails.id]);
 
     useEffect(() => {
         if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({behavior: "smooth"});
+            messagesEndRef.current.scrollIntoView();
         }
-    }, [roomDetails.id, messages]);
-
-    const handleSendMessage = (msg: string) => {
-        const message: ChatMessage = {
-            handle: auth.user,
-            type: "message",
-            message: msg,
-            time: new Date(),
-            team_index: myTeamIndex
-        }
-        socket.emit("room_send_message", {
-            roomId: roomDetails.id,
-            payload: message
-        })
-    }
+    }, [messages]);
 
     return (
         <Box
-            className={`absolute left-4 bottom-4 xs:w-40 lg:w-80 bg-black bg-opacity-50 rounded-lg backdrop-blur-sm transition-all duration-300 ${
+            className={`absolute left-0 bottom-0 xs:w-40 lg:w-80 bg-black bg-opacity-50 rounded-lg backdrop-blur-sm ${
                 isChatMinimized ? 'h-10' : 'h-64'
             }`}
         >

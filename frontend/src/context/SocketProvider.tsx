@@ -9,9 +9,15 @@ export const SocketProvider = ({children}: { children: React.ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
+        if (!auth.user) return;
+
         const newSocket = io(import.meta.env.VITE_API_URL, {
             transports: ["websocket"],
             auth: {handle: auth.user},
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
         });
 
         setSocket(newSocket);
@@ -20,10 +26,20 @@ export const SocketProvider = ({children}: { children: React.ReactNode }) => {
             console.log("Socket connected");
         });
 
-        return () => {
+        const handleBeforeUnload = () => {
+            console.log("Window closing");
             newSocket.disconnect();
         };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            console.log("Socket disconnected");
+            newSocket.disconnect();
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
     }, [auth.user]);
+
 
     return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 };

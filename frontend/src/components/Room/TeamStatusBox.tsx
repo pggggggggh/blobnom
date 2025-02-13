@@ -1,8 +1,8 @@
 import {useState} from 'react';
 import {Menu} from '@mantine/core';
-import {TeamInfo} from "../types/RoomDetail.tsx";
-import {Platform} from "../types/Platforms.tsx";
-import HandleComponent from "./HandleComponent.tsx";
+import {TeamInfo} from "../../types/RoomDetail.tsx";
+import {Platform} from "../../types/Platforms.tsx";
+import HandleComponent from "../HandleComponent.tsx";
 
 function TeamStatusBox({roomDetail, userColors, activeUsers}) {
     const [showAll, setShowAll] = useState(true);

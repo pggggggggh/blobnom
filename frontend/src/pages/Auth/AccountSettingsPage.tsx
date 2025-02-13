@@ -1,11 +1,11 @@
 import {ActionIcon, Alert, Anchor, Box, Button, Container, Stack, Text, TextInput, Title} from "@mantine/core";
-import {useBindAccount, useFetchSolvedAcToken} from "../hooks/hooks";
+import {useBindAccount, useFetchSolvedAcToken} from "../../hooks/hooks.tsx";
 import {useNavigate} from "@tanstack/react-router";
 import {useForm} from "@mantine/form";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import {Platform} from "../types/Platforms.tsx";
+import {Platform} from "../../types/Platforms.tsx";
 
-export default function SettingsPage() {
+export default function AccountSettingsPage() {
     const navigate = useNavigate();
     const bindMutation = useBindAccount()
     const {data: solvedTokenData, refetch, isFetching, isError} = useFetchSolvedAcToken();

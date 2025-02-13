@@ -1,6 +1,6 @@
 import {Container, Skeleton, Stack, Title} from "@mantine/core";
-import {useContestList} from "../hooks/hooks.tsx";
-import ContestListComponent from "../components/Contest/ContestListComponent.tsx";
+import {useContestList} from "../../hooks/hooks.tsx";
+import ContestListComponent from "../../components/Contest/ContestListComponent.tsx";
 import React from "react";
 import dayjs from "dayjs";
 

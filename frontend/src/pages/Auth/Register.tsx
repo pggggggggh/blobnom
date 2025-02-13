@@ -1,5 +1,5 @@
 import {ActionIcon, Alert, Box, Button, Container, PasswordInput, Stack, Text, TextInput, Title} from "@mantine/core";
-import {useFetchSolvedAcToken, useRegister} from "../hooks/hooks";
+import {useFetchSolvedAcToken, useRegister} from "../../hooks/hooks.tsx";
 import {useNavigate} from "@tanstack/react-router";
 import {useForm} from "@mantine/form";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';

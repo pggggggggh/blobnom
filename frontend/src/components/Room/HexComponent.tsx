@@ -1,12 +1,12 @@
-import {RoomDetail} from "../types/RoomDetail.tsx";
+import {RoomDetail} from "../../types/RoomDetail.tsx";
 import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "react-hexgrid";
 import {Button, Center, HoverCard, Paper, Text} from "@mantine/core";
-import {useSolveProblem} from "../hooks/hooks.tsx";
+import {useSolveProblem} from "../../hooks/hooks.tsx";
 import dayjs from "dayjs";
-import {gradientNull, userColors} from "../constants/UserColorsFill.tsx";
-import {getDiffTime} from "../utils/TimeUtils.tsx";
-import {Platform} from "../types/Platforms.tsx";
-import {getRatingFill} from "../utils/MiscUtils.tsx";
+import {gradientNull, userColors} from "../../constants/UserColorsFill.tsx";
+import {getDiffTime} from "../../utils/TimeUtils.tsx";
+import {Platform} from "../../types/Platforms.tsx";
+import {getRatingFill} from "../../utils/MiscUtils.tsx";
 
 export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const missions = roomDetail.mission_info;

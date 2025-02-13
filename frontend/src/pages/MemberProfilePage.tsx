@@ -1,11 +1,12 @@
 import {useMemberDetail} from "../hooks/hooks.tsx";
-import {Avatar, Card, Container, Group, Text, Title} from "@mantine/core";
+import {Anchor, Avatar, Card, Container, Group, Text, Title} from "@mantine/core";
 import {Route} from "../routes/members/$handle.tsx";
 import RatingChartComponent from "../components/RatingChartComponent.tsx";
 import {getRatingColor} from "../utils/MiscUtils.tsx";
 import React from "react";
 import HandleComponent from "../components/HandleComponent.tsx";
 import PlatformIcons from "../constants/PlatformIcons.tsx";
+import {Platform} from "../types/Platforms.tsx";
 
 const MemberProfilePage = () => {
     const {handle} = Route.useParams();
@@ -39,7 +40,14 @@ const MemberProfilePage = () => {
                                 <Text size="sm" className="text-gray-300">
                                     {key.toUpperCase()} 계정
                                 </Text>
-                                <Text className="text-lg font-semibold">{value}</Text>
+                                <Anchor
+                                    className="no-underline text-inherit"
+                                    target="_blank"
+                                    href={
+                                        key === Platform.BOJ ? `https://www.acmicpc.net/user/${value}` : `https://codeforces.com/profile/${value}`
+                                    }>
+                                    <Text className="text-lg font-semibold">{value}</Text>
+                                </Anchor>
                             </div>
                         </Group>
                     </Card>

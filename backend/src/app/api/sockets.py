@@ -24,7 +24,25 @@ async def connect(sid, environ, auth):
 async def disconnect(sid):
     print("disconnect", sid)
     redis = await get_redis()
+
     if redis:
+        handle = await redis.hget("sid_to_handle", sid)
+        if handle:
+            handle = handle.decode('utf-8')
+        rooms = sio.rooms(sid)
+        for room in rooms:
+            if room.startswith("room_"):
+                room_id = room.split("_")[1]
+                await sio.leave_room(sid, room)
+                if handle:
+                    await send_system_message(f"{handle}님이 퇴장하셨습니다.", room_id)
+                sids = get_sids_in_room(room_id)
+                active_users = set()
+                for room_sid in sids:
+                    room_handle = await redis.hget("sid_to_handle", room_sid)
+                    if room_handle:
+                        active_users.add(room_handle.decode('utf-8'))
+                await sio.emit("active_users", list(active_users), room=f"room_{room_id}")
         await redis.hdel("sid_to_handle", sid)
 
 

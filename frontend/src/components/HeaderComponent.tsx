@@ -1,4 +1,4 @@
-import {Avatar, Burger, Button, Drawer, Group, Image, Menu, Stack, Title} from '@mantine/core';
+import {Avatar, Burger, Button, Drawer, Group, Image, Menu, Stack} from '@mantine/core';
 import {useDisclosure, useMediaQuery} from '@mantine/hooks';
 import logo from '../assets/blobnom.png';
 import {Link} from '@tanstack/react-router';
@@ -65,17 +65,17 @@ const HeaderComponent = () => {
                             alt="Logo"
                             style={{objectFit: 'contain', height: '40px'}}
                         />
-                        <Title
-                            order={4}
-                            style={{
-                                marginLeft: '8px',
-                                color: '#fff',
-                                fontWeight: 300,
-                                textDecoration: 'none',
-                            }}
-                        >
-                            Blobnom
-                        </Title>
+                        {/*<Title*/}
+                        {/*    order={4}*/}
+                        {/*    style={{*/}
+                        {/*        marginLeft: '8px',*/}
+                        {/*        color: '#fff',*/}
+                        {/*        fontWeight: 300,*/}
+                        {/*        textDecoration: 'none',*/}
+                        {/*    }}*/}
+                        {/*>*/}
+                        {/*    Blobnom*/}
+                        {/*</Title>*/}
                     </Link>
 
                     <div className="ml-5">

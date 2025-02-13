@@ -26,25 +26,23 @@ import isBetween from 'dayjs/plugin/isBetween';
 import utc from 'dayjs/plugin/utc';
 import {ModalsProvider} from "@mantine/modals";
 import Theme from "./constants/Theme.tsx";
-import {Notifications} from "@mantine/notifications";
+import '@mantine/notifications/styles.css';
 import {AuthProvider} from "./context/AuthProvider.tsx";
 import {useSearchStore} from './store/searchStore'; // Zustand 스토어 임포트
 // Create a new router instance
 // `createRouter` is already used in `router.tsx`, so we can import router from there
 import router from './router';
-import {SocketProvider} from "./context/SocketProvider.tsx"; // Import router
+import {SocketProvider} from "./context/SocketProvider.tsx";
+import {Notifications} from "@mantine/notifications"; // Import router
 
-// Create a QueryClient instance
 const queryClient = new QueryClient();
 
-// dayjs 설정
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 dayjs.extend(isBetween);
 dayjs.locale("ko");
 dayjs.extend(utc);
 
-// Root 컴포넌트: Zustand와 브라우저 히스토리 동기화
 const AppWrapper: React.FC = () => {
     const {search, page, activeOnly, setSearch, setPage, setActiveOnly} = useSearchStore();
 
@@ -82,17 +80,17 @@ const AppWrapper: React.FC = () => {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <ColorSchemeScript forceColorScheme="dark"/>
-            <MantineProvider forceColorScheme="dark" theme={Theme}>
-                <AuthProvider>
-                    <ModalsProvider>
-                        <SocketProvider>
-                            <Notifications/>
+            <AuthProvider>
+                <SocketProvider>
+                    <ColorSchemeScript forceColorScheme="dark"/>
+                    <MantineProvider forceColorScheme="dark" theme={Theme}>
+                        <ModalsProvider>
+                            <Notifications limit={10} position="top-right"/>
                             <RouterProvider router={router}/>
-                        </SocketProvider>
-                    </ModalsProvider>
-                </AuthProvider>
-            </MantineProvider>
+                        </ModalsProvider>
+                    </MantineProvider>
+                </SocketProvider>
+            </AuthProvider>
         </QueryClientProvider>
     );
 };

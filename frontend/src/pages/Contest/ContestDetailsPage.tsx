@@ -1,12 +1,12 @@
 import {Button, Card, Collapse, Container, Paper, Stack, Text, Title} from "@mantine/core";
-import {useContestDetail, useRegisterContest, useUnregisterContest} from "../hooks/hooks.tsx";
-import {Route} from "../routes/contests/$contestId.tsx";
+import {useContestDetail, useRegisterContest, useUnregisterContest} from "../../hooks/hooks.tsx";
+import {Route} from "../../routes/contests/$contestId.tsx";
 import React, {useState} from "react";
 import dayjs from "dayjs";
 import {Link} from "@tanstack/react-router";
-import ContestLeaderboardComponent from "../components/Contest/ContestLeaderboardComponent.tsx";
-import ContestDetailsCards from "../components/Contest/ContestDetailsCards.tsx";
-import HandleComponent from "../components/HandleComponent.tsx";
+import ContestLeaderboardComponent from "../../components/Contest/ContestLeaderboardComponent.tsx";
+import ContestDetailsCards from "../../components/Contest/ContestDetailsCards.tsx";
+import HandleComponent from "../../components/HandleComponent.tsx";
 import {KeyboardArrowDown, KeyboardArrowUp} from "@mui/icons-material";
 
 const ContestDetailsPage = () => {

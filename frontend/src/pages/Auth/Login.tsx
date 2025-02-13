@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Alert, Button, Container, PasswordInput, Stack, TextInput, Title } from "@mantine/core";
-import { useLogin } from "../hooks/hooks";
-import { useNavigate } from "@tanstack/react-router";
-import { useForm } from "@mantine/form";
+import {useState} from "react";
+import {Alert, Button, Container, PasswordInput, Stack, TextInput, Title} from "@mantine/core";
+import {useLogin} from "../../hooks/hooks.tsx";
+import {useNavigate} from "@tanstack/react-router";
+import {useForm} from "@mantine/form";
 
 
 export default function Login() {
@@ -25,7 +25,7 @@ export default function Login() {
         setError(null);
         console.log(values)
         loginMutation.mutate(
-            { handle: values.handle, password: values.password, remember_me: values.rememberMe },
+            {handle: values.handle, password: values.password, remember_me: values.rememberMe},
             {
                 onError: (err: any) => {
                     console.log("Login error from component:", err);
@@ -35,7 +35,7 @@ export default function Login() {
     };
 
     const goToRegister = () => {
-        navigate({ to: "/register" });
+        navigate({to: "/register"});
     };
 
     return (

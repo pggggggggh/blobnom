@@ -1,16 +1,16 @@
 import {ActionIcon, Box, Button, Text} from "@mantine/core";
-import {RoomDetail} from "../types/RoomDetail.tsx";
-import RoomJoinModal from "./Modals/RoomJoinModal.tsx";
+import {RoomDetail} from "../../types/RoomDetail.tsx";
+import RoomJoinModal from "../Modals/RoomJoinModal.tsx";
 import {modals} from "@mantine/modals";
 import {useEffect, useState} from "react";
-import {getDiffTime} from "../utils/TimeUtils.tsx";
+import {getDiffTime} from "../../utils/TimeUtils.tsx";
 import dayjs from "dayjs";
 import DeleteIcon from '@mui/icons-material/Delete';
-import RoomDeleteModal from "./Modals/RemoveModal.tsx";
-import {userColors} from "../constants/UserColorsFill.tsx";
-import {useAuth} from "../context/AuthProvider.tsx";
+import RoomDeleteModal from "../Modals/RemoveModal.tsx";
+import {userColors} from "../../constants/UserColorsFill.tsx";
+import {useAuth} from "../../context/AuthProvider.tsx";
 import TeamStatusBox from "./TeamStatusBox.tsx";
-import PlatformIcons from "../constants/PlatformIcons.tsx";
+import PlatformIcons from "../../constants/PlatformIcons.tsx";
 
 
 const RoomFloatingComponent = ({roomDetail, activeUsers}: { roomDetail: RoomDetail, activeUsers: Set<string> }) => {
@@ -38,7 +38,7 @@ const RoomFloatingComponent = ({roomDetail, activeUsers}: { roomDetail: RoomDeta
                 {PlatformIcons[roomDetail.platform]}
                 <Text className="text-3xl font-extralight text-zinc-50 ">{roomDetail.name}</Text>
                 {roomDetail.query &&
-                    <Text className="text-xs font-extralight text-gray-300 mb-2 max-w-xs truncate">
+                    <Text className="text-xs font-extralight text-gray-300 max-w-xs truncate">
                         {roomDetail.query}
                     </Text>
                 }
