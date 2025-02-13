@@ -8,6 +8,8 @@ import ContestLeaderboardComponent from "../../components/Contest/ContestLeaderb
 import ContestDetailsCards from "../../components/Contest/ContestDetailsCards.tsx";
 import HandleComponent from "../../components/HandleComponent.tsx";
 import {KeyboardArrowDown, KeyboardArrowUp} from "@mui/icons-material";
+import {AxiosError} from "axios";
+import NotFound from "../NotFound.tsx";
 
 const ContestDetailsPage = () => {
     const {contestId} = Route.useParams();
@@ -17,7 +19,8 @@ const ContestDetailsPage = () => {
     const mutation_register = useRegisterContest();
     const mutation_unregister = useUnregisterContest();
 
-    if (isLoading || error || !contestDetail) return <div></div>;
+    if ((error as AxiosError)?.status === 404) return <NotFound/>;
+    if (isLoading) return <div></div>;
 
     return (
         <Container size="lg" mb="xl">

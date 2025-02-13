@@ -3,9 +3,11 @@ import {AppShell} from "@mantine/core";
 import HeaderComponent from "../components/HeaderComponent.tsx";
 import {notifications} from "@mantine/notifications";
 import {useEffect} from "react";
+import NotFound from "../pages/NotFound.tsx";
 
 export const Route = createRootRoute({
-    component: RootComponent
+    component: RootComponent,
+    notFoundComponent: NotFound
 })
 
 function RootComponent() {

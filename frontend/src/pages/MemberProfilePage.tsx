@@ -7,12 +7,15 @@ import React from "react";
 import HandleComponent from "../components/HandleComponent.tsx";
 import PlatformIcons from "../constants/PlatformIcons.tsx";
 import {Platform} from "../types/Platforms.tsx";
+import NotFound from "./NotFound.tsx";
+import {AxiosError} from "axios";
 
 const MemberProfilePage = () => {
     const {handle} = Route.useParams();
     const {data: memberDetails, isLoading, error} = useMemberDetail(handle);
 
-    if (isLoading || error || !memberDetails) return;
+    if ((error as AxiosError)?.status === 404) return <NotFound/>;
+    if (isLoading) return <div></div>;
 
     return (
         <Container size="md" className="py-10">

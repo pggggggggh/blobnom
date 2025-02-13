@@ -11,15 +11,19 @@ import RoomFloatingComponent from "../components/Room/RoomFloatingComponent.tsx"
 import ChatBoxComponent from "../components/Room/ChatBoxComponent.tsx";
 import {notifications} from "@mantine/notifications";
 import dayjs from "dayjs";
+import NotFound from "./NotFound.tsx";
+import {AxiosError} from "axios";
+
 
 export default function RoomPage() {
     const {roomId} = Route.useParams();
-    const {data: roomDetails, isLoading, error, refetch} = useRoomDetail(parseInt(roomId));
+    const {data: roomDetails, isError, isLoading, error, refetch} = useRoomDetail(parseInt(roomId));
     const [activeUsers, setActiveUsers] = useState<Set<string>>(new Set());
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [myTeamIndex, setMyTeamIndex] = useState(null);
     const socket = useSocket()
     const auth = useAuth();
+
 
     useEffect(() => {
         if (!auth.user) return;
@@ -113,7 +117,8 @@ export default function RoomPage() {
         };
     }, [roomDetails?.id]);
 
-    if (isLoading || error || !roomDetails) return (<div></div>);
+    if ((error as AxiosError)?.status === 404) return <NotFound/>;
+    if (isLoading) return <div></div>;
 
     return (
         <Box className="relative">
