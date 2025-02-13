@@ -9,11 +9,9 @@ export const SocketProvider = ({children}: { children: React.ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
-        if (!auth.user) return;
-
         const newSocket = io(import.meta.env.VITE_API_URL, {
             transports: ["websocket"],
-            auth: {handle: auth.user},
+            auth: {handle: auth?.user},
             reconnection: true,
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000,

@@ -92,7 +92,8 @@ export default function RoomPage() {
         };
 
         const handleActiveUsers = (data) => {
-            setActiveUsers(new Set(Array.isArray(data) ? data : []));
+            if (Array.isArray(data))
+                setActiveUsers(new Set(data));
         };
 
         socket.on("room_new_message", handleNewMessage);
