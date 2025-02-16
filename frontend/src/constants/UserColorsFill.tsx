@@ -44,3 +44,6 @@ export const userColors = [
 
 export const gradientNull =
     ["#1D1E2C", "#1D1E2C"]
+
+export const strokeUnsolvable =
+    ["#9E3E3B", "#9E3E3B"]

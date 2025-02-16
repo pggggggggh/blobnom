@@ -7,12 +7,19 @@ import {gradientNull, userColors} from "../../constants/UserColorsFill.tsx";
 import {getDiffTime} from "../../utils/TimeUtils.tsx";
 import {Platform} from "../../types/Platforms.tsx";
 import {getRatingFill} from "../../utils/MiscUtils.tsx";
+import {useEffect, useState} from "react";
 
 export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
     const missions = roomDetail.mission_info;
     const width: number = (3 + Math.sqrt(12 * missions.length - 3)) / 6 - 1;
     const hexagons = GridGenerator.hexagon(width);
     const mutation = useSolveProblem();
+    const [unSolvableMissionsSet, setUnSolvbleMissionsSet] = useState<Set<number>>(new Set());
+
+    useEffect(() => {
+        if (!roomDetail) return;
+        setUnSolvbleMissionsSet(new Set(roomDetail.your_unsolvable_mission_ids));
+    }, [roomDetail]);
 
     return (
         <Center h="calc(100vh - var(--app-shell-header-height, 0px) - 32px)">
@@ -61,6 +68,7 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                 const re = missions[i].problem_id.split(/(?<=\d)(?=[A-Za-z])/);
                                 href = `https://codeforces.com/problemset/problem/${re[0]}/${re[1]}`
                             }
+                            const unsolvable = unSolvableMissionsSet.has(missions[i].id);
 
                             return (
                                 <HoverCard key={`hex${i}`} shadow="lg" position="bottom" offset={-12}
@@ -77,12 +85,14 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 r={hex.r}
                                                 s={hex.s}
                                                 className=" "
-                                                style={
-                                                    !missions[i].solved_at
-                                                        ? {fill: `url(#gradient-null)`}
-                                                        : {fill: `url(#gradient-${missions[i].solved_team_index})`}
-                                                }
+                                                style={{
+                                                    fill: (!missions[i].solved_at
+                                                        ? "url(#gradient-null)"
+                                                        : `url(#gradient-${missions[i].solved_team_index})`),
+                                                    fillOpacity: unsolvable && !missions[i].solved_at ? 0.5 : 1,
+                                                }}
                                             >
+
                                                 {
                                                     missions[i].difficulty != null &&
                                                     (
@@ -168,19 +178,27 @@ export const HexComponent = ({roomDetail}: { roomDetail: RoomDetail }) => {
                                                 </Text>
                                             </HoverCard.Dropdown>
                                             :
-                                            dayjs(roomDetail.ends_at).isAfter(dayjs()) && roomDetail.is_user_in_room &&
-                                            <HoverCard.Dropdown className="p-0 bg-zinc-900">
-                                                <Button
-                                                    variant="default"
-                                                    size=""
-                                                    className="border-0 bg-inherit"
-                                                    onClick={() => mutation.mutate({
-                                                        roomId: roomDetail.id,
-                                                        problemId: missions[i].problem_id
-                                                    })}
-                                                    loading={mutation.isPending}
-                                                >Solve!</Button>
-                                            </HoverCard.Dropdown>
+                                            (
+                                                unsolvable ?
+                                                    <HoverCard.Dropdown p="xs"
+                                                                        className={`text-center bg-zinc-900`}>
+                                                        <Text size="xs">⚠️ 해결할 수 없는 문제입니다.</Text>
+                                                    </HoverCard.Dropdown>
+                                                    :
+                                                    dayjs(roomDetail.ends_at).isAfter(dayjs()) && roomDetail.is_user_in_room &&
+                                                    <HoverCard.Dropdown className="p-0 bg-zinc-900">
+                                                        <Button
+                                                            variant="default"
+                                                            size=""
+                                                            className="border-0 bg-inherit"
+                                                            onClick={() => mutation.mutate({
+                                                                roomId: roomDetail.id,
+                                                                problemId: missions[i].problem_id
+                                                            })}
+                                                            loading={mutation.isPending}
+                                                        >Solve!</Button>
+                                                    </HoverCard.Dropdown>
+                                            )
                                     }
 
                                 </HoverCard>

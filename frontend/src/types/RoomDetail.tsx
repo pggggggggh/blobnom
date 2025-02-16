@@ -21,6 +21,7 @@ export interface RoomDetail {
     team_info: TeamInfo[];
     mission_info: MissionInfo[];
     is_contest_room: boolean;
+    your_unsolvable_mission_ids: number[];
 }
 
 export interface TeamInfo {
@@ -38,6 +39,7 @@ export interface RoomPlayerInfo {
 }
 
 export interface MissionInfo {
+    id: number;
     platform: Platform;
     problem_id: string;
     solved_at: string | null;
