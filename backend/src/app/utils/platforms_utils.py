@@ -152,6 +152,8 @@ async def get_solved_problem_list(problem_ids, handle, platform):
             results = response.json()["result"]
             for result in results:
                 problem = result["problem"]
-                solved_problems.add(str(problem["contestId"]) + problem["index"])
+                pid = str(problem["contestId"]) + problem["index"]
+                if pid in problem_ids:
+                    solved_problems.add(pid)
 
         return list(solved_problems)

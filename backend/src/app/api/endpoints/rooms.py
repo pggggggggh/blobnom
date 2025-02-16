@@ -120,7 +120,7 @@ async def room_join(request: Request,
         for x in solved_mission_list:
             mission = db.query(RoomMission).filter(RoomMission.room_id == id, RoomMission.problem_id == x).first()
             if not mission:
-                raise HTTPException(status_code=401)  # undefined behavior
+                raise HTTPException(status_code=400)  # undefined behavior
             solved_mission_ids.append(mission.id)
 
         # if token_handle is None and not room.is_private and len(solved_mission_list) > 2:  # 비회원의 경우에만 제한
