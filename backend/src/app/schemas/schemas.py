@@ -62,6 +62,13 @@ class RoomJoinRequest(BaseModel):
     password: str
 
 
+class RoomListRequest(BaseModel):
+    page: Optional[int]
+    search: Optional[str] = ""
+    activeOnly: Optional[bool] = False
+    myRoomOnly: Optional[bool] = False
+
+
 class UserSummary(BaseModel):
     handle: str
     role: Optional[str] = None  # 비회원일 경우 None
@@ -82,6 +89,7 @@ class RoomTeamInfo(BaseModel):
 
 
 class RoomMissionInfo(BaseModel):
+    id: int
     problem_id: str
     platform: Platform
     index_in_room: int
@@ -145,6 +153,7 @@ class RoomDetail(BaseModel):
     team_info: List[RoomTeamInfo]
     mission_info: List[RoomMissionInfo]
     is_contest_room: bool
+    your_unsolvable_mission_ids: List[int]
 
     class Config:
         from_attributes = True

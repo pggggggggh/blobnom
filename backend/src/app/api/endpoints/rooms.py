@@ -15,11 +15,10 @@ from src.app.core.rate_limit import limiter
 from src.app.db.database import get_db
 from src.app.db.models.models import User, Room, RoomPlayer, RoomMission, Member, Contest
 from src.app.db.redis import get_redis
-from src.app.schemas.schemas import RoomCreateRequest, RoomDeleteRequest, RoomJoinRequest
-from src.app.services.contest_services import get_contest_summary
+from src.app.schemas.schemas import RoomCreateRequest, RoomDeleteRequest, RoomJoinRequest, RoomListRequest
 from src.app.services.room_services import get_room_summary, get_room_detail, update_score, update_solver, \
     get_solved_problem_list, \
-    handle_room_ready, fetch_problems
+    handle_room_ready, fetch_problems, get_room_list
 from src.app.utils.scheduler import add_job
 from src.app.utils.security_utils import hash_password, verify_password, get_handle_by_token
 from src.app.utils.platforms_utils import search_problems
@@ -29,48 +28,9 @@ router = APIRouter()
 
 @router.get("/list")
 @limiter.limit("20/minute")
-async def room_list(request: Request, page: int, search: str = "", activeOnly: bool = False, myRoomOnly: bool = False,
-                    db: Session = Depends(get_db), token_handle: str = Depends(get_handle_by_token)):
-    query = (
-        db.query(Room)
-        .options(joinedload(Room.owner))
-        .filter(Room.name.ilike(f"%{search}%"))
-        .filter(Room.is_deleted == False)
-        .filter(Room.is_contest_room == False)
-        .order_by(desc(Room.last_solved_at))
-    )
-
-    if activeOnly:
-        query = (query
-                 .filter(Room.is_private == False)
-                 .filter(Room.ends_at > datetime.now(tz=pytz.UTC))
-                 )
-    if myRoomOnly and token_handle is not None:  # 비회원으로 요청 들어온 경우 무시
-        member = db.query(Member).filter(Member.handle == token_handle).first()
-        for user in member.users:
-            query = query.join(RoomPlayer).filter(RoomPlayer.user_id == user.id)
-
-    total_rooms = query.count()
-    rooms = (
-        query.offset(20 * page)
-        .limit(20)
-        .all()
-    )
-
-    room_list = []
-    for room in rooms:
-        room_data = await get_room_summary(room, db)
-        room_list.append(room_data)
-
-    contests = db.query(Contest).filter(Contest.ends_at > datetime.now(tz=pytz.UTC)).order_by(
-        desc(Contest.starts_at)).limit(1)
-
-    contest_list = []
-    for contest in contests:
-        contest_data = get_contest_summary(contest)
-        contest_list.append(contest_data)
-
-    return {"room_list": room_list, "upcoming_contest_list": contest_list, "total_pages": math.ceil(total_rooms / 20)}
+async def room_list(request: Request, room_list_request: RoomListRequest = Depends(),
+                    db: Session = Depends(get_db), handle: str = Depends(get_handle_by_token)):
+    return await get_room_list(room_list_request, db=db, handle=handle)
 
 
 @router.get("/detail/{id}")
@@ -117,7 +77,7 @@ async def room_join(request: Request,
                     room_join_request: RoomJoinRequest,
                     db: Session = Depends(get_db),
                     token_handle: str = Depends(get_handle_by_token)):
-    room = db.query(Room).options(joinedload(Room.missions)).filter(Room.id == id).first()
+    room = db.query(Room).filter(Room.id == id).options(joinedload(Room.missions)).first()
     if token_handle is None:
         raise HTTPException(status_code=401)
     if not room:
@@ -151,13 +111,20 @@ async def room_join(request: Request,
 
     user = db.query(User).filter(User.member_id == member.id, User.platform == room.platform).first()
 
-    solved_mission_list = []
+    solved_mission_ids = []  # room_mission id
+    solved_mission_list = []  # problem id
 
     if room.is_started:
         unsolved_problem_ids = [mission.problem_id for mission in room.missions if mission.solved_at is None]
         solved_mission_list = await get_solved_problem_list(unsolved_problem_ids, user.handle, room.platform)
-        if token_handle is None and not room.is_private and len(solved_mission_list) > 2:  # 비회원의 경우에만 제한
-            raise HTTPException(status_code=400, detail="비회원은 이미 해결한 문제가 2문제를 초과하면 참여할 수 없습니다.")
+        for x in solved_mission_list:
+            mission = db.query(RoomMission).filter(RoomMission.room_id == id, RoomMission.problem_id == x).first()
+            if not mission:
+                raise HTTPException(status_code=401)  # undefined behavior
+            solved_mission_ids.append(mission.id)
+
+        # if token_handle is None and not room.is_private and len(solved_mission_list) > 2:  # 비회원의 경우에만 제한
+        #     raise HTTPException(status_code=400, detail="비회원은 이미 해결한 문제가 2문제를 초과하면 참여할 수 없습니다.")
 
     # calculate mex
     player_indices = {player.player_index for player in room_players}
@@ -171,25 +138,12 @@ async def room_join(request: Request,
         room_id=room.id,
         player_index=player_index,
         team_index=team_index,
-        last_solved_at=room.starts_at
+        last_solved_at=room.starts_at,
+        unsolvable_mission_ids=solved_mission_ids,
     )
     room.players.append(player)
     db.add(player)
     db.commit()
-
-    # if room.is_started and token_handle is None:  # 비회원인 경우, 가입하자마자 솔브 처리
-    #     missions = db.query(RoomMission).filter(
-    #         RoomMission.problem_id.in_(solved_mission_list),
-    #         RoomMission.room_id == id
-    #     ).all()
-    #     for mission in missions:
-    #         mission.solved_at = room.starts_at
-    #         mission.solved_room_player_id = player.id
-    #         mission.solved_team_index = team_index
-    #         mission.solved_user = user
-    #         db.add(mission)
-    #     db.commit()
-    #     await update_score(id, db)
 
     redis = await get_redis()
     if redis:

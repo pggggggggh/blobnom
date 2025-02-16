@@ -1,6 +1,25 @@
 import copy
 import math
 
+from src.app.db.models.models import Contest
+from src.app.schemas.schemas import ContestSummary
+
+
+def get_contest_summary(contest: Contest):
+    return ContestSummary(
+        id=contest.id,
+        desc=contest.desc,
+        name=contest.name,
+        query=contest.query,
+        starts_at=contest.starts_at,
+        ends_at=contest.ends_at,
+        num_participants=len(contest.contest_members),
+        players_per_room=contest.players_per_room,
+        missions_per_room=contest.missions_per_room,
+        min_rating=contest.min_rating,
+        max_rating=contest.max_rating
+    )
+
 
 def elo_update(rating_a, rating_b, result_a, k=192):
     """

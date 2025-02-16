@@ -106,8 +106,8 @@ export const useSolveProblem = () => {
 export const useJoinRoom = () => {
     return useMutation({
         mutationFn: postJoinRoom,
-        onSuccess: () => {
-            window.location.reload();
+        onSuccess: (data) => {
+            window.location.reload()
         },
         onError: handleError
     });

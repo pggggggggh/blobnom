@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, Boolean, Enum
+from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, Boolean, Enum, ARRAY
 from sqlalchemy.orm import relationship
 
 from src.app.core.constants import MAX_TEAM_PER_ROOM
@@ -113,6 +113,9 @@ class RoomPlayer(TimestampMixin, Base):
 
     room_id = Column(ForeignKey("rooms.id"))
     room = relationship("Room", back_populates="players", foreign_keys=[room_id])
+
+    unsolvable_mission_ids = Column(ARRAY(Integer), default=[])
+    next_solvable_mission_ids = Column(ARRAY(Integer), nullable=True, default=[])
 
     solved_missions = relationship("RoomMission", back_populates="solved_room_player")
 

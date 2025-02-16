@@ -9,17 +9,19 @@ from typing import Optional
 import httpx
 import pytz
 from fastapi import HTTPException, Depends
+from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 from starlette import status
 
 from src.app.core.socket import sio
 from src.app.core.constants import MAX_TEAM_PER_ROOM, MAX_USER_PER_ROOM, ROOM_CACHE_SECONDS
-from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member
+from src.app.db.models.models import Room, RoomMission, RoomPlayer, Member, Contest
 from src.app.db.redis import get_redis
 from src.app.db.session import get_db, SessionLocal
-from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo
+from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo, RoomListRequest
 from src.app.services.member_services import convert_to_user_summary, convert_to_member_summary
 from src.app.services.socket_services import get_sids_in_room, send_system_message
+from src.app.utils.contest_utils import get_contest_summary
 from src.app.utils.logger import logger
 from src.app.utils.scheduler import add_job
 from src.app.utils.platforms_utils import fetch_problems, get_solved_problem_list
@@ -41,6 +43,49 @@ async def get_room_summary(room: Room, db: Session) -> RoomSummary:
         is_private=room.is_private,
         is_contest_room=room.is_contest_room,
     )
+
+
+async def get_room_list(room_list_request: RoomListRequest, db: Session, handle: str = None):
+    query = (
+        db.query(Room)
+        .options(joinedload(Room.owner))
+        .filter(Room.name.ilike(f"%{room_list_request.search}%"))
+        .filter(Room.is_deleted == False)
+        .filter(Room.is_contest_room == False)
+        .order_by(desc(Room.last_solved_at))
+    )
+
+    if room_list_request.activeOnly:
+        query = (query
+                 .filter(Room.is_private == False)
+                 .filter(Room.ends_at > datetime.now(tz=pytz.UTC))
+                 )
+    if room_list_request.myRoomOnly and handle is not None:  # 비회원으로 요청 들어온 경우 무시
+        member = db.query(Member).filter(Member.handle == handle).first()
+        for user in member.users:
+            query = query.join(RoomPlayer).filter(RoomPlayer.user_id == user.id)
+
+    total_rooms = query.count()
+    rooms = (
+        query.offset(20 * room_list_request.page)
+        .limit(20)
+        .all()
+    )
+
+    room_list = []
+    for room in rooms:
+        room_data = await get_room_summary(room, db)
+        room_list.append(room_data)
+
+    contests = db.query(Contest).filter(Contest.ends_at > datetime.now(tz=pytz.UTC)).order_by(
+        desc(Contest.starts_at)).limit(1)
+
+    contest_list = []
+    for contest in contests:
+        contest_data = get_contest_summary(contest)
+        contest_list.append(contest_data)
+
+    return {"room_list": room_list, "upcoming_contest_list": contest_list, "total_pages": math.ceil(total_rooms / 20)}
 
 
 async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
@@ -70,9 +115,10 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
 
     players = room.players
     is_user_in_room = False
+    your_unsolvable_mission_ids = []
     for player in players:
         if player.user.member and player.user.member.handle == handle:
-            print(player.user.member.handle)
+            your_unsolvable_mission_ids = player.unsolvable_mission_ids
             is_user_in_room = True
             break
 
@@ -112,6 +158,7 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
     else:
         room_mission_info = [
             RoomMissionInfo(
+                id=mission.id,
                 platform=mission.platform,
                 problem_id=mission.problem_id,
                 index_in_room=mission.index_in_room,
@@ -144,6 +191,7 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
         mission_info=room_mission_info,
         is_started=room.is_started,
         is_contest_room=room.is_contest_room,
+        your_unsolvable_mission_ids=your_unsolvable_mission_ids
     )
     if redis:
         await redis.setex(cache_key, ROOM_CACHE_SECONDS, pickle.dumps(room_detail))
@@ -257,9 +305,9 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
     newly_solved_problems = []
     for player in room_players:
         solved_problem_list = await get_solved_problem_list(problem_id_list, player.user.handle, room.platform)
-        print(solved_problem_list)
         for mission in missions:
-            print(mission.problem_id)
+            if mission.id in player.unsolvable_mission_ids:
+                continue
             if not mission.solved_at and mission.problem_id in solved_problem_list:
                 newly_solved_problems.append(
                     {

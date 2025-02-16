@@ -17,26 +17,9 @@ from src.app.db.session import SessionLocal
 from src.app.schemas.schemas import ContestCreateRequest, ContestSummary, ContestDetails
 from src.app.services.member_services import convert_to_user_summary, convert_to_member_summary
 from src.app.services.room_services import handle_room_start, handle_room_ready, get_room_detail
-from src.app.utils.contest_utils import elo_update, codeforces_update
+from src.app.utils.contest_utils import elo_update, codeforces_update, get_contest_summary
 from src.app.utils.logger import logger
 from src.app.utils.scheduler import add_job
-
-
-def get_contest_summary(contest: Contest):
-    return ContestSummary(
-        id=contest.id,
-        desc=contest.desc,
-        name=contest.name,
-        query=contest.query,
-        starts_at=contest.starts_at,
-        ends_at=contest.ends_at,
-        num_participants=len(contest.contest_members),
-        players_per_room=contest.players_per_room,
-        missions_per_room=contest.missions_per_room,
-        min_rating=contest.min_rating,
-        max_rating=contest.max_rating
-    )
-
 
 import asyncio
 
