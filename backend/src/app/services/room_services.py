@@ -62,8 +62,10 @@ async def get_room_list(room_list_request: RoomListRequest, db: Session, handle:
                  )
     if room_list_request.myRoomOnly and handle is not None:  # 비회원으로 요청 들어온 경우 무시
         member = db.query(Member).filter(Member.handle == handle).first()
+        ids = []
         for user in member.users:
-            query = query.join(RoomPlayer).filter(RoomPlayer.user_id == user.id)
+            ids.append(user.id)
+        query = query.join(RoomPlayer).filter(RoomPlayer.user_id.in_(ids))
 
     total_rooms = query.count()
     rooms = (
