@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from src.app.db.database import get_db
-from src.app.db.models.models import User
+from src.app.db.models.models import User, Member
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -53,11 +53,12 @@ async def get_handle_by_token(authorization: Optional[str] = Header(None), db: S
         payload = jwt.decode(token, os.environ.get("JWT_SECRET_KEY"),
                              algorithms=os.environ.get("JWT_ALGORITHM"))
         handle = payload.get("sub")
+        print(handle, "login")
         if handle is None:
             raise credentials_exception
-        user = db.query(User).filter(User.handle == handle).first()
-        if user is None or user.member is None:  # 가입 안 한 상태
+        member = db.query(Member).filter(Member.handle == handle).first()
+        if member is None:
             raise credentials_exception
-        return user.handle
+        return member.handle
     except InvalidTokenError:
         raise credentials_exception
