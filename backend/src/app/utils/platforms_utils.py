@@ -60,11 +60,19 @@ async def fetch_problems(query, num_problems, platform):
         problems = []
 
         if platform == Platform.BOJ:
-            for _ in range(3):
-                response = await client.get("https://solved.ac/api/v3/search/problem",
-                                            params={"query": query, "sort": "random", "page": 1})
-                tmp = response.json()["items"]
-                for item in tmp:
+            for _ in range(5):
+                if query.startswith(
+                        "problemset:"):  # problemset:1001,1002,1003 .., ignores already-solved problems by players
+                    query2 = query.split()[0]
+                    response = await client.get("https://solved.ac/api/v3/problem/lookup",
+                                                params={"problemIds": query2[len("problemset:"):]})
+                    items = response.json()
+                    random.shuffle(items)
+                else:
+                    response = await client.get("https://solved.ac/api/v3/search/problem",
+                                                params={"query": query, "sort": "random", "page": 1})
+                    items = response.json()["items"]
+                for item in items:
                     if item["problemId"] not in problem_ids:
                         problems.append({"id": item["problemId"], "difficulty": item["level"]})
                         problem_ids.add(item["problemId"])
