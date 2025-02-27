@@ -11,15 +11,8 @@ const transformToOptions = (items: string[]): Option[] =>
     items.map((item) => ({value: item, label: item}));
 
 const TeamSelector = ({handleProps, teamModeProps}: {
-    handleProps: {
-        value: { [key: string]: number };
-        onChange: (value: { [key: string]: number }) => void;
-        error: string;
-    },
-    teamModeProps: {
-        value: boolean;
-        onChange: (value: boolean) => void;
-    };
+    handleProps: any,
+    teamModeProps: any
 }) => {
     const auth = useAuth();
 
@@ -27,10 +20,10 @@ const TeamSelector = ({handleProps, teamModeProps}: {
     const [teams, setTeams] = useState<Team[]>([[], []]);
 
     useEffect(() => {
-        if (auth?.user) {
-            setIndividualParticipants([auth.user]);
+        if (auth?.member) {
+            setIndividualParticipants([auth.member.handle]);
         }
-    }, [auth?.user]);
+    }, [auth?.member]);
 
     const handleIndividualChange = (tags: string[]) => {
         setIndividualParticipants(tags.map(tag => tag.toLowerCase()));
@@ -70,7 +63,7 @@ const TeamSelector = ({handleProps, teamModeProps}: {
             setTeams([[], []]);
         } else {
             setTeams([[], []]);
-            setIndividualParticipants(auth?.user ? [auth.user] : []);
+            setIndividualParticipants(auth?.member ? [auth.member.handle] : []);
         }
     };
 
@@ -105,103 +98,104 @@ const TeamSelector = ({handleProps, teamModeProps}: {
     };
 
     return (
-        <Box>
-            <Input.Label className="flex items-center gap-2">
-                모드 변경
+        <Flex justify="space-between">
+            <Input.Wrapper label="모드" mr="xl" className="grow-0 min-w-20">
                 <Switch
                     checked={teamModeProps.value}
                     onChange={toggleMode}
                     label={teamModeProps.value ? '팀전' : '개인전'}
                     aria-label="팀 모드와 개인 모드 전환"
                 />
-            </Input.Label>
-
-            {!teamModeProps.value ? (
-                <Card shadow="sm" sx={{minHeight: '200px', minWidth: '400px'}}>
-                    <Text mb="sm">참가자 닉네임:</Text>
-                    <TagsInput
-                        data={transformToOptions(individualParticipants)}
-                        value={individualParticipants}
-                        onChange={handleIndividualChange}
-                        placeholder="닉네임 입력"
-                        variant="unstyled"
-                        getCreateLabel={(query: string) => `+ Create "${query}"`}
-                        onCreate={(query: string) => {
-                            query = query.toLowerCase()
-                            setIndividualParticipants((current) => [...current, query]);
-                            return query;
-                        }}
-                        splitChars={[',', ' ', '|']}
-                        searchable
-                        clearable
-                    />
-                </Card>
-            ) : (
-                <Box>
-                    <Group mt="xs" mb="sm">
-                        <Button
-                            onClick={addTeam}
-                            disabled={teams.length >= MAX_TEAMS}
-                            variant="outline"
-                            color="green"
-                            aria-label="팀 추가"
-                        >
-                            팀 추가
-                        </Button>
-                        <Button
-                            onClick={removeTeam}
-                            disabled={teams.length <= MIN_TEAMS}
-                            variant="outline"
-                            color="red"
-                            aria-label="팀 제거"
-                        >
-                            팀 제거
-                        </Button>
-                    </Group>
-
-                    <Flex gap="md" wrap="nowrap" align="stretch">
-                        {teams.map((team, index) => (
-                            <Card
-                                key={index}
-                                shadow="sm"
-                                padding="lg"
-                                style={{
-                                    width: getTeamWidth(teams.length),
-                                    boxSizing: 'border-box',
-                                }}
+            </Input.Wrapper>
+            <Input.Wrapper label="참가자 선택" className="grow">
+                {!teamModeProps.value ? (
+                    <Card shadow="sm"
+                          withBorder>
+                        <TagsInput
+                            data={transformToOptions(individualParticipants)}
+                            value={individualParticipants}
+                            onChange={handleIndividualChange}
+                            placeholder="닉네임 입력"
+                            variant="unstyled"
+                            onCreate={(query: string) => {
+                                query = query.toLowerCase()
+                                setIndividualParticipants((current) => [...current, query]);
+                                return query;
+                            }}
+                            splitChars={[',', ' ', '|']}
+                            searchable
+                            clearable
+                        />
+                    </Card>
+                ) : (
+                    <Box>
+                        <Group mt="xs" mb="sm">
+                            <Button
+                                onClick={addTeam}
+                                disabled={teams.length >= MAX_TEAMS}
+                                variant="outline"
+                                color="green"
+                                aria-label="팀 추가"
                             >
-                                <Group mb="sm">
-                                    <Text>팀 {index + 1}</Text>
-                                </Group>
-                                <TagsInput
-                                    data={transformToOptions(team)}
-                                    value={team}
-                                    onChange={(tags) => handleTeamChange(index, tags)}
-                                    placeholder="닉네임 입력"
-                                    creatable
-                                    variant="unstyled"
-                                    splitChars={[',', ' ', '|']}
-                                    getCreateLabel={(query: string) => `+ Create "${query}"`}
-                                    onCreate={(query: string) => {
-                                        query = query.toLowerCase()
-                                        setTeams((prevTeams) => {
-                                            const updatedTeams = [...prevTeams];
-                                            updatedTeams[index].push(query);
-                                            return updatedTeams;
-                                        });
-                                        return query;
+                                팀 추가
+                            </Button>
+                            <Button
+                                onClick={removeTeam}
+                                disabled={teams.length <= MIN_TEAMS}
+                                variant="outline"
+                                color="red"
+                                aria-label="팀 제거"
+                            >
+                                팀 제거
+                            </Button>
+                        </Group>
+
+                        <Flex gap="md" wrap="wrap" align="stretch">
+                            {teams.map((team, index) => (
+                                <Card
+                                    withBorder
+                                    key={index}
+                                    shadow="sm"
+                                    padding="lg"
+                                    style={{
+                                        flex: `1 1 calc(${100 / teams.length}% - 16px)`, // 균등 분배
+                                        minWidth: "200px",
+                                        boxSizing: "border-box",
                                     }}
-                                    searchable
-                                />
-                            </Card>
-                        ))}
-                    </Flex>
-                </Box>
-            )}
-            <Input.Error>
-                {handleProps.error}
-            </Input.Error>
-        </Box>
+                                >
+                                    <Group mb="sm">
+                                        <Text>팀 {index + 1}</Text>
+                                    </Group>
+                                    <TagsInput
+                                        data={transformToOptions(team)}
+                                        value={team}
+                                        onChange={(tags) => handleTeamChange(index, tags)}
+                                        placeholder="닉네임 입력"
+                                        variant="unstyled"
+                                        splitChars={[',', ' ', '|']}
+                                        getCreateLabel={(query: string) => `+ Create "${query}"`}
+                                        onCreate={(query: string) => {
+                                            query = query.toLowerCase()
+                                            setTeams((prevTeams) => {
+                                                const updatedTeams = [...prevTeams];
+                                                updatedTeams[index].push(query);
+                                                return updatedTeams;
+                                            });
+                                            return query;
+                                        }}
+                                        searchable
+                                    />
+                                </Card>
+                            ))}
+                        </Flex>
+                    </Box>
+                )}
+                <Input.Error>
+                    {handleProps.error}
+                </Input.Error>
+            </Input.Wrapper>
+        </Flex>
+
     );
 };
 

@@ -20,6 +20,7 @@
     "@mantine/notifications": "^7.14.2",
     "@mui/icons-material": "^6.1.9",
     "@mui/material": "^6.1.9",
+    "@tabler/icons-react": "^3.30.0",
     "@tanstack/react-query": "^5.61.3",
     "@tanstack/react-router": "^1.82.2",
     "apexcharts": "^4.4.0",

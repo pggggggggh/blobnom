@@ -1,6 +1,6 @@
 import {createRootRoute, Outlet, useLocation} from '@tanstack/react-router'
 import {AppShell} from "@mantine/core";
-import HeaderComponent from "../components/HeaderComponent.tsx";
+import HeaderComponent from "../components/Layout/HeaderComponent.tsx";
 import {notifications} from "@mantine/notifications";
 import {useEffect} from "react";
 import NotFound from "../pages/NotFound.tsx";
@@ -19,8 +19,11 @@ function RootComponent() {
 
     return (<>
         <AppShell
-            header={{height: 60}}
+            header={{height: 50}}
             padding="md"
+            styles={{
+                main: {height: "100vh"}
+            }}
         >
             <AppShell.Header>
                 <HeaderComponent/>

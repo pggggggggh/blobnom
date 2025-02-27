@@ -81,7 +81,7 @@ const ContestDetailsPage = () => {
                                 shadow="xs"
                             >
                                 <Text size="sm" className="truncate">
-                                    <HandleComponent user={participant} linkToProfile={true}/>
+                                    <HandleComponent member={participant} linkToProfile={true}/>
                                 </Text>
                             </Paper>
                         ))}

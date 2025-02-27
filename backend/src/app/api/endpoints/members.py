@@ -11,8 +11,8 @@ router = APIRouter()
 
 @router.get('/me')
 @limiter.limit("20/minute")
-async def get_me(request: Request, token_handle: str = Depends(get_handle_by_token)):
-    return token_handle
+async def get_me(request: Request, token_handle: str = Depends(get_handle_by_token), db: Session = Depends(get_db)):
+    return await get_member_details(token_handle, db)
 
 
 @router.get('/details/{handle}')

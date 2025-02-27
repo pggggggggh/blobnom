@@ -4,8 +4,8 @@ import logo_codeforces from "/platforms/codeforces.png";
 import {Platform} from "../types/Platforms.tsx";
 
 const PlatformIcons: Record<string, JSX.Element> = {
-    [Platform.BOJ]: <Image w={16} src={logo_boj}/>,
-    [Platform.CODEFORCES]: <Image w={16} src={logo_codeforces}/>
+    [Platform.BOJ]: <Image w={32} src={logo_boj}/>,
+    [Platform.CODEFORCES]: <Image w={32} src={logo_codeforces}/>
 };
 
 export default PlatformIcons;

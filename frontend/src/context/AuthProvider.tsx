@@ -1,10 +1,10 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import {api} from '../api/instance';
-import {useRouter} from '@tanstack/react-router';
+import {MemberSummary} from "../types/MemberSummary.tsx";
 
 interface AuthContextType {
-    user: string | null;
-    setUser: React.Dispatch<React.SetStateAction<string | null>>;
+    member: MemberSummary | null;
+    setMember: React.Dispatch<React.SetStateAction<MemberSummary | null>>;
     loading: boolean;
     logout: () => void;
 }
@@ -12,16 +12,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
-    const [user, setUser] = useState<string | null>(null);
+    const [member, setMember] = useState<MemberSummary | null>(null);
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
 
     useEffect(() => {
         const fetchUser = async () => {
             try {
                 const token = localStorage.getItem('accessToken');
                 if (!token) {
-                    setUser(null);
+                    setMember(null);
                     setLoading(false);
                     return;
                 }
@@ -32,10 +31,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                     },
                 });
 
-                setUser(response.data || 'User');
+                setMember(response.data || 'User');
             } catch (error) {
                 console.error('Failed to fetch user:', error);
-                setUser(null);
+                setMember(null);
             } finally {
                 setLoading(false);
             }
@@ -47,26 +46,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
     const logout = () => {
         localStorage.removeItem('accessToken');
-        setUser(null);
+        setMember(null);
         window.location.href = "/"
     };
 
-    useEffect(() => {
-        if (user) {
-            /*
-            showNotification({
-                title: '로그인',
-                message: `${user}님 땅먹 ㄱㄱ`,
-                color: 'green',
-                loading: true,
-                autoClose: 1500,
-            });
-            */
-        }
-    }, [user]);
-
     return (
-        <AuthContext.Provider value={{user, setUser, loading, logout}}>
+        <AuthContext.Provider value={{member: member, setMember: setMember, loading, logout}}>
             {children}
         </AuthContext.Provider>
     );

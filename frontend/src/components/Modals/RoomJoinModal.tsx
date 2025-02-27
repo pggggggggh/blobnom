@@ -40,7 +40,7 @@ const RoomJoinModal = ({roomId, is_private}: { roomId: number, is_private: boole
         <form onSubmit={form.onSubmit(handleSubmit)}>
             <Stack align="center">
                 {
-                    auth.user ?
+                    auth.member ?
                         <>
                             <Image w="64px" src={blobaww}/>
                             {is_private && (

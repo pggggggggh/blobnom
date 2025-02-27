@@ -11,7 +11,7 @@ export const SocketProvider = ({children}: { children: React.ReactNode }) => {
     useEffect(() => {
         const newSocket = io(import.meta.env.VITE_API_URL, {
             transports: ["websocket"],
-            auth: {handle: auth?.user},
+            auth: {handle: auth?.member?.handle},
             reconnection: true,
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000,
@@ -36,7 +36,7 @@ export const SocketProvider = ({children}: { children: React.ReactNode }) => {
             newSocket.disconnect();
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
-    }, [auth.user]);
+    }, [auth.member]);
 
 
     return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;

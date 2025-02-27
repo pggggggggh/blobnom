@@ -1,8 +1,15 @@
-import {Checkbox, Group, Input, NumberInput, Stack, Text, TextInput} from '@mantine/core';
+import {Group, Input, NumberInput, RangeSlider, SimpleGrid, Stack, Text, TextInput} from '@mantine/core';
 import React, {useEffect, useState} from 'react';
-import {SetAlgorithmTag, SetTierRange} from './';
-import {tiers} from '../../constants/tierdata';
+import {SetAlgorithmTag} from './';
+import {marks, tiers} from '../../constants/tierdata';
 import {Platform} from "../../types/Platforms.tsx";
+
+interface SetRoomQueryProps {
+    platform: Platform;
+    queryValue: string;
+    queryProps: any;
+    handleValue: { [key: string]: number };
+}
 
 const tierRangeString = (platform: Platform, tierInt: [number, number], selectedTags: string[]) => {
     if (platform == Platform.BOJ)
@@ -10,26 +17,13 @@ const tierRangeString = (platform: Platform, tierInt: [number, number], selected
     return `difficulty:${tierInt[0]}-${tierInt[1]}`
 }
 
-const SetRoomQuery = ({
-                          platform,
-                          queryValue,
-                          queryProps,
-                          handleValue,
-                          unfreezeOffsetMinutesProps,
-                      }: {
-    platform: Platform;
-    queryValue: string;
-    queryProps: any;
-    handleValue: { [key: string]: number };
-    unfreezeOffsetMinutesProps: any;
-}) => {
+const SetRoomQuery = ({platform, queryValue, queryProps, handleValue}: SetRoomQueryProps) => {
     const [tierRange, setTierRange] = useState<[number, number]>([1, 16]);
     const [contestIdRange, setContestIdRange] = useState<[number, number]>([354, 4000]);
     const [fixedQuery, setFixedQuery] = useState<string>('');
     const [addedQuery, setAddedQuery] = useState<string>('');
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-    const [alwaysShowTier, setAlwaysShowTier] = useState<boolean>(false);
 
     useEffect(() => {
         if (platform === Platform.BOJ) {
@@ -58,78 +52,71 @@ const SetRoomQuery = ({
     }, [fixedQuery, addedQuery]);
 
 
-    const toggleAlwaysShowTier = (value: boolean) => {
-        setAlwaysShowTier(value)
-        if (value === true) unfreezeOffsetMinutesProps.onChange(null);
-        else unfreezeOffsetMinutesProps.onChange(0);
-    }
-
     return (
-        <Input.Wrapper label={platform === Platform.BOJ ? "알고리즘 태그 및 난이도 지정" : "난이도 범위 지정"}>
-            <Stack>
-                {
-                    platform === Platform.BOJ &&
-                    <SetAlgorithmTag selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
-                }
-                <SetTierRange platform={platform} value={tierRange} onChange={setTierRange}/>
-                {
-                    platform === Platform.CODEFORCES &&
-                    <Group>
-                        <Input.Wrapper label="대회 번호 지정">
-                            <Group>
-                                <NumberInput
-                                    value={contestIdRange[0]}
-                                    onChange={(v) => setContestIdRange([v, contestIdRange[1]])}
-                                />
-                                <Text>~</Text>
-                                <NumberInput
-                                    value={contestIdRange[1]}
-                                    onChange={(v) => setContestIdRange([contestIdRange[0], v])}
-                                />
-                            </Group>
+        <Stack>
+            {
+                platform === Platform.BOJ ?
+                    <>
+                        <Input.Wrapper label={platform === Platform.BOJ ? "알고리즘 태그 및 난이도 지정" : "난이도 범위 지정"}>
+                            <SetAlgorithmTag selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
+                            <RangeSlider pt="lg" pb="xl" labelTransitionProps={{
+                                transition: 'skew-down',
+                                duration: 150,
+                                timingFunction: 'linear',
+
+                            }} value={tierRange}
+                                         onChange={setTierRange}
+                                         minRange={0} min={0} max={30} step={1}
+                                         marks={marks}
+                                         label={(value) => tiers.find((tier) => tier.value === value)?.label || ""}
+                            />
                         </Input.Wrapper>
-                    </Group>
-                }
-
-                <Group gap="xs" justify="space-between">
-                    <Checkbox
-                        checked={alwaysShowTier}
-                        onChange={(event) => toggleAlwaysShowTier(event.currentTarget.checked)}
-                        label="난이도 항상 표시"
-                    />
-                    <Group gap="xs" style={{visibility: alwaysShowTier ? 'hidden' : 'visible'}}>
-                        <Text size="sm">
-                            종료
-                        </Text>
-                        <NumberInput
-                            {...unfreezeOffsetMinutesProps}
-                            min={0}
-                            size={"xs"}
-                            w={80}
-                        />
-                        <Text size="sm">
-                            분 전부터 난이도 표시
-                        </Text>
-                    </Group>
-
-                </Group>
-                {
-                    platform === Platform.BOJ &&
-                    <Stack style={{gap: '0px'}}>
-                        <TextInput
-                            value={fixedQuery}
-                            label="solved.ac 고급 쿼리"
-                            readOnly
-                            disabled
-                        />
-                        <TextInput
-                            value={addedQuery}
-                            onChange={(e) => setAddedQuery(e.target.value)}
-                        />
-                    </Stack>
-                }
-            </Stack>
-        </Input.Wrapper>
+                        <Input.Wrapper label="solved.ac 쿼리"
+                                       description="문제 추첨에 사용될 solved.ac 검색 쿼리입니다. 우측 입력창에 추가 입력이 가능합니다.">
+                            <SimpleGrid cols={2}>
+                                <TextInput
+                                    value={fixedQuery}
+                                    readOnly
+                                />
+                                <TextInput
+                                    value={addedQuery}
+                                    onChange={(e) => setAddedQuery(e.target.value)}
+                                />
+                            </SimpleGrid>
+                        </Input.Wrapper>
+                    </> :
+                    <>
+                        <SimpleGrid cols={2}>
+                            <Input.Wrapper label="대회 번호 지정">
+                                <Group wrap="nowrap">
+                                    <NumberInput
+                                        value={contestIdRange[0]}
+                                        onChange={(v) => setContestIdRange([v, contestIdRange[1]])}
+                                    />
+                                    <Text>~</Text>
+                                    <NumberInput
+                                        value={contestIdRange[1]}
+                                        onChange={(v) => setContestIdRange([contestIdRange[0], v])}
+                                    />
+                                </Group>
+                            </Input.Wrapper>
+                            <Input.Wrapper label="난이도 지정">
+                                <Group wrap="nowrap">
+                                    <NumberInput
+                                        value={tierRange[0]}
+                                        onChange={(v) => setTierRange([v, tierRange[1]])}
+                                    />
+                                    <Text>~</Text>
+                                    <NumberInput
+                                        value={tierRange[1]}
+                                        onChange={(v) => setTierRange([tierRange[0], v])}
+                                    />
+                                </Group>
+                            </Input.Wrapper>
+                        </SimpleGrid>
+                    </>
+            }
+        </Stack>
 
     );
 };

@@ -1,4 +1,4 @@
-import {UserSummary} from "./UserSummary.tsx";
+import {MemberSummary} from "./MemberSummary.tsx";
 
 export interface MemberDetails {
     handle: string;
@@ -6,7 +6,7 @@ export interface MemberDetails {
     rating: number;
     contest_history: ContestHistory[];
     num_solved_missions: number;
-    user_summary: UserSummary;
+    user_summary: MemberSummary;
 }
 
 export interface ContestHistory {

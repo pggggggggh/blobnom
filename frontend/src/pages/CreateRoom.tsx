@@ -1,19 +1,19 @@
 import React from 'react';
 import {useForm} from '@mantine/form';
-import {Button, Container, Radio, Stack, Title} from '@mantine/core';
+import {Button, Card, Container, SimpleGrid, Stack, Text, TextInput, Title} from '@mantine/core';
 import {RoomForm} from '../types/RoomForm';
 import {
-    SetRoomOwner,
+    SetRoomDifficulty,
     SetRoomPin,
     SetRoomQuery,
     SetRoomSize,
     SetRoomTime,
-    SetRoomTitle,
     TeamSelector
 } from '../components/RoomForm';
 import {useCreateRoom} from '../hooks/hooks';
 import {useAuth} from "../context/AuthProvider.tsx";
 import {Platform} from "../types/Platforms.tsx";
+import SetPlatform from "../components/RoomForm/SetPlatform.tsx";
 
 function CreateRoom() {
     const auth = useAuth();
@@ -28,7 +28,7 @@ function CreateRoom() {
             platform: Platform.BOJ,
             owner_handle: '',
             edit_password: '',
-            handles: auth.user ? {[auth.user]: 0} : {},
+            handles: auth.member?.handle ? {[auth.member.handle]: 0} : {},
             is_teammode: false,
             mode: 'land_grab_solo',
             title: '',
@@ -42,9 +42,9 @@ function CreateRoom() {
             entry_pin: '',
         },
         validate: {
-            owner_handle: (value) => (!auth.user && value.trim() === '' ? '방장은 필수 항목입니다.' : null),
+            owner_handle: (value) => (!auth.member && value.trim() === '' ? '방장은 필수 항목입니다.' : null),
             edit_password: (value) =>
-                !auth.user && value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null,
+                !auth.member && value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null,
             title: (value) => (value.trim() === '' ? '방 제목은 필수 항목입니다.' : null),
             entry_pin: (value, values) =>
                 values.is_private ? (value.length < 4 ? '비밀번호는 최소 4자 이상이어야 합니다.' : null) : null,
@@ -89,68 +89,67 @@ function CreateRoom() {
     };
 
     return (
-        <Container size="md" my="xl">
-            <form
-                onSubmit={form.onSubmit((values) => {
-                    values.mode = values.is_teammode ? 'land_grab_team' : 'land_grab_solo';
-                    return mutation.mutate(values);
-                })}
-                onKeyDown={handleKeyDown}
-            >
-                <Stack>
-                    <Title order={2}>
-                        방 만들기
-                    </Title>
+        <Container>
+            <Card mx="xl" p="xl" shadow="sm">
+                <Title>방 만들기</Title>
+                <Text c="dimmed" mb="sm">방을 만들어 친구들과 함께 문제풀이를 즐깁니다.</Text>
+                <form
+                    onSubmit={form.onSubmit((values) => {
+                        values.mode = values.is_teammode ? 'land_grab_team' : 'land_grab_solo';
+                        return mutation.mutate(values);
+                    })}
+                    onKeyDown={handleKeyDown}
+                >
+                    <Stack>
+                        <SimpleGrid cols={2}>
+                            <TextInput
+                                label="방 제목"
+                                placeholder="방 제목"
+                                required
+                                key={form.key("title")}
+                                {...form.getInputProps("title")}
+                            />
+                            <SetRoomPin
+                                isPrivateProps={form.getInputProps('is_private', {type: 'checkbox'})}
+                                entryPinProps={form.getInputProps('entry_pin')}
+                                onClearPin={() => form.setFieldValue('entry_pin', '')}
+                            />
+                        </SimpleGrid>
 
-                    <SetRoomTitle titleProps={form.getInputProps('title')}/>
+                        {/*{!auth.member &&*/}
+                        {/*    <SetRoomOwner*/}
+                        {/*        ownerProps={form.getInputProps('owner_handle')}*/}
+                        {/*        passwordProps={form.getInputProps('edit_password')}*/}
+                        {/*    />}*/}
 
+                        <SetPlatform
+                            platformProps={form.getInputProps("platform")}
+                        />
 
-                    <SetRoomPin
-                        isPrivateProps={form.getInputProps('is_private', {type: 'checkbox'})}
-                        entryPinProps={form.getInputProps('entry_pin')}
-                        onClearPin={() => form.setFieldValue('entry_pin', '')}
-                    />
+                        <SetRoomQuery
+                            platform={form.values.platform}
+                            queryValue={form.values.query}
+                            queryProps={form.getInputProps('query')}
+                            handleValue={form.values.handles}
+                        />
 
+                        <SetRoomDifficulty unfreezeOffsetMinutesProps={form.getInputProps("unfreeze_offset_minutes")}/>
 
-                    {!auth.user &&
-                        <SetRoomOwner
-                            ownerProps={form.getInputProps('owner_handle')}
-                            passwordProps={form.getInputProps('edit_password')}
-                        />}
+                        <SetRoomSize sizeProps={form.getInputProps('size')}/>
 
-                    <Radio.Group
-                        {...form.getInputProps('platform')}
-                        required
-                        label="문제 출처"
+                        <TeamSelector
+                            handleProps={form.getInputProps('handles')}
+                            teamModeProps={form.getInputProps('is_teammode')}
+                        />
 
-                    >
-                        <Radio value={Platform.BOJ} label="백준"/>
-                        <Radio value={Platform.CODEFORCES} label="코드포스"/>
-                    </Radio.Group>
+                        <SetRoomTime form={form}/>
 
-
-                    <SetRoomQuery
-                        platform={form.values.platform}
-                        queryValue={form.values.query}
-                        queryProps={form.getInputProps('query')}
-                        handleValue={form.values.handles}
-                        unfreezeOffsetMinutesProps={form.getInputProps('unfreeze_offset_minutes')}
-                    />
-
-                    <SetRoomSize sizeProps={form.getInputProps('size')}/>
-
-                    <TeamSelector
-                        handleProps={form.getInputProps('handles')}
-                        teamModeProps={form.getInputProps('is_teammode')}
-                    />
-
-                    <SetRoomTime form={form}/>
-
-                    <Button type="submit" loading={mutation.isPending}>
-                        생성
-                    </Button>
-                </Stack>
-            </form>
+                        <Button type="submit" loading={mutation.isPending}>
+                            생성
+                        </Button>
+                    </Stack>
+                </form>
+            </Card>
         </Container>
     );
 }

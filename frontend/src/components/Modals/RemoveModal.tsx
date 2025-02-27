@@ -15,7 +15,7 @@ const RoomDeleteModal = ({roomId, needPassword}: { roomId: number, needPassword:
         },
         validate: {
             password: (value) => {
-                if (auth.user) return null;
+                if (auth.member) return null;
                 if (value.length < 4) {
                     return "비밀번호를 확인해주세요.";
                 }

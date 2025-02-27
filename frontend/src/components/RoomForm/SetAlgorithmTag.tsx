@@ -35,7 +35,6 @@ const SetAlgorithmTag = ({selectedTags, setSelectedTags}) => {
             searchable
             clearable
             filter={filter}
-            withinPortal
             multiple
         />
     );

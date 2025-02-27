@@ -1,27 +1,3 @@
-export const userColorsBefore = [
-    ["#b91c1c", "#671616"],
-    ["#1d4ed8", "#172554"],
-    ["#ca8a04", "#713f12"],
-    ["#15803d", "#14532d"],
-    ["#7e2cc3", "#4c0783"],
-    ["#78350f", "#451a03"],
-    ["#6366f1", "#312e81"],
-    ["#ec4899", "#831843"],
-    ["#e48787", "#b91c1c"],
-    ["#06b6d4", "#083344"],
-    ["#84cc16", "#3f6212"],
-    ["#b4a1fa", "#6d28d9"],
-    ["#10b981", "#065f46"],
-    ["#fb923c", "#c2410c"],
-    ["#14635c", "#113533"],
-    ["#475569", "#1c2a4c"],
-]
-
-
-export const gradientNullBefore =
-    ["#1c1c1c", "#2b2b2b"]
-
-
 export const userColors = [
     ["#9E3E3B", "#9E3E3B"],
     ["#37639B", "#37639B"],
@@ -43,7 +19,4 @@ export const userColors = [
 
 
 export const gradientNull =
-    ["#1D1E2C", "#1D1E2C"]
-
-export const strokeUnsolvable =
-    ["#9E3E3B", "#9E3E3B"]
+    ["#1c1c20", "#1c1c20"]

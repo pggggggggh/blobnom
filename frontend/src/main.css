@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 
-.mantine-InputWrapper-label {
-    @apply font-light;
+.mantine-InputWrapper-description {
     @apply pb-1;
 }

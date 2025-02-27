@@ -14,19 +14,6 @@ from src.app.utils.scheduler import add_job
 from src.app.utils.security_utils import hash_password
 
 
-async def update_all_rooms(db):
-    rooms = (db.query(Room)
-             .options(joinedload(Room.missions))
-             .all())
-    for room in rooms:
-        await update_score(room.id, db)
-        room.num_mission = len(room.missions)
-        if room.is_private and room.entry_pwd is None:
-            room.entry_pwd = hash_password(os.environ.get("DEFAULT_PWD"))
-        if room.edit_pwd is None:
-            room.edit_pwd = hash_password(os.environ.get("DEFAULT_PWD"))
-
-
 async def check_unstarted_events():
     db = next(get_db())
     rooms = db.query(Room).filter(Room.is_started == False).filter(Room.is_deleted == False).all()

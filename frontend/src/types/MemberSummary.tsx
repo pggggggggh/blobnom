@@ -1,4 +1,4 @@
-export interface UserSummary {
+export interface MemberSummary {
     handle: string;
     role: string;
     rating: number;

@@ -55,7 +55,7 @@ const ContestLeaderboardComponent = ({room_details}) => {
                                                     </Flex>
 
                                                     <div className="flex-grow h-1/3">
-                                                        <HandleComponent user={team.users[0].user}/>
+                                                        <HandleComponent member={team.users[0].user}/>
                                                     </div>
 
                                                     <Text

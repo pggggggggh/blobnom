@@ -1,4 +1,4 @@
-import {UserSummary} from "./UserSummary.tsx";
+import {MemberSummary} from "./MemberSummary.tsx";
 import {Platform} from "./Platforms.tsx";
 
 export interface RoomDetail {
@@ -33,7 +33,7 @@ export interface TeamInfo {
 }
 
 export interface RoomPlayerInfo {
-    user: UserSummary;
+    user: MemberSummary;
     indiv_solved_cnt: number;
     is_active: boolean;
 }

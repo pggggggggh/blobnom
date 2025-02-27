@@ -19,7 +19,7 @@ const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage
 
     return (
         <Box
-            className={`absolute left-0 bottom-0 xs:w-40 lg:w-80 bg-black bg-opacity-50 rounded-lg backdrop-blur-sm ${
+            className={`fixed left-4 bottom-4 xs:w-40 lg:w-80 bg-black bg-opacity-50 rounded-lg backdrop-blur-sm ${
                 isChatMinimized ? 'h-10' : 'h-64'
             }`}
         >
@@ -73,7 +73,7 @@ const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage
                         </ScrollArea>
 
                         <Box className="p-2 border-t border-gray-600">
-                            {auth.user ? (
+                            {auth.member ? (
                                 <input
                                     type="text"
                                     maxLength={500}

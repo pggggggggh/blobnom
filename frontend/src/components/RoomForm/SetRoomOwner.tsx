@@ -1,4 +1,4 @@
-import {Grid, TextInput} from '@mantine/core';
+import {Grid, SimpleGrid, TextInput} from '@mantine/core';
 
 const SetRoomOwner = ({
                           ownerProps,
@@ -8,7 +8,7 @@ const SetRoomOwner = ({
     passwordProps: any;
 }) => {
     return (
-        <Grid gutter="lg">
+        <SimpleGrid cols={2}>
             <Grid.Col span={6}>
                 <TextInput
                     {...ownerProps}
@@ -27,7 +27,7 @@ const SetRoomOwner = ({
                     required
                 />
             </Grid.Col>
-        </Grid>
+        </SimpleGrid>
     );
 };
 

@@ -1,4 +1,4 @@
-import {Checkbox, Grid, TextInput} from '@mantine/core';
+import {Checkbox, Stack, TextInput} from '@mantine/core';
 
 const SetRoomPin = ({
                         isPrivateProps,
@@ -15,8 +15,6 @@ const SetRoomPin = ({
     };
     onClearPin: () => void;
 }) => {
-
-
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         isPrivateProps.onChange(event);
         if (!event.target.checked) {
@@ -25,26 +23,20 @@ const SetRoomPin = ({
     };
 
     return (
-        <Grid
-            gutter="lg"
-            align="center"
-        >
-            <Grid.Col span={6}>
-                <Checkbox
-                    label="비밀방 설정"
-                    checked={isPrivateProps.checked}
-                    onChange={handleCheckboxChange}
-                />
-            </Grid.Col>
-            <Grid.Col span={6}>
-                <TextInput
-                    {...entryPinProps}
-                    placeholder="입장 비밀번호"
-                    type="password"
-                    disabled={!isPrivateProps.checked}
-                />
-            </Grid.Col>
-        </Grid>
+        <Stack gap="xs">
+            <TextInput
+                label="입장 비밀번호"
+                {...entryPinProps}
+                placeholder="입장 비밀번호"
+                type="password"
+                disabled={!isPrivateProps.checked}
+            />
+            <Checkbox
+                label="비밀방 설정"
+                checked={isPrivateProps.checked}
+                onChange={handleCheckboxChange}
+            />
+        </Stack>
     );
 };
 

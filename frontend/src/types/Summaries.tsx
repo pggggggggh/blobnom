@@ -1,4 +1,4 @@
-import {UserSummary} from "./UserSummary.tsx";
+import {MemberSummary} from "./MemberSummary.tsx";
 import {Platform} from "./Platforms.tsx";
 
 export interface MainData {
@@ -13,7 +13,7 @@ export interface RoomSummary {
     platform: Platform;
     starts_at: string;
     ends_at: string;
-    owner: UserSummary;
+    owner: MemberSummary;
     num_players: number;
     max_players: number;
     is_private: boolean;

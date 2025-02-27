@@ -5,17 +5,17 @@ import RatingChartComponent from "../components/RatingChartComponent.tsx";
 import {getRatingColor} from "../utils/MiscUtils.tsx";
 import React from "react";
 import HandleComponent from "../components/HandleComponent.tsx";
-import PlatformIcons from "../constants/PlatformIcons.tsx";
 import {Platform} from "../types/Platforms.tsx";
 import NotFound from "./NotFound.tsx";
 import {AxiosError} from "axios";
+import PlatformIcon from "../components/PlatformIcon.tsx";
 
 const MemberProfilePage = () => {
     const {handle} = Route.useParams();
     const {data: memberDetails, isLoading, error} = useMemberDetail(handle);
 
     if ((error as AxiosError)?.status === 404) return <NotFound/>;
-    if (isLoading) return <div></div>;
+    if (isLoading || !memberDetails) return <div></div>;
 
     return (
         <Container size="md" className="py-10">
@@ -28,7 +28,7 @@ const MemberProfilePage = () => {
                     size={80} radius={60} className="mb-4"
                 />
                 <Title className="text-3xl font-bold">
-                    <HandleComponent user={memberDetails.user_summary}/>의 프로필
+                    <HandleComponent member={memberDetails.user_summary}/>의 프로필
                 </Title>
                 <Text size="md" className="text-gray-600 mt-2">
                     {memberDetails.bio || "사용자의 자기소개가 없습니다."}
@@ -38,9 +38,9 @@ const MemberProfilePage = () => {
                 {Object.entries(memberDetails.user_summary.accounts).map(([key, value]) => (
                     <Card shadow="sm" padding="md" radius="md" key={key} className="flex items-center">
                         <Group className="w-full">
-                            {PlatformIcons[key]}
+                            <PlatformIcon platform={key}/>
                             <div>
-                                <Text size="sm" className="text-gray-300">
+                                <Text size="sm">
                                     {key.toUpperCase()} 계정
                                 </Text>
                                 <Anchor

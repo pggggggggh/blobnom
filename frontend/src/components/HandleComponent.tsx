@@ -1,21 +1,20 @@
 import {Tooltip} from '@mantine/core';
 import {Link} from "@tanstack/react-router";
 import {getRatingColor} from "../utils/MiscUtils.tsx";
-import {UserSummary} from "../types/UserSummary.tsx";
+import {MemberSummary} from "../types/MemberSummary.tsx";
 
-const HandleComponent = ({user, linkToProfile = true}: { user: UserSummary, linkToProfile?: boolean }) => {
-
+const HandleComponent = ({member, linkToProfile = true}: { member: MemberSummary, linkToProfile?: boolean }) => {
     return (
         <>
-            {user.role ? (
+            {member.role ? (
                 linkToProfile ?
-                    <Link to={`/members/${user.handle}`}>
-                        <span className={`tracking-tighter font-bold ${getRatingColor(user.rating)}`}>
-                            {user.handle}
+                    <Link to={`/members/${member.handle}`}>
+                        <span className={`tracking-tighter font-bold ${getRatingColor(member.rating)}`}>
+                            {member.handle}
                         </span>
                     </Link> :
-                    <span className={`tracking-tighter font-bold ${getRatingColor(user.rating)}`}>
-                        {user.handle}
+                    <span className={`tracking-tighter font-bold ${getRatingColor(member.rating)}`}>
+                        {member.handle}
                     </span>
             ) : (
                 <span className="inline-flex items-center">
@@ -24,7 +23,7 @@ const HandleComponent = ({user, linkToProfile = true}: { user: UserSummary, link
                             ⚠️
                         </span>
                     </Tooltip>
-                    <span className="tracking-wide text-slate-400 font-light">{user.handle}</span>
+                    <span className="tracking-wide text-slate-400 font-light">{member.handle}</span>
                 </span>
             )}
         </>

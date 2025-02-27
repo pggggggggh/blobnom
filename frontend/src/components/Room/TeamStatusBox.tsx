@@ -1,10 +1,10 @@
 import {useState} from 'react';
 import {Menu} from '@mantine/core';
-import {TeamInfo} from "../../types/RoomDetail.tsx";
+import {TeamInfo} from "../../types/roomDetails.tsx";
 import {Platform} from "../../types/Platforms.tsx";
 import HandleComponent from "../HandleComponent.tsx";
 
-function TeamStatusBox({roomDetail, userColors, activeUsers}) {
+function TeamStatusBox({roomDetails, userColors, activeUsers}) {
     const [showAll, setShowAll] = useState(true);
 
     const toggleView = () => {
@@ -12,8 +12,8 @@ function TeamStatusBox({roomDetail, userColors, activeUsers}) {
     };
 
     const teamsToShow = showAll
-        ? roomDetail.team_info
-        : roomDetail.team_info.slice(0, 1);
+        ? roomDetails.team_info
+        : roomDetails.team_info.slice(0, 1);
 
     return (
         <div
@@ -50,7 +50,7 @@ function TeamStatusBox({roomDetail, userColors, activeUsers}) {
                                                     : ''
                                             } text-white`}
                                             >
-                                                <HandleComponent user={player_info.user} linkToProfile={false}/>
+                                                <HandleComponent member={player_info.user} linkToProfile={false}/>
                                             </span>
                                         </Menu.Target>
                                         <Menu.Dropdown>
@@ -60,9 +60,9 @@ function TeamStatusBox({roomDetail, userColors, activeUsers}) {
                                                 프로필 보기
                                             </Menu.Item>
                                             <Menu.Item component="a" href={
-                                                roomDetail.platform === Platform.BOJ
-                                                    ? `https://www.acmicpc.net/status?user_id=${player_info.user.accounts[roomDetail.platform]}`
-                                                    : `https://codeforces.com/submissions/${player_info.user.accounts[roomDetail.platform]}`
+                                                roomDetails.platform === Platform.BOJ
+                                                    ? `https://www.acmicpc.net/status?user_id=${player_info.user.accounts[roomDetails.platform]}`
+                                                    : `https://codeforces.com/submissions/${player_info.user.accounts[roomDetails.platform]}`
                                             } target="_blank">
                                                 제출 기록 보기
                                             </Menu.Item>
