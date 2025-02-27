@@ -1,3 +1,6 @@
+import dayjs from "dayjs";
+import {Badge} from "@mantine/core";
+
 const RoomStatusBadge = ({startsAt, endsAt, now}: { startsAt: string, endsAt: string, now: Date }) => {
     if (dayjs(startsAt).isBefore(now)) {
         return dayjs(endsAt).isBefore(now) ? (
@@ -17,3 +20,6 @@ const RoomStatusBadge = ({startsAt, endsAt, now}: { startsAt: string, endsAt: st
         );
     }
 };
+
+
+export default RoomStatusBadge;

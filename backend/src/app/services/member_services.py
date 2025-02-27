@@ -99,12 +99,14 @@ async def create_token(db: Session):
 async def register(register_request: RegisterRequest, db: Session):
     if db.query(Member).filter(
             or_(Member.email == register_request.email, Member.handle == register_request.handle)
-    ).first():
+    ).first() or db.query(User).filter(User.platform == register_request.platform,
+                                       User.handle == register_request.handle).first():
         raise HTTPException(
             status_code=409,
             detail="Handle or email already taken"
         )
-    await token_validate(register_request.handle, Platform.BOJ, db)
+    print(register_request)
+    await token_validate(register_request.handle, register_request.platform, db)
 
     member = Member(
         handle=register_request.handle.lower(),

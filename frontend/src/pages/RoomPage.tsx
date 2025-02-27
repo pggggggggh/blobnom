@@ -138,16 +138,13 @@ export default function RoomPage() {
     if (!roomDetails || isLoading) return <div></div>;
 
     return (
-        <Box h="100%">
+        <Box h="calc(100vh - 100px)">
             <RoomInfoComponent roomDetail={roomDetails} timeLeft={timeLeft}/>
             <ChatBoxComponent messages={messages} handleSendMessage={handleSendMessage}/>
             <TeamStatusBox roomDetails={roomDetails} userColors={userColors} activeUsers={activeUsers}/>
-            {roomDetails.is_started ?
-                <HexComponent roomDetails={roomDetails}/>
-                :
+            {roomDetails.is_started ? <HexComponent roomDetails={roomDetails}/> :
                 <RoomCountdown timeBefore={timeBefore}/>
             }
         </Box>
     );
 }
-

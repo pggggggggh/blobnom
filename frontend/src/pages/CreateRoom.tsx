@@ -89,8 +89,8 @@ function CreateRoom() {
     };
 
     return (
-        <Container>
-            <Card mx="xl" p="xl" shadow="sm">
+        <Container py="lg">
+            <Card mx="xl" px="xl" pt="lg" pb="xl" shadow="sm" withBorder>
                 <Title>방 만들기</Title>
                 <Text c="dimmed" mb="sm">방을 만들어 친구들과 함께 문제풀이를 즐깁니다.</Text>
                 <form
@@ -122,9 +122,7 @@ function CreateRoom() {
                         {/*        passwordProps={form.getInputProps('edit_password')}*/}
                         {/*    />}*/}
 
-                        <SetPlatform
-                            platformProps={form.getInputProps("platform")}
-                        />
+                        <SetPlatform platformProps={form.getInputProps("platform")} label={"문제 출처"} desc={""}/>
 
                         <SetRoomQuery
                             platform={form.values.platform}

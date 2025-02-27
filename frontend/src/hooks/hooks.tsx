@@ -1,14 +1,16 @@
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {RoomDetail} from "../types/RoomDetail.tsx";
-import {BindPayload, LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
+import {BindPayload, LoginPayload, PlatformTokenResponse, RegisterPayload,} from "../types/Auth.tsx"
 import {
     deleteRoom,
     fetchContestDetail,
     fetchContestList,
+    fetchLeaderboards,
     fetchMainData,
     fetchMemberDetails,
+    fetchPlatformToken,
     fetchRoomDetail,
-    fetchSolvedAcToken,
+    fetchSiteStats,
     postBindAccount,
     postCreateRoom,
     postJoinRoom,
@@ -25,6 +27,8 @@ import {useRouter} from "@tanstack/react-router";
 import InfoModal from "../components/Modals/InfoModal.tsx";
 import {ContestDetail} from "../types/ContestDetail.tsx";
 import {MemberDetails} from "../types/MemberDetails.tsx";
+import {SiteStats} from "../types/SiteStats.tsx";
+import {Leaderboards} from "../types/Leaderboards.tsx";
 
 const handleError = (error: any) => {
     console.log(error);
@@ -92,6 +96,19 @@ export const useMemberDetail = (handle: string) => {
     });
 };
 
+export const useSiteStats = () => {
+    return useQuery<SiteStats, Error>({
+        queryKey: ['siteStats'],
+        queryFn: () => fetchSiteStats(),
+    });
+};
+
+export const useLeaderboards = () => {
+    return useQuery<Leaderboards, Error>({
+        queryKey: ['leaderboards'],
+        queryFn: () => fetchLeaderboards(),
+    });
+};
 
 export const useSolveProblem = () => {
     return useMutation({
@@ -183,10 +200,10 @@ export const useDeleteRoom = () => {
 };
 
 
-export const useFetchSolvedAcToken = () => {
-    return useQuery<SolvedAcTokenResponse, Error>({
-        queryKey: ['solvedAcToken'],
-        queryFn: fetchSolvedAcToken,
+export const useFetchPlatformToken = () => {
+    return useQuery<PlatformTokenResponse, Error>({
+        queryKey: ['platformToken'],
+        queryFn: fetchPlatformToken,
         enabled: false,
     });
 };
@@ -247,9 +264,9 @@ export const useRegister = () => {
                 if (error.response.status === 409) {
                     detailMessage = "이미 사용 중인 핸들이나 이메일입니다.";
                 } else if (error.response.status === 400) {
-                    detailMessage = "토큰 검증에 실패했습니다. (solved.ac 토큰 확인)";
+                    detailMessage = "토큰 검증에 실패했습니다. 적용되는 데 시간이 걸릴 수 있으니, 바르게 입력했다면 잠시만 기다려주세요.";
                 } else if (error.response.status === 404) {
-                    detailMessage = "solved.ac에 존재하지 않는 사용자입니다.";
+                    detailMessage = "존재하지 않는 사용자입니다.";
                 } else if (error.response.status === 429) {
                     detailMessage = "잠시 후 시도해주세요.";
                 }

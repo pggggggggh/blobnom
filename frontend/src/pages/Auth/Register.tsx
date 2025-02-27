@@ -1,104 +1,94 @@
-import {ActionIcon, Alert, Box, Button, Container, PasswordInput, Stack, Text, TextInput, Title} from "@mantine/core";
-import {useFetchSolvedAcToken, useRegister} from "../../hooks/hooks.tsx";
-import {useNavigate} from "@tanstack/react-router";
+import {Alert, Button, Card, Container, Group, Stepper, Title} from "@mantine/core";
+import {useFetchPlatformToken, useRegister} from "../../hooks/hooks.tsx";
 import {useForm} from "@mantine/form";
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import React, {useState} from "react";
+import SetPlatform from "../../components/RoomForm/SetPlatform.tsx";
+import {Platform} from "../../types/Platforms.tsx";
+import {RegisterForm} from "../../types/RegisterForm.tsx";
+import TokenStepComponent from "../../components/Register/TokenStepComponent.tsx";
+import RegisterFormComponent from "../../components/Register/RegisterFormComponent.tsx";
 
 export default function Register() {
-    const navigate = useNavigate();
+    const [active, setActive] = useState(0);
     const registerMutation = useRegister();
-    const {data: solvedTokenData, refetch, isFetching, isError} = useFetchSolvedAcToken();
+    const {data: platformTokenData, refetch, isFetching, isError} = useFetchPlatformToken();
 
-    const form = useForm({
-        mode: 'uncontrolled',
+    const form = useForm<RegisterForm>({
         initialValues: {
+            platform: Platform.BOJ,
             handle: '',
             email: '',
             password: '',
+            confirmPassword: '',
         },
-        validate: {
-            email: (value) => {
-                if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
-                    return '이메일을 확인해주세요.';
-                }
-                return null;
-            },
+        validate: (values) => {
+            if (active === 1) {
+                return {
+                    handle: values.handle.trim().length < 2 ? '핸들을 확인해주세요.' : null,
+                    email: /^\S+@\S+$/.test(values.email) ? null : '이메일을 확인해주세요.',
+                    password: values.password.length < 6 ? '비밀번호는 최소 6자 이상이어야 합니다.' : null,
+                    confirmPassword: values.password !== values.confirmPassword ? '비밀번호가 맞지 않습니다.' : null
+                };
+            }
+            return {};
         },
     });
 
-    function onGetSolvedAcToken() {
-        refetch();
+    const nextStep = () =>
+        setActive((current) => {
+            if (form.validate().hasErrors) {
+                return current;
+            }
+            if (current === 2) {
+                onRegister(form.values)
+                return current;
+            }
+            return current + 1;
+        });
+
+    const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
+
+    async function onGetToken() {
+        await refetch();
     }
 
-    function handleCopyToken() {
-        if (solvedTokenData?.token) {
-            navigator.clipboard.writeText(solvedTokenData.token).then(() => {
-                // alert("토큰이 클립보드에 복사되었습니다!");
-            });
-        }
-    }
 
     function onRegister(values) {
-        registerMutation.mutate({
-            handle: values.handle,
-            email: values.email,
-            password: values.password
-        });
+        registerMutation.mutate(values);
     }
 
     return (
-        <Container size="xs" my="xl">
-            <form onSubmit={form.onSubmit(onRegister)}>
-                <Box mb="md">
-                    <Title order={2}>회원가입</Title>
-                    <Text>
-                        solved.ac 가입 후, 발급받은 토큰을 계정 자기소개란에 붙여넣어주세요.
-                    </Text>
-                </Box>
-                <Stack gap="md">
-                    {isError && <Alert color="red">토큰 발급 중 오류가 발생했습니다. 잠시 후에 시도해주세요.</Alert>}
-                    <Button onClick={onGetSolvedAcToken} variant="outline" loading={isFetching}>
-                        solved.ac 인증 토큰 발급
-                    </Button>
-                    {solvedTokenData && (
-                        <TextInput
-                            label="solved.ac 토큰"
-                            readOnly
-                            value={solvedTokenData.token}
-                            rightSection={
-                                <ActionIcon onClick={handleCopyToken} variant="subtle">
-                                    <ContentCopyIcon fontSize="small"/>
-                                </ActionIcon>
-                            }
-                        />
-                    )}
-                    <TextInput
-                        {...form.getInputProps('handle')}
-                        label="핸들(Handle)"
-                        placeholder="solved.ac handle과 동일"
-                        required
-                    />
-                    <TextInput
-                        {...form.getInputProps('email')}
-                        label="이메일"
-                        placeholder="이메일 입력"
-                        required
-                    />
-                    <PasswordInput
-                        {...form.getInputProps('password')}
-                        label="비밀번호"
-                        placeholder="비밀번호 입력"
-                        required
-                    />
-                    <Button type="submit" loading={registerMutation.isPending}>
-                        회원가입
-                    </Button>
+        <Container>
+            <Card mx="xl" px="xl" pt="lg" pb="xl" shadow="sm" withBorder>
+                <Title mb="sm">회원가입</Title>
+                {isError && <Alert color="red">토큰 발급 중 오류가 발생했습니다. 잠시 후에 시도해주세요.</Alert>}
+                <form>
+                    <Stepper active={active} iconSize="32">
+                        <Stepper.Step label="가입할 플랫폼 선택">
+                            <SetPlatform platformProps={form.getInputProps("platform")} label={"플랫폼 선택"}
+                                         desc="가입 후 다른 플랫폼으로도 연동 가능합니다."/>
+                        </Stepper.Step>
+                        <Stepper.Step label="아이디, 비밀번호 입력">
+                            <RegisterFormComponent form={form}/>
+                        </Stepper.Step>
+                        <Stepper.Step label="플랫폼 계정 인증">
+                            <TokenStepComponent onGetToken={onGetToken} isFetching={isFetching}
+                                                platform={form.values.platform} tokenData={platformTokenData}
+                            />
+                        </Stepper.Step>
+                    </Stepper>
 
-                    {/*<Button variant="outline" onClick={() => navigate({to: "/login"})}>*/}
-                    {/*    로그인 페이지로*/}
-                    {/*</Button>*/}
-                </Stack>
-            </form>
+
+                    <Group justify="flex-end" mt="xl">
+                        {active !== 0 && (
+                            <Button variant="default" onClick={prevStep}>
+                                이전
+                            </Button>
+                        )}
+                        <Button onClick={nextStep} loading={registerMutation.isPending}>다음</Button>
+                    </Group>
+                </form>
+            </Card>
         </Container>
     );
 }

@@ -17,7 +17,7 @@ async def search_problems(query):
         return response.json()["items"]
 
 
-async def token_validate(handle, platform, db: Session):
+async def token_validate(handle, platform: Platform, db: Session):
     async with httpx.AsyncClient() as client:
         if platform == Platform.BOJ:
             response = await client.get(f"https://solved.ac/api/v3/user/show?handle={handle}")

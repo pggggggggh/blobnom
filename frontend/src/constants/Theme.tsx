@@ -9,7 +9,7 @@ const Theme = {
     //         '#2e3035', // card border
     //         '#494747', // button hover
     //         '#222327', // card bg
-    //         '#121212', // bg
+    //         '#15151b', // bg
     //         '#33414e', // dark-8
     //         '#212529', // dark-9
     //     ],

@@ -17,10 +17,10 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
 
     return (
         <div
-            className="p-2 fixed bottom-4 right-4 bg-zinc-900 opacity-75 text-white shadow-lg rounded-sm max-h-100 overflow-y-auto z-0">
+            className="fixed bottom-4 right-4">
             <button
                 onClick={toggleView}
-                className="absolute bottom-2 right-2 p-1 bg-transparent border-none rounded focus:outline-none"
+                className="absolute bottom-2 right-2 bg-transparent border-none rounded focus:outline-none"
                 aria-label="Toggle view mode"
                 style={{fontSize: '0.8rem'}}
             >

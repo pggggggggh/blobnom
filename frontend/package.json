@@ -26,10 +26,13 @@
     "apexcharts": "^4.4.0",
     "axios": "^1.7.7",
     "dayjs": "^1.11.13",
+    "i18next": "^24.2.2",
+    "i18next-browser-languagedetector": "^8.0.4",
     "react": "^18.3.1",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^18.3.1",
     "react-hexgrid": "^2.0.1",
+    "react-i18next": "^15.4.1",
     "socket.io-client": "^4.8.1",
     "tailwindcss": "^3.4.15",
     "zustand": "^5.0.3"

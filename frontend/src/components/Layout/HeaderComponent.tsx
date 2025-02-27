@@ -24,9 +24,9 @@ const HeaderComponent = () => {
     ];
 
     const notifications = [
-        {id: 1, text: '새로운 대회가 등록되었습니다.', time: '방금 전'},
-        {id: 2, text: '회원님의 제출이 평가되었습니다.', time: '1시간 전'},
-        {id: 3, text: '새로운 팔로워가 생겼습니다.', time: '2시간 전'},
+        // {id: 1, text: '새로운 대회가 등록되었습니다.', time: '방금 전'},
+        // {id: 2, text: '회원님의 제출이 평가되었습니다.', time: '1시간 전'},
+        // {id: 3, text: '새로운 팔로워가 생겼습니다.', time: '2시간 전'},
     ];
 
     return (

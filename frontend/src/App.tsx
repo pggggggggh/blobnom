@@ -15,6 +15,21 @@ import {Notifications} from "@mantine/notifications";
 import {RouterProvider} from "@tanstack/react-router";
 import router from "./router.tsx";
 import theme from "./constants/Theme.tsx";
+import i18n from "i18next";
+import i18next from "i18next";
+import {initReactI18next} from "react-i18next";
+import {Translation} from "./constants/Translation.tsx";
+import LanguageDetector from 'i18next-browser-languagedetector';
+
+i18next.use(LanguageDetector)
+i18n
+    .use(initReactI18next)
+    .init({
+        resources: Translation,
+        interpolation: {
+            escapeValue: false
+        }
+    });
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);

@@ -173,7 +173,6 @@ const TeamSelector = ({handleProps, teamModeProps}: {
                                         placeholder="닉네임 입력"
                                         variant="unstyled"
                                         splitChars={[',', ' ', '|']}
-                                        getCreateLabel={(query: string) => `+ Create "${query}"`}
                                         onCreate={(query: string) => {
                                             query = query.toLowerCase()
                                             setTeams((prevTeams) => {

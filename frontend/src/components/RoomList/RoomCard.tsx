@@ -1,10 +1,11 @@
 import {roomSummary} from "../../types/Summaries.tsx";
-import {Box, Button, Card, Flex, Group, Text} from "@mantine/core";
+import {Box, Button, Card, Flex, Group, Stack, Text} from "@mantine/core";
 import HandleComponent from "../HandleComponent.tsx";
 import {Link} from "@tanstack/react-router";
 import {IconClock, IconHexagons, IconLock, IconUserCheck} from "@tabler/icons-react";
 import dayjs from "dayjs";
 import PlatformIcon from "../PlatformIcon.tsx";
+import RoomStatusBadge from "./RoomProgressBadge.tsx";
 
 interface RoomCardProps {
     roomSummary: roomSummary
@@ -12,6 +13,7 @@ interface RoomCardProps {
 
 const RoomCard = ({roomSummary}: RoomCardProps) => {
     const duration = dayjs.duration(dayjs(roomSummary.ends_at).diff(dayjs(roomSummary.starts_at))).humanize()
+    const now = new Date()
 
     return (
         <Card
@@ -20,19 +22,17 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
             shadow="sm"
         >
             <Group justify="space-between">
-                <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
+                <Box>
                     <Flex align="center">
-                        <Text>
+                        <Text mr={5}>
                             <PlatformIcon platform={roomSummary.platform}/>
                         </Text>
-                        <Text ml={5}>
-                            {roomSummary.name}
-                        </Text>
+                        {roomSummary.name}
                         <Text>
                             {roomSummary.is_private && <IconLock size="18"/>}
                         </Text>
                     </Flex>
-                    <Text fw={200} size="sm">
+                    <Text size="sm">
                         방장:&nbsp;
                         {
                             roomSummary.owner && <HandleComponent member={roomSummary.owner}/>
@@ -40,31 +40,20 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
                     </Text>
                 </Box>
                 <Group>
-                    <Group gap="xs" visibleFrom="sm">
-                        <Box visibleFrom="sm">
-                            <Group gap="xs">
-                                <IconClock/>
-                                <Text size="sm" w={40}>
-                                    {duration}
-                                </Text>
-                            </Group>
-                        </Box>
-                        <Box visibleFrom="sm">
-                            <Group gap="xs">
-                                <IconUserCheck/>
-                                <Text size="sm" w={40}>
-                                    {roomSummary.num_players}/{roomSummary.max_players}
-                                </Text>
-                            </Group>
-                        </Box>
-                        <Box visibleFrom="sm">
-                            <Group gap="xs">
-                                <IconHexagons/>
-                                <Text size="sm" w={40}>
-                                    {roomSummary.num_solved_missions}/{roomSummary.num_missions}
-                                </Text>
-                            </Group>
-                        </Box>
+                    <Group gap="xs" visibleFrom="xs">
+                        <RoomStatusBadge startsAt={roomSummary.starts_at} endsAt={roomSummary.ends_at} now={now}/>
+                        <Stack gap={0} align="center" visibleFrom="sm">
+                            <IconClock/>
+                            {duration}
+                        </Stack>
+                        <Stack gap={0} align="center" visibleFrom="xs">
+                            <IconUserCheck/>
+                            {roomSummary.num_players}/{roomSummary.max_players}
+                        </Stack>
+                        <Stack gap={0} align="center" visibleFrom="xs">
+                            <IconHexagons/>
+                            {roomSummary.num_solved_missions}/{roomSummary.num_missions}
+                        </Stack>
                     </Group>
                     <Link
                         to="/rooms/$roomId"

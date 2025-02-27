@@ -4,43 +4,44 @@ import PlatformIcon from "../PlatformIcon.tsx";
 import React from "react";
 
 interface SetPlatformProps {
+    label: string
+    desc: string
     platformProps: any;
 }
 
-const SetPlatform = ({platformProps}: SetPlatformProps) => {
+const platforms: Platform[] = [Platform.BOJ, Platform.CODEFORCES];
+
+const SetPlatform = ({platformProps, label, desc = ""}: SetPlatformProps) => {
+
     return (
         <Radio.Group
             {...platformProps}
             required
-            label="문제 출처"
+            label={label}
+            description={desc}
         >
             <Group wrap="nowrap">
-                <Radio.Card value={Platform.BOJ} p="sm"
-                            style={{
-                                borderColor:
-                                    platformProps.value === Platform.BOJ
-                                        ? "var(--mantine-primary-color-filled)"
-                                        : "var(--mantine-color-default-border)",
-                            }}>
-                    <Stack align="center" gap={0}>
-                        <Radio.Indicator mb="sm"/>
-                        <PlatformIcon platform={Platform.BOJ} w={32}/>
-                        <Text size="sm">BAEKJOON ONLINE JUDGE</Text>
-                    </Stack>
-                </Radio.Card>
-                <Radio.Card value={Platform.CODEFORCES} p="sm"
-                            style={{
-                                borderColor:
-                                    platformProps.value === Platform.CODEFORCES
-                                        ? "var(--mantine-primary-color-filled)"
-                                        : "var(--mantine-color-default-border)",
-                            }}>
-                    <Stack align="center" gap={0}>
-                        <Radio.Indicator mb="sm"/>
-                        <PlatformIcon platform={Platform.CODEFORCES} w={32}/>
-                        <Text size="sm">Codeforces</Text>
-                    </Stack>
-                </Radio.Card>
+                {
+                    platforms.map((platform) => (
+                        <Radio.Card value={platform} p="sm"
+                                    style={{
+                                        borderColor:
+                                            platformProps.value === platform
+                                                ? "var(--mantine-primary-color-filled)"
+                                                : "var(--mantine-color-default-border)",
+                                    }}
+                                    onClick={() => {
+                                        console.log(platformProps.value)
+                                    }}
+                        >
+                            <Stack align="center" gap={0}>
+                                <Radio.Indicator mb="sm"/>
+                                <PlatformIcon platform={platform} w={32}/>
+                                <Text size="sm">{platform === Platform.BOJ ? "백준" : "코드포스"}</Text>
+                            </Stack>
+                        </Radio.Card>
+                    ))
+                }
             </Group>
         </Radio.Group>
 

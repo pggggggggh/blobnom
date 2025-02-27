@@ -2,9 +2,11 @@ import {api} from "./instance.tsx";
 import {RoomDetail} from "../types/RoomDetail.tsx";
 import {MainData} from "../types/Summaries.tsx";
 import {RoomForm} from "../types/RoomForm.tsx";
-import {BindPayload, LoginPayload, RegisterPayload, SolvedAcTokenResponse,} from "../types/Auth.tsx"
+import {BindPayload, LoginPayload, PlatformTokenResponse, RegisterPayload,} from "../types/Auth.tsx"
 import {ContestDetail} from "../types/ContestDetail.tsx";
 import {MemberDetails} from "../types/MemberDetails.tsx";
+import {SiteStats} from "../types/SiteStats.tsx";
+import {Leaderboards} from "../types/Leaderboards.tsx";
 
 export const fetchMainData = async (page: number, search: string, activeOnly: boolean, myRoomOnly: boolean): Promise<MainData> => {
     const response = await api.get(`/rooms/list`, {
@@ -32,6 +34,16 @@ export const fetchContestDetail = async (contestId: number): Promise<ContestDeta
 
 export const fetchMemberDetails = async (handle: string): Promise<MemberDetails> => {
     const response = await api.get(`/members/details/${handle}`);
+    return response.data;
+};
+
+export const fetchSiteStats = async (): Promise<SiteStats> => {
+    const response = await api.get(`/stats`);
+    return response.data;
+};
+
+export const fetchLeaderboards = async (): Promise<Leaderboards> => {
+    const response = await api.get(`/leaderboards`);
     return response.data;
 };
 
@@ -78,8 +90,8 @@ export async function postLogin(
     return response.data;
 }
 
-export async function fetchSolvedAcToken(): Promise<SolvedAcTokenResponse> {
-    const response = await api.get<SolvedAcTokenResponse>('/auth/solvedac_token');
+export async function fetchPlatformToken(): Promise<PlatformTokenResponse> {
+    const response = await api.get<PlatformTokenResponse>('/auth/solvedac_token');
     return response.data;
 }
 

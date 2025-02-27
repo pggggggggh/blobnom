@@ -6,6 +6,7 @@ export interface LoginPayload {
 }
 
 export interface RegisterPayload {
+    platform: Platform;
     handle: string;
     email: string;
     password: string;
@@ -16,7 +17,7 @@ export interface BindPayload {
     platform: Platform
 }
 
-export interface SolvedAcTokenResponse {
+export interface PlatformTokenResponse {
     token: string;
     expires_at: string;
 }

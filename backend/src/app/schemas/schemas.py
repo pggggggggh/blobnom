@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional, Dict
 
 from pydantic import BaseModel
+from sqlalchemy import DateTime
 
 from src.app.core.enums import ModeType, ContestType, Platform
 
@@ -38,6 +39,7 @@ class ContestCreateRequest(BaseModel):
 
 
 class RegisterRequest(BaseModel):
+    platform: Platform
     handle: str
     email: str
     password: str
@@ -211,3 +213,21 @@ class MessagePayload(BaseModel):
 class MessageData(BaseModel):
     roomId: int
     payload: MessagePayload
+
+
+class SiteStats(BaseModel):
+    num_members: int
+    num_solved_missions: int
+    num_active_users: int
+    updated_at: datetime
+
+
+class LeaderboardEntry(BaseModel):
+    member_summary: UserSummary
+    points: int
+    num_solved_missions: int
+
+
+class Leaderboards(BaseModel):
+    updated_at: datetime
+    leaderboards: List[LeaderboardEntry]

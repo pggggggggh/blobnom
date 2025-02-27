@@ -57,7 +57,7 @@ const SetRoomQuery = ({platform, queryValue, queryProps, handleValue}: SetRoomQu
             {
                 platform === Platform.BOJ ?
                     <>
-                        <Input.Wrapper label={platform === Platform.BOJ ? "알고리즘 태그 및 난이도 지정" : "난이도 범위 지정"}>
+                        <Input.Wrapper label="알고리즘 태그 및 난이도 지정">
                             <SetAlgorithmTag selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
                             <RangeSlider pt="lg" pb="xl" labelTransitionProps={{
                                 transition: 'skew-down',
@@ -72,7 +72,7 @@ const SetRoomQuery = ({platform, queryValue, queryProps, handleValue}: SetRoomQu
                             />
                         </Input.Wrapper>
                         <Input.Wrapper label="solved.ac 쿼리"
-                                       description="문제 추첨에 사용될 solved.ac 검색 쿼리입니다. 우측 입력창에 추가 입력이 가능합니다.">
+                                       description="문제 추첨에 사용될 solved.ac 검색 쿼리입니다. 우측 입력창에 추가 입력이 가능합니다. 한국어 문제만을 원한다면 %ko를 입력하세요.">
                             <SimpleGrid cols={2}>
                                 <TextInput
                                     value={fixedQuery}
