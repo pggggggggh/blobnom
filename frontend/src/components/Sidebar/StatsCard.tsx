@@ -19,7 +19,7 @@ const StatsCard = () => {
                 <Box style={{flex: 1}}>
                     <Group align="center" gap="xs">
                         <IconUserPlus size={20}/>
-                        <Text fw={500}>회원 수</Text>
+                        <Text fw={500}>가입된 회원 수</Text>
                     </Group>
                     {isLoading ? (
                         // <Skeleton mt="xs" height={24} width="60%"/>
