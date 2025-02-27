@@ -23,11 +23,11 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
         >
             <Group justify="space-between">
                 <Box>
-                    <Flex align="center">
-                        <Text mr={5}>
+                    <Flex align="center" className="w-60 sm:w-auto">
+                        <Text mr={7}>
                             <PlatformIcon platform={roomSummary.platform}/>
                         </Text>
-                        {roomSummary.name}
+                        <Text truncate>{roomSummary.name}</Text>
                         <Text>
                             {roomSummary.is_private && <IconLock size="18"/>}
                         </Text>
@@ -42,17 +42,17 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
                 <Group>
                     <Group gap="xs" visibleFrom="xs">
                         <RoomStatusBadge startsAt={roomSummary.starts_at} endsAt={roomSummary.ends_at} now={now}/>
-                        <Stack gap={0} align="center" visibleFrom="sm">
+                        <Stack gap={0} align="center" visibleFrom="lg" w={40}>
                             <IconClock/>
-                            {duration}
+                            <Text size="xs">{duration}</Text>
                         </Stack>
-                        <Stack gap={0} align="center" visibleFrom="xs">
+                        <Stack gap={0} align="center" visibleFrom="lg" w={40}>
                             <IconUserCheck/>
-                            {roomSummary.num_players}/{roomSummary.max_players}
+                            <Text size="xs">{roomSummary.num_players}/{roomSummary.max_players}</Text>
                         </Stack>
-                        <Stack gap={0} align="center" visibleFrom="xs">
+                        <Stack gap={0} align="center" visibleFrom="sm" w={40}>
                             <IconHexagons/>
-                            {roomSummary.num_solved_missions}/{roomSummary.num_missions}
+                            <Text size="xs">{roomSummary.num_solved_missions}/{roomSummary.num_missions}</Text>
                         </Stack>
                     </Group>
                     <Link
