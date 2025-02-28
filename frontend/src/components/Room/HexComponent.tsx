@@ -1,13 +1,10 @@
 import {RoomDetail} from "../../types/RoomDetail.tsx";
-import {GridGenerator, Hex, Hexagon, HexGrid, Layout, Text as SVGText} from "react-hexgrid";
-import {Box, Button, HoverCard, Text} from "@mantine/core";
+import {GridGenerator, Hex, HexGrid, Layout} from "react-hexgrid";
+import {Box} from "@mantine/core";
 import {useSolveProblem} from "../../hooks/hooks.tsx";
-import dayjs from "dayjs";
 import {gradientNull, userColors} from "../../constants/UserColorsFill.tsx";
-import {getDiffTime} from "../../utils/TimeUtils.tsx";
-import {Platform} from "../../types/Platforms.tsx";
-import {getRatingFill} from "../../utils/MiscUtils.tsx";
 import {useEffect, useState} from "react";
+import HexEntry from "./HexEntry.tsx";
 
 export const HexComponent = ({roomDetails}: { roomDetails: RoomDetail }) => {
     const missions = roomDetails.mission_info;
@@ -57,150 +54,11 @@ export const HexComponent = ({roomDetails}: { roomDetails: RoomDetail }) => {
                     ))}
                 </defs>
                 <Layout spacing={1.04}>
-                    {hexagons.map((hex: Hex, i: number) => {
-                        let href;
-                        if (missions[i].platform === Platform.BOJ) {
-                            href = `https://www.acmicpc.net/problem/${missions[i].problem_id}`
-                        } else {
-                            const re = missions[i].problem_id.split(/(?<=\d)(?=[A-Za-z])/);
-                            href = `https://codeforces.com/problemset/problem/${re[0]}/${re[1]}`
-                        }
-                        const unsolvable = unSolvableMissionsSet.has(missions[i].id);
-
-                        return (
-                            <HoverCard key={`hex${i}`} shadow="lg" position="bottom" offset={-12}
-                                       openDelay={mutation.isPending ? 100000 : 0}
-                                       closeDelay={mutation.isPending ? 1000 : 0}>
-                                <HoverCard.Target>
-                                    <a
-                                        href={href}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <Hexagon
-                                            q={hex.q}
-                                            r={hex.r}
-                                            s={hex.s}
-                                            className=" "
-                                            style={{
-                                                fill: (!missions[i].solved_at
-                                                    ? "url(#gradient-null)"
-                                                    : `url(#gradient-${missions[i].solved_team_index})`),
-                                                fillOpacity: unsolvable && !missions[i].solved_at ? 0.5 : 1,
-                                            }}
-                                        >
-
-                                            {
-                                                missions[i].difficulty != null &&
-                                                (
-                                                    missions[i].platform === Platform.BOJ ?
-                                                        <image
-                                                            href={`https://storage.googleapis.com/bucket-firogeneral/solvedactier/${missions[i].difficulty}.png`}
-                                                            x="-2.5"
-                                                            y="-8"
-                                                            width="5"
-                                                            height="5"
-                                                        /> :
-                                                        <SVGText textAnchor="middle" fontSize="3"
-                                                                 y={-4}
-                                                                 className={getRatingFill(missions[i].difficulty)}>
-                                                            {missions[i].difficulty}
-                                                        </SVGText>
-                                                )
-                                            }
-
-                                            <SVGText
-                                                textAnchor="middle"
-                                                fontSize="5"
-                                                y={0}
-                                                className={`
-                                                ${
-                                                    missions[i].solved_at ?
-                                                        missions[i].solved_team_index < 7 ? "fill-zinc-200" : "fill-stone-900"
-                                                        :
-                                                        "fill-zinc-200"
-                                                }
-                                                tracking-tighter
-                                                stroke-0
-                                                ${
-                                                    missions[i].solved_at &&
-                                                    roomDetails.team_info.find(
-                                                        (team) =>
-                                                            team.team_index === missions[i].solved_team_index &&
-                                                            team.last_solved_at &&
-                                                            new Date(missions[i].solved_at).getTime() ===
-                                                            new Date(team.last_solved_at).getTime()
-                                                    )
-                                                        ? "font-bold"
-                                                        : "font-normal"
-                                                }`}
-                                            >
-                                                {missions[i].problem_id}
-                                            </SVGText>
-                                            {
-                                                !missions[i].solved_at
-                                                    ? <></> :
-                                                    <SVGText
-                                                        fontSize="3.3"
-                                                        y={5}
-                                                        className={`
-                                                    ${
-                                                            missions[i].solved_at ?
-                                                                missions[i].solved_team_index < 7 ? "fill-zinc-200" : "fill-stone-900"
-                                                                :
-                                                                "fill-zinc-200"
-                                                        }
-                                                        tracking-tight
-                                                        font-light
-                                                    stroke-0
-                                                    `}
-                                                    >
-                                                        {getDiffTime(new Date(roomDetails.starts_at), new Date(missions[i].solved_at))}
-                                                    </SVGText>
-                                            }
-                                        </Hexagon>
-                                    </a>
-                                </HoverCard.Target>
-                                {
-                                    missions[i].solved_at ?
-                                        <HoverCard.Dropdown p="xs"
-                                                            className={`text-center`}>
-                                            <Text size="xs">
-                                                Solved by &nbsp;
-                                                <strong
-                                                    className={``}>{missions[i].solved_user_name}</strong>
-                                            </Text>
-                                            <Text size="xs">
-                                                {dayjs(missions[i].solved_at).format("YYYY/MM/DD HH:mm:ss")}
-                                            </Text>
-                                        </HoverCard.Dropdown>
-                                        :
-                                        (
-                                            unsolvable ?
-                                                <HoverCard.Dropdown p="xs"
-                                                                    className={`text-center `}>
-                                                    <Text size="xs">⚠️ 해결할 수 없는 문제입니다.</Text>
-                                                </HoverCard.Dropdown>
-                                                :
-                                                dayjs(roomDetails.ends_at).isAfter(dayjs()) && roomDetails.is_user_in_room &&
-                                                <HoverCard.Dropdown className="p-0">
-                                                    <Button
-                                                        variant="default"
-                                                        size=""
-                                                        className="border-0 bg-inherit"
-                                                        onClick={() => mutation.mutate({
-                                                            roomId: roomDetails.id,
-                                                            problemId: missions[i].problem_id
-                                                        })}
-                                                        loading={mutation.isPending}
-                                                    >Solve!</Button>
-                                                </HoverCard.Dropdown>
-                                        )
-                                }
-
-                            </HoverCard>
-                        )
-                    })}
+                    {hexagons.map((hex: Hex, i: number) => (
+                        <HexEntry roomDetails={roomDetails} hex={hex} mission={missions[i]}
+                                  isUnsolvable={unSolvableMissionsSet.has(missions[i].id)}
+                                  mutation={mutation}/>
+                    ))}
                 </Layout>
             </HexGrid>
         </Box>
