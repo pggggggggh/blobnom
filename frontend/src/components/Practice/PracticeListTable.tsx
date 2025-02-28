@@ -106,7 +106,7 @@ const PracticeListTable = ({practiceSets}: PracticeSetProps) => {
                                                         }}
                                                         size="xs"
                                                         rightSection={<IconArrowRight size={16}/>}
-                                                        loading={mutation.isPending}
+                                                        // loading={mutation.isPending}
                                                         fullWidth
                                                     >
                                                         {t('시작하기')}
