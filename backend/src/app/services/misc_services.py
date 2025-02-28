@@ -47,6 +47,8 @@ async def get_leaderboards(limit: int, offset: int, db: Session):
         cached_data = await redis.get(cache_key)
         if cached_data:
             return pickle.loads(cached_data)
+    else:
+        return  # 리더보드는 로드가 커서 Redis 꺼져있으면 그냥 표시 안 하기
 
     members = db.query(Member).options(joinedload(Member.users)).all()
     member_list = []
