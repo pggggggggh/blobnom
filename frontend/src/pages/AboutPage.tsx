@@ -14,7 +14,7 @@ const AboutComponent = () => (
                 <CheckCircleIcon fontSize="large" className="text-blue-500 mb-2"/>
                 <Text fw={500} size="lg" mb={8}>백준 AC 인증</Text>
                 <Text size="sm">
-                    백준 온라인 저지에서 해당 문제를 AC(맞았습니다)를 받아야 칸을 색칠할 수 있습니다.
+                    백준 온라인 저지에서 해당 문제를 AC(맞았습니다)를 받아야 칸을 색칠할 수 있습니다. 해당 칸에 마우스를 올리면 하단에 뜨는 Solve! 버튼을 눌러주세요!
                 </Text>
             </Card>
 
@@ -22,7 +22,7 @@ const AboutComponent = () => (
                 <GroupIcon fontSize="large" className="text-green-500 mb-2"/>
                 <Text fw={500} size="lg" mb={8}>인접 최대 칸수</Text>
                 <Text size="sm">
-                    전체 푼 칸이 아닌, 서로 인접한 칸들의 최대 개수를 기준으로 순위가 결정됩니다.
+                    연습이 아닌 땅따먹기 모드에서는, 전체 푼 칸이 아닌, 서로 인접한 칸들의 최대 개수를 기준으로 순위가 결정됩니다.
                 </Text>
             </Card>
 
