@@ -20,9 +20,9 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
     return (
         <Box pos="absolute" w={{"base": 200, "md": 400}}>
             <PlatformIcon platform={roomDetail.platform} w={24}/>
-            <Flex align="center" mt="-2" mb="xs">
+            <Flex align="center" mt="-2" mb={2}>
                 <Title lh={1}>{roomDetail.name}</Title>
-                {roomDetail.is_private && <IconLock/>}
+                {roomDetail.is_private && <IconLock size={34}/>}
             </Flex>
             {roomDetail.query &&
                 <Text c="dimmed" size="xs" truncate="end">
