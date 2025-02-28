@@ -23,7 +23,7 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
         >
             <Group justify="space-between">
                 <Box>
-                    <Flex align="center" className="w-60 sm:w-auto">
+                    <Flex align="center" className="w-40 md:w-60 lg:w-80">
                         <Text mr={7}>
                             <PlatformIcon platform={roomSummary.platform}/>
                         </Text>

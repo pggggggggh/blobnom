@@ -63,7 +63,7 @@ const ContestDetailsCards = ({contestDetails}: { contestDetails: ContestDetail }
                     <Text fw={500} size="lg" mb="md">
                         {feature.title}
                     </Text>
-                    <ul className="space-y-2 text-sm text-gray-300 list-disc list-inside">
+                    <ul className="space-y-2 text-sm  list-disc list-inside">
                         {feature.description.map((item, index) => (
                             <li key={index}>{item}</li>
                         ))}

@@ -88,9 +88,10 @@ const RoomListComponent = () => {
                     <Pagination
                         total={data?.total_pages || 1}
                         value={page}
+                        size="sm"
+                        withEdges
                         onChange={handlePageChange}
                         aria-label="페이지 네비게이션"
-                        className="font-extralight"
                     />
                 )}
             </Group>

@@ -26,7 +26,7 @@ const ContestListComponent = ({contests, cur_datetime, border}: {
                                 </Text>
                                 <Text
                                     size="sm"
-                                    className="text-gray-300 truncate w-full overflow-hidden whitespace-nowrap"
+                                    className="truncate w-full overflow-hidden whitespace-nowrap"
                                 >
                                     {contest.desc}{contest.min_rating != null ? `, 레이팅 범위: ${contest.min_rating}~${contest.max_rating}` : ''}
                                 </Text>

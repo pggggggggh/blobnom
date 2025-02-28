@@ -164,7 +164,7 @@ export const HexComponent = ({roomDetails}: { roomDetails: RoomDetail }) => {
                                 {
                                     missions[i].solved_at ?
                                         <HoverCard.Dropdown p="xs"
-                                                            className={`text-center bg-zinc-900`}>
+                                                            className={`text-center`}>
                                             <Text size="xs">
                                                 Solved by &nbsp;
                                                 <strong
@@ -178,12 +178,12 @@ export const HexComponent = ({roomDetails}: { roomDetails: RoomDetail }) => {
                                         (
                                             unsolvable ?
                                                 <HoverCard.Dropdown p="xs"
-                                                                    className={`text-center bg-zinc-900`}>
+                                                                    className={`text-center `}>
                                                     <Text size="xs">⚠️ 해결할 수 없는 문제입니다.</Text>
                                                 </HoverCard.Dropdown>
                                                 :
                                                 dayjs(roomDetails.ends_at).isAfter(dayjs()) && roomDetails.is_user_in_room &&
-                                                <HoverCard.Dropdown className="p-0 bg-zinc-900">
+                                                <HoverCard.Dropdown className="p-0">
                                                     <Button
                                                         variant="default"
                                                         size=""

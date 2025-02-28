@@ -25,11 +25,11 @@ const ContestDetailsPage = () => {
     return (
         <Container size="lg" mb="xl">
             <Card padding="lg">
-                <Stack align="center" justify="center" gap="xs">
+                <Stack align="center" justify="center" gap={0}>
                     <Title>🏆</Title>
-                    <Title order={2} ta="center">{contestDetail.name}</Title>
-                    {contestDetail.desc && <Text size="sm" className="text-gray-300">{contestDetail.desc}</Text>}
-                    <Text>
+                    <Title order={2} ta="center" mb="md">{contestDetail.name}</Title>
+                    {contestDetail.desc && <Text size="sm" c="dimmed">{contestDetail.desc}</Text>}
+                    <Text size="sm" c="dimmed">
                         {dayjs(contestDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ {dayjs(contestDetail.ends_at).format('YYYY-MM-DD HH:mm')}
                     </Text>
                     {contestDetail.is_ended ? (

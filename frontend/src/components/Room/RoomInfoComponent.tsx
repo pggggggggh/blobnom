@@ -17,7 +17,7 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
     const auth = useAuth();
 
     return (
-        <Box pos="absolute" w="400">
+        <Box pos="absolute" w={{"base": 200, "md": 400}}>
             <PlatformIcon platform={roomDetail.platform} w={24}/>
             <Flex align="center" mt="-2">
                 <Title lh={1}>{roomDetail.name}</Title>
