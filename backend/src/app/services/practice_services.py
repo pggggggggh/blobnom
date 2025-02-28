@@ -153,7 +153,7 @@ async def get_current_rank(practice: PracticeSet, member: Member, db: Session):
 
     sessions = db.query(PracticeMember).filter(PracticeMember.practice_set_id == practice.id).all()
     rank = []
-    your_rank = None
+    member_exist_flag = False
 
     for session in sessions:
         room = session.room
@@ -175,8 +175,10 @@ async def get_current_rank(practice: PracticeSet, member: Member, db: Session):
             if practice.penalty_type == PenaltyType.ICPC:
                 penalty += solved_sec // 60
 
+        is_you = False
         if practice_session and session.id == practice_session.id:
-            your_rank = len(rank) + 1
+            is_you = True
+            member_exist_flag = True
 
         running_time = None
         if datetime.now(pytz.UTC) < room.ends_at:
@@ -187,7 +189,11 @@ async def get_current_rank(practice: PracticeSet, member: Member, db: Session):
             "score": score,
             "solve_time_list": solve_time_list,
             "penalty": penalty,
+            "is_you": is_you
         })
     rank.sort(key=lambda x: (x["score"], -x["penalty"]), reverse=True)
+    your_rank = None
+    if member_exist_flag:
+        your_rank = rank.index(next(filter(lambda x: x["is_you"], rank))) + 1
     return {"practice_name": practice.name, "time": int(my_running_time.total_seconds()) if realtime else None,
             "rank": rank, "your_rank": your_rank}
