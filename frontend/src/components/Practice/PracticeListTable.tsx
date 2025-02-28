@@ -16,11 +16,11 @@ const PracticeListTable = ({practiceSets}: PracticeSetProps) => {
     const mutation = usePracticeElegible()
 
     const renderDifficulty = (level: number) => {
-        const color = level <= 2 ? "green" : level <= 3 ? "yellow" : level <= 4 ? "orange" : "red";
+        const color = level <= 2 ? "green" : level <= 3 ? "yellow" : level <= 4 ? "orange" : level <= 5 ? "violet" : "red";
         return (
             <Group gap={4}>
                 <Progress
-                    value={level * 20}
+                    value={level * 14}
                     color={color}
                     size="sm"
                     flex="1"
@@ -46,8 +46,8 @@ const PracticeListTable = ({practiceSets}: PracticeSetProps) => {
                 <Table striped highlightOnHover withTableBorder withColumnBorders>
                     <Table.Thead>
                         <Table.Tr>
-                            <Table.Th>{t('제목')}</Table.Th>
-                            <Table.Th>{t('난이도')}</Table.Th>
+                            <Table.Th w="40%">{t('제목')}</Table.Th>
+                            <Table.Th miw="80px">{t('난이도')}</Table.Th>
                             <Table.Th>{t('문제 수')}</Table.Th>
                             <Table.Th>{t('시간')}</Table.Th>
                             <Table.Th>{t('')}</Table.Th>
