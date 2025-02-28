@@ -2,7 +2,7 @@ from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, Boolean, E
 from sqlalchemy.orm import relationship, Relationship
 
 from src.app.core.constants import MAX_TEAM_PER_ROOM
-from src.app.core.enums import Platform, ModeType, ContestType, Role, PenaltyType
+from src.app.core.enums import Platform, ModeType, ContestType, Role, PenaltyType, BoardType
 from src.app.db.database import Base, TimestampMixin
 
 
@@ -61,6 +61,7 @@ class Room(TimestampMixin, Base):
 
     unfreeze_offset_minutes = Column(Integer, nullable=True)
     mode_type = Column(Enum(ModeType), nullable=False, default=ModeType.LAND_GRAB_SOLO)
+    board_type = Column(Enum(BoardType), nullable=False, default=BoardType.HEXAGON)
     platform = Column(Enum(Platform), nullable=False)
     winning_team_index = Column(Integer, default=0)
 
@@ -198,6 +199,8 @@ class PracticeSet(TimestampMixin, Base):
     id = Column(Integer, primary_key=True)
 
     name = Column(String, nullable=False)
+    desc = Column(String, nullable=True)
+    difficulty = Column(Integer, nullable=True)
     duration = Column(Integer, nullable=False)  # minutes
     platform = Column(Enum(Platform), nullable=False, default=Platform.BOJ)
     penalty_type = Column(Enum(PenaltyType), nullable=False, default=PenaltyType.ICPC)

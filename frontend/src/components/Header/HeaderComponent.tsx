@@ -19,7 +19,7 @@ const HeaderComponent = () => {
 
     const menuItems = [
         {label: '홈', link: '/'},
-        // {label: '연습', link: '/practice'},
+        {label: '연습', link: '/practices'},
         {label: '대회', link: '/contests'},
         {label: '도움말', link: '/about'},
     ];
@@ -98,7 +98,7 @@ const HeaderComponent = () => {
                                 onClick={close}
                                 style={{textDecoration: 'none'}}
                             >
-                                <Button variant="subtle" fullWidth color="white">
+                                <Button variant="subtle" fullWidth c="inherit">
                                     {item.label}
                                 </Button>
                             </Link>

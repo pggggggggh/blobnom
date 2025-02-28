@@ -7,6 +7,7 @@ import {getDiffTime} from "../../utils/TimeUtils.tsx";
 import dayjs from "dayjs";
 import {MissionInfo, RoomDetail} from "../../types/RoomDetail.tsx";
 import {UseMutationResult} from "@tanstack/react-query";
+import {ModeType} from "../../types/enum/ModeType.tsx";
 
 interface HexEntryProps {
     roomDetails: RoomDetail;
@@ -93,7 +94,9 @@ const HexEntry = ({roomDetails, hex, mission, isUnsolvable, mutation}: HexEntryP
                                     : "font-normal"
                             }`}
                         >
-                            {mission.problem_id}
+                            {roomDetails.mode_type === ModeType.PRACTICE_LINEAR ?
+                                `${String.fromCharCode(65 + mission.index_in_room)}` :
+                                mission.problem_id}
                         </SVGText>
                         {
                             !mission.solved_at

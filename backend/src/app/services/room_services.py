@@ -4,7 +4,7 @@ import math
 import pickle
 from collections import deque
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, List
 
 import httpx
 import pytz
@@ -12,6 +12,7 @@ from fastapi import HTTPException, Depends
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 from starlette import status
+from starlette.concurrency import run_in_threadpool
 
 from src.app.core.enums import ModeType
 from src.app.core.socket import sio
@@ -22,6 +23,7 @@ from src.app.db.session import get_db, SessionLocal
 from src.app.schemas.schemas import RoomSummary, RoomDetail, RoomTeamInfo, RoomMissionInfo, RoomListRequest, \
     RoomDeleteRequest, RoomJoinRequest, RoomCreateRequest
 from src.app.services.member_services import convert_to_user_summary, convert_to_member_summary
+from src.app.services.misc_services import get_leaderboards
 from src.app.services.socket_services import get_sids_in_room, send_system_message
 from src.app.utils.contest_utils import get_contest_summary
 from src.app.utils.logger import logger
@@ -191,12 +193,14 @@ async def get_room_detail(room_id: int, db: Session, handle: Optional[str],
         is_private=room.is_private,
         is_user_in_room=is_user_in_room,
         mode_type=room.mode_type,
+        board_type=room.board_type,
         num_missions=room.num_mission,
         team_info=room_team_info,
         mission_info=room_mission_info,
         is_started=room.is_started,
         is_contest_room=room.is_contest_room,
-        your_unsolvable_mission_ids=your_unsolvable_mission_ids
+        your_unsolvable_mission_ids=your_unsolvable_mission_ids,
+        practice_id=room.practice_session.practice_set_id if room.practice_session else None,
     )
     if redis:
         await redis.setex(cache_key, ROOM_CACHE_SECONDS, pickle.dumps(room_detail))
@@ -415,6 +419,7 @@ async def problem_solved(room_id: int, problem_id: str, db: Session, handle: str
     if redis:
         cache_key = f"room:{room_id}:details"
         await redis.delete(cache_key)
+        await redis.delete("leaderboards")
 
 
 # open new session, since it is a scheduled job
@@ -446,10 +451,11 @@ async def handle_room_ready(room_id: int):
         logger.info(f"{room_id} getting ready")
 
         new_query = room.query
-        for player in room.players:
-            new_query += f" !@{player.user.handle}"
 
-        logger.info(new_query)
+        if not room.query.startswith("problemset:"):
+            for player in room.players:
+                new_query += f" !@{player.user.handle}"
+
         problems = await fetch_problems(new_query, room.num_mission, room.platform)
         if len(problems) < room.num_mission:
             logger.info(f"Room with id {room_id} has no sufficient problems.")

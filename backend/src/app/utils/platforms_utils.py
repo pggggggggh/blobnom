@@ -67,7 +67,6 @@ async def fetch_problems(query, num_problems, platform):
                     response = await client.get("https://solved.ac/api/v3/problem/lookup",
                                                 params={"problemIds": query2[len("problemset:"):]})
                     items = response.json()
-                    random.shuffle(items)
                 else:
                     response = await client.get("https://solved.ac/api/v3/search/problem",
                                                 params={"query": query, "sort": "random", "page": 1})

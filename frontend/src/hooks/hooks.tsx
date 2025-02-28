@@ -9,12 +9,16 @@ import {
     fetchMainData,
     fetchMemberDetails,
     fetchPlatformToken,
+    fetchPracticeList,
+    fetchPracticeRank,
     fetchRoomDetail,
     fetchSiteStats,
     postBindAccount,
     postCreateRoom,
     postJoinRoom,
     postLogin,
+    postPracticeEligible,
+    postPracticeStart,
     postRegister,
     postRegisterContest,
     postSolveProblem,
@@ -29,6 +33,9 @@ import {ContestDetail} from "../types/ContestDetail.tsx";
 import {MemberDetails} from "../types/MemberDetails.tsx";
 import {SiteStats} from "../types/SiteStats.tsx";
 import {Leaderboards} from "../types/Leaderboards.tsx";
+import {PracticeSetSummary} from "../types/ProblemSet.tsx";
+import PracticeStartModal from "../components/Modals/PracticeStartModal.tsx";
+import {PracticeRankData} from "../types/PracticeRankData.tsx";
 
 const handleError = (error: any) => {
     console.log(error);
@@ -75,12 +82,20 @@ export const useContestList = () => {
 };
 
 
+export const usePracticeList = () => {
+    return useQuery<PracticeSetSummary[], Error>({
+        queryKey: ['practiceList'],
+        queryFn: () => fetchPracticeList(),
+    });
+};
+
 export const useRoomDetail = (roomId: number) => {
     return useQuery<RoomDetail, Error>({
         queryKey: ['roomDetail', roomId],
         queryFn: () => fetchRoomDetail(roomId),
     });
 };
+
 
 export const useContestDetail = (contestId: number) => {
     return useQuery<ContestDetail, Error>({
@@ -127,6 +142,45 @@ export const useJoinRoom = () => {
             window.location.reload()
         },
         onError: handleError
+    });
+};
+
+export const usePracticeElegible = () => {
+    return useMutation({
+        mutationFn: postPracticeEligible,
+        onSuccess: (data) => {
+            if (data.status === "success") {
+                modals.open({
+                    title: "입장하기",
+                    children: <PracticeStartModal practiceId={data.id}/>
+                });
+            }
+        },
+        onError: handleError
+    });
+};
+
+export const usePracticeStart = () => {
+    return useMutation({
+        mutationFn: postPracticeStart,
+        onSuccess: (data) => {
+            const roomId = data?.roomId;
+            if (roomId) {
+                window.location.href = `/rooms/${roomId}`;
+            } else {
+                modals.open({
+                    children: <ErrorModal detailMessage="알 수 없는 에러가 발생했습니다!"/>,
+                });
+            }
+        },
+        onError: handleError
+    });
+}
+
+export const usePracticeRank = (practiceId: number) => {
+    return useQuery<PracticeRankData, Error>({
+        queryKey: ['practiceRank', practiceId],
+        queryFn: () => fetchPracticeRank(practiceId),
     });
 };
 

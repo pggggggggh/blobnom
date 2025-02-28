@@ -15,7 +15,7 @@ const ContestListPage = () => {
     return (
         <WithSidebar>
             <Stack>
-                <Title order={2}>대회</Title>
+                <Title>대회</Title>
                 {isInitialLoading ? (
                     <Stack>
                         {Array.from({length: 3}).map((_, index) => (

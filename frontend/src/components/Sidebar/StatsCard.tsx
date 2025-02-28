@@ -49,11 +49,11 @@ const StatsCard = () => {
 
             {statsData &&
                 <Stack gap={0} mt="lg" w="100%" justify="flex-end" align="flex-end">
-                    {
-                        statsData && statsData.num_active_users > 0 && (
-                            <Text size="sm">현재 {statsData?.num_active_users}명이 함께 문제를 풀고 있습니다.</Text>
-                        )
-                    }
+                    {/*{*/}
+                    {/*    statsData && statsData.num_active_users > 0 && (*/}
+                    {/*        <Text size="sm">현재 {statsData?.num_active_users}명이 함께 문제를 풀고 있습니다.</Text>*/}
+                    {/*    )*/}
+                    {/*}*/}
                     <Text size="xs" c="dimmed">
                         {dayjs(statsData?.updated_at).fromNow()} 업데이트됨
                     </Text>

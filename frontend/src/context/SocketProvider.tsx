@@ -36,7 +36,7 @@ export const SocketProvider = ({children}: { children: React.ReactNode }) => {
             newSocket.disconnect();
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
-    }, [auth.member]);
+    }, [auth]);
 
 
     return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;

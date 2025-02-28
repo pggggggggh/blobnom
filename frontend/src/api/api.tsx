@@ -7,6 +7,8 @@ import {ContestDetail} from "../types/ContestDetail.tsx";
 import {MemberDetails} from "../types/MemberDetails.tsx";
 import {SiteStats} from "../types/SiteStats.tsx";
 import {Leaderboards} from "../types/Leaderboards.tsx";
+import {PracticeRankData, PracticeSetSummary} from "../types/ProblemSet.tsx";
+import {PracticeRankData} from "../types/PracticeRankData.tsx";
 
 export const fetchMainData = async (page: number, search: string, activeOnly: boolean, myRoomOnly: boolean): Promise<MainData> => {
     const response = await api.get(`/rooms/list`, {
@@ -19,6 +21,11 @@ export const fetchMainData = async (page: number, search: string, activeOnly: bo
 
 export const fetchContestList = async (): Promise<ContestDetail[]> => {
     const response = await api.get(`/contests/list`);
+    return response.data;
+};
+
+export const fetchPracticeList = async (): Promise<PracticeSetSummary[]> => {
+    const response = await api.get(`/practices/list`);
     return response.data;
 };
 
@@ -47,6 +54,11 @@ export const fetchLeaderboards = async (): Promise<Leaderboards> => {
     return response.data;
 };
 
+export const fetchPracticeRank = async (practiceId: number): Promise<PracticeRankData> => {
+    const response = await api.get(`/practices/${practiceId}/rank`);
+    return response.data;
+};
+
 export const postSolveProblem = async (data: { roomId: number; problemId: number }) => {
     const response = await api.post(`/rooms/solved`, {room_id: data.roomId, problem_id: data.problemId});
     return response.data;
@@ -63,6 +75,16 @@ export const postJoinRoom = async (data: { roomId: number; password: string | nu
 }
 export const postRegisterContest = async (data: { contestId: number }) => {
     const response = await api.post(`/contests/register/${data.contestId}`);
+    return response.data;
+}
+
+export const postPracticeEligible = async (data: { practiceId: number }) => {
+    const response = await api.post(`/practices/${data.practiceId}/eligible`);
+    return response.data;
+}
+
+export const postPracticeStart = async (data: { practiceId: number, startTime: Date }) => {
+    const response = await api.post(`/practices/${data.practiceId}/start`, {start_time: data.startTime});
     return response.data;
 }
 

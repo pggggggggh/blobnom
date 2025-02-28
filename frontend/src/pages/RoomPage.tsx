@@ -6,8 +6,6 @@ import {useAuth} from "../context/AuthProvider.tsx";
 import {requestNotificationPermission, showNotification} from "../utils/NotificationUtils.tsx";
 import {Route} from "../routes/rooms/$roomId.tsx";
 import ChatBoxComponent from "../components/Room/ChatBoxComponent.tsx";
-import {notifications} from "@mantine/notifications";
-import dayjs from "dayjs";
 import NotFound from "./NotFound.tsx";
 import {AxiosError} from "axios";
 import {getDiffTime} from "../utils/TimeUtils.tsx";
@@ -17,6 +15,8 @@ import {userColors} from "../constants/UserColorsFill.tsx";
 import {Box} from "@mantine/core";
 import {HexComponent} from "../components/Room/HexComponent.tsx";
 import RoomCountdown from "../components/Room/RoomCountdown.tsx";
+import {ModeType} from "../types/enum/ModeType.tsx";
+import MyRankComponent from "../components/Room/MyRankComponent.tsx";
 
 
 export default function RoomPage() {
@@ -79,22 +79,13 @@ export default function RoomPage() {
         const handlePreviousMessages = (data: ChatMessage[]) => {
             const msgs: ChatMessage[] = [];
             for (let i = 0; i < data.length; i++) {
-                if (data[i].type !== "system") msgs.push(data[i]);
+                msgs.push(data[i]);
             }
             setMessages(msgs);
         };
 
         const handleNewMessage = async (data: ChatMessage) => {
-            if (data.type == "system") {
-                if (!data.message.startsWith(auth.member?.handle)) {
-                    notifications.show({
-                        title: data.message,
-                        message: dayjs(data.time).format("YYYY-MM-DD HH:mm:ss"),
-                        autoClose: false,
-
-                    })
-                }
-            } else setMessages(prevMessages => [...prevMessages, data]);
+            setMessages(prevMessages => [...prevMessages, data]);
             await refetch();
         };
 
@@ -132,7 +123,7 @@ export default function RoomPage() {
             socket.off("room_new_message", handleNewMessage);
             socket.off("previous_messages", handlePreviousMessages);
         };
-    }, [roomDetails, auth]);
+    }, [roomDetails, auth, socket, refetch, roomId]);
 
     if ((error as AxiosError)?.status === 404 || (error as AxiosError)?.status === 422) return <NotFound/>;
     if (!roomDetails || isLoading) return <div></div>;
@@ -140,8 +131,18 @@ export default function RoomPage() {
     return (
         <Box h="calc(100vh - 100px)">
             <RoomInfoComponent roomDetail={roomDetails} timeLeft={timeLeft}/>
-            <ChatBoxComponent messages={messages} handleSendMessage={handleSendMessage}/>
-            <TeamStatusBox roomDetails={roomDetails} userColors={userColors} activeUsers={activeUsers}/>
+            {
+                roomDetails.mode_type !== ModeType.PRACTICE_LINEAR &&
+                <ChatBoxComponent messages={messages} handleSendMessage={handleSendMessage}/>
+            }
+
+            {
+                roomDetails.mode_type === ModeType.PRACTICE_LINEAR ?
+                    (roomDetails.is_started && new Date(roomDetails.ends_at) > new Date()) &&
+                    <MyRankComponent practiceId={roomDetails.practice_id} starts_at={roomDetails.starts_at}/>
+                    :
+                    <TeamStatusBox roomDetails={roomDetails} userColors={userColors} activeUsers={activeUsers}/>
+            }
             {roomDetails.is_started ? <HexComponent roomDetails={roomDetails}/> :
                 <RoomCountdown timeBefore={timeBefore}/>
             }

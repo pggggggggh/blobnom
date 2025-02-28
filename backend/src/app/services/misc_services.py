@@ -4,7 +4,7 @@ from datetime import datetime
 import pytz
 from sqlalchemy.orm import Session, joinedload
 
-from src.app.core.constants import STATS_CACHE_SECONDS, LEADERBOARDS_CACHE_SECONDS
+from src.app.core.constants import STATS_CACHE_SECONDS
 from src.app.core.socket import sio
 from src.app.db.models.models import RoomMission, Member
 from src.app.db.redis import get_redis
@@ -39,7 +39,6 @@ async def get_stats(db: Session):
     return site_stats
 
 
-# 곧 최적화할 것
 async def get_leaderboards(limit: int, offset: int, db: Session):
     redis = await get_redis()
     cache_key = f"leaderboards"
@@ -74,6 +73,6 @@ async def get_leaderboards(limit: int, offset: int, db: Session):
     leaderboards_data = Leaderboards(updated_at=updated_at, leaderboards=leaderboards)
 
     if redis:
-        await redis.setex(cache_key, LEADERBOARDS_CACHE_SECONDS, pickle.dumps(leaderboards_data))
+        await redis.set(cache_key, pickle.dumps(leaderboards_data))
 
     return leaderboards_data

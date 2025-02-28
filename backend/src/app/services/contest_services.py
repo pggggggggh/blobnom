@@ -10,7 +10,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
 from src.app.core.constants import REGISTER_DEADLINE_SECONDS, CONTEST_CACHE_SECONDS
-from src.app.core.enums import Role, ContestType, ModeType
+from src.app.core.enums import Role, ContestType, ModeType, Platform
 from src.app.db.models.models import Member, Contest, ContestMember, Room, ContestRoom, User, RoomPlayer
 from src.app.db.redis import get_redis
 from src.app.db.session import SessionLocal
@@ -22,6 +22,8 @@ from src.app.utils.logger import logger
 from src.app.utils.scheduler import add_job
 
 import asyncio
+
+from src.app.utils.security_utils import hash_password
 
 
 async def get_contest_details(contest_id: int, db: Session, token_handle: str):
@@ -195,8 +197,9 @@ async def handle_contest_ready(contest_id: int):
                 query=contest.query,
                 owner=owner,
                 num_mission=contest.missions_per_room,
-                entry_pwd=os.environ.get("DEFAULT_PWD"),
-                edit_pwd=os.environ.get("DEFAULT_PWD"),
+                entry_pwd=hash_password(os.environ.get("DEFAULT_PWD")),
+                platform=Platform.BOJ,
+                edit_pwd=hash_password(os.environ.get("DEFAULT_PWD")),
                 mode_type=room_mode_type,
                 max_players=contest.players_per_room,
                 is_started=False,

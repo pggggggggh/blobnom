@@ -7,10 +7,10 @@ import WithSidebar from "../components/Layout/WithSidebar.tsx";
 
 const AboutComponent = () => (
     <Stack>
-        <Title order={2}>도움말</Title>
+        <Title>도움말</Title>
 
         <SimpleGrid cols={{base: 1, sm: 3}} spacing="md">
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Card shadow="sm" padding="lg" withBorder>
                 <CheckCircleIcon fontSize="large" className="text-blue-500 mb-2"/>
                 <Text fw={500} size="lg" mb={8}>백준 AC 인증</Text>
                 <Text size="sm">
@@ -18,7 +18,7 @@ const AboutComponent = () => (
                 </Text>
             </Card>
 
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Card shadow="sm" padding="lg" withBorder>
                 <GroupIcon fontSize="large" className="text-green-500 mb-2"/>
                 <Text fw={500} size="lg" mb={8}>인접 최대 칸수</Text>
                 <Text size="sm">
@@ -26,7 +26,7 @@ const AboutComponent = () => (
                 </Text>
             </Card>
 
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <Card shadow="sm" padding="lg" withBorder>
                 <EmojiEventsIcon fontSize="large" className="text-yellow-500 mb-2"/>
                 <Text fw={500} size="lg" mb={8}>순위 결정 기준</Text>
                 <Text size="sm">
@@ -35,7 +35,7 @@ const AboutComponent = () => (
             </Card>
         </SimpleGrid>
 
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
+        <Card shadow="sm" padding="lg" withBorder>
             <Group align="flex-start">
                 <div style={{flex: 1}}>
                     <Title order={3} mb="sm">인접 칸 규칙</Title>
@@ -59,7 +59,7 @@ const AboutComponent = () => (
             </Group>
         </Card>
 
-        <Card shadow="sm" padding="lg" radius="md" withBorder>
+        <Card shadow="sm" padding="lg" withBorder>
             <Title order={3} mb="md">신고/제보 및 건의사항</Title>
             <Group>
                 <Anchor href="https://discord.gg/rE7jhhTd" target="_blank">

@@ -4,7 +4,7 @@ from typing import List, Optional, Dict
 from pydantic import BaseModel
 from sqlalchemy import DateTime
 
-from src.app.core.enums import ModeType, ContestType, Platform
+from src.app.core.enums import ModeType, ContestType, Platform, BoardType
 
 
 class RoomCreateRequest(BaseModel):
@@ -54,6 +54,10 @@ class LoginRequest(BaseModel):
 class BindRequest(BaseModel):
     handle: str
     platform: Platform
+
+
+class PracticeStartRequest(BaseModel):
+    start_time: datetime
 
 
 class RoomDeleteRequest(BaseModel):
@@ -152,10 +156,13 @@ class RoomDetail(BaseModel):
     num_missions: int
     is_started: bool
     mode_type: ModeType
+    board_type: BoardType
     team_info: List[RoomTeamInfo]
     mission_info: List[RoomMissionInfo]
-    is_contest_room: bool
     your_unsolvable_mission_ids: List[int]
+
+    is_contest_room: bool
+    practice_id: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -231,3 +238,14 @@ class LeaderboardEntry(BaseModel):
 class Leaderboards(BaseModel):
     updated_at: datetime
     leaderboards: List[LeaderboardEntry]
+
+
+class PracticeSummary(BaseModel):
+    id: int
+    name: str
+    platform: Platform
+    difficulty: int
+    num_missions: int
+    duration: int
+    your_rank: Optional[int] = None
+    your_room_id: Optional[int] = None

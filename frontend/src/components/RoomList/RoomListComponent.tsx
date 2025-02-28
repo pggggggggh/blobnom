@@ -44,58 +44,61 @@ const RoomListComponent = () => {
 
 
     return (
-        <Stack>
-            {error && (
-                <Alert title="오류" color="red">
-                    데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
-                </Alert>
-            )}
+        <>
+            <Stack>
 
-            <RoomFilterComponent/>
-
-            {isInitialLoading ? (
-                <Stack>
-                    {Array.from({length: 3}).map((_, index) => (
-                        <Skeleton key={index} height={50}/>
-                    ))}
-                </Stack>
-            ) : (
-                data && (
-                    <>
-                        {data.upcoming_contest_list.length > 0 && (
-                            <ContestListComponent
-                                contests={data.upcoming_contest_list}
-                                cur_datetime={date}
-                                border={true}
-                            />
-                        )}
-                        <Stack gap="sm">
-                            {data?.room_list?.map((room) => {
-                                return (
-                                    !room.is_contest_room &&
-                                    <RoomCard roomSummary={room}/>
-                                );
-                            })}
-                        </Stack>
-                    </>
-                )
-            )}
-
-            <Group justify="center" mt="xl">
-                {isInitialLoading ? (
-                    <Skeleton height={40} width={100}/>
-                ) : (
-                    <Pagination
-                        total={data?.total_pages || 1}
-                        value={page}
-                        size="sm"
-                        withEdges
-                        onChange={handlePageChange}
-                        aria-label="페이지 네비게이션"
-                    />
+                {error && (
+                    <Alert title="오류" color="red">
+                        데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
+                    </Alert>
                 )}
-            </Group>
-        </Stack>
+
+                <RoomFilterComponent/>
+
+                {isInitialLoading ? (
+                    <Stack>
+                        {Array.from({length: 3}).map((_, index) => (
+                            <Skeleton key={index} height={50}/>
+                        ))}
+                    </Stack>
+                ) : (
+                    data && (
+                        <>
+                            {data.upcoming_contest_list.length > 0 && (
+                                <ContestListComponent
+                                    contests={data.upcoming_contest_list}
+                                    cur_datetime={date}
+                                    border={true}
+                                />
+                            )}
+                            <Stack gap="sm">
+                                {data?.room_list?.map((room) => {
+                                    return (
+                                        !room.is_contest_room &&
+                                        <RoomCard roomSummary={room}/>
+                                    );
+                                })}
+                            </Stack>
+                        </>
+                    )
+                )}
+
+                <Group justify="center" mt="xl">
+                    {isInitialLoading ? (
+                        <Skeleton height={40} width={100}/>
+                    ) : (
+                        <Pagination
+                            total={data?.total_pages || 1}
+                            value={page}
+                            size="sm"
+                            withEdges
+                            onChange={handlePageChange}
+                            aria-label="페이지 네비게이션"
+                        />
+                    )}
+                </Group>
+            </Stack>
+        </>
     );
 }
 

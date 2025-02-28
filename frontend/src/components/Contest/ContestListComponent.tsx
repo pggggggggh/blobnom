@@ -18,8 +18,8 @@ const ContestListComponent = ({contests, cur_datetime, border}: {
                     <Card key={contest.id} withBorder shadow="sm"
                           style={{border: border ? '1px solid #DFCD7E' : 'none'}}>
                         <Group justify="space-between">
-                            <Box w={{base: 120, xs: 180, sm: 270, md: 500}}>
-                                <Text fw={500} size="lg">
+                            <Box w={{base: 120, xs: 120, sm: 120, md: 180, lg: 240}}>
+                                <Text fw={500} size="lg" lh="xs">
                                     <Box component="span" c="yellow"><EmojiEventsIcon fontSize={"inherit"}
                                                                                       className="mr-1 "/></Box>
                                     {contest.name}

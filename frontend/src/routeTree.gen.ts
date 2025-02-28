@@ -12,29 +12,24 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as RegisterImport } from './routes/register'
-import { Route as PracticeImport } from './routes/practice'
 import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as CreateImport } from './routes/create'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
+import { Route as PracticesIndexImport } from './routes/practices/index'
 import { Route as ContestsIndexImport } from './routes/contests/index'
 import { Route as RoomsRoomIdImport } from './routes/rooms/$roomId'
 import { Route as MembersSettingsImport } from './routes/members/settings'
 import { Route as MembersHandleImport } from './routes/members/$handle'
 import { Route as ContestsContestIdImport } from './routes/contests/$contestId'
+import { Route as PracticesPracticeIdRankImport } from './routes/practices/$practiceId/rank'
 
 // Create/Update Routes
 
 const RegisterRoute = RegisterImport.update({
   id: '/register',
   path: '/register',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const PracticeRoute = PracticeImport.update({
-  id: '/practice',
-  path: '/practice',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -68,6 +63,12 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const PracticesIndexRoute = PracticesIndexImport.update({
+  id: '/practices/',
+  path: '/practices/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ContestsIndexRoute = ContestsIndexImport.update({
   id: '/contests/',
   path: '/contests/',
@@ -95,6 +96,12 @@ const MembersHandleRoute = MembersHandleImport.update({
 const ContestsContestIdRoute = ContestsContestIdImport.update({
   id: '/contests/$contestId',
   path: '/contests/$contestId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PracticesPracticeIdRankRoute = PracticesPracticeIdRankImport.update({
+  id: '/practices/$practiceId/rank',
+  path: '/practices/$practiceId/rank',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -135,13 +142,6 @@ declare module '@tanstack/react-router' {
       path: '/logout'
       fullPath: '/logout'
       preLoaderRoute: typeof LogoutImport
-      parentRoute: typeof rootRoute
-    }
-    '/practice': {
-      id: '/practice'
-      path: '/practice'
-      fullPath: '/practice'
-      preLoaderRoute: typeof PracticeImport
       parentRoute: typeof rootRoute
     }
     '/register': {
@@ -186,6 +186,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContestsIndexImport
       parentRoute: typeof rootRoute
     }
+    '/practices/': {
+      id: '/practices/'
+      path: '/practices'
+      fullPath: '/practices'
+      preLoaderRoute: typeof PracticesIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/practices/$practiceId/rank': {
+      id: '/practices/$practiceId/rank'
+      path: '/practices/$practiceId/rank'
+      fullPath: '/practices/$practiceId/rank'
+      preLoaderRoute: typeof PracticesPracticeIdRankImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -197,13 +211,14 @@ export interface FileRoutesByFullPath {
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
-  '/practice': typeof PracticeRoute
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/members/$handle': typeof MembersHandleRoute
   '/members/settings': typeof MembersSettingsRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
   '/contests': typeof ContestsIndexRoute
+  '/practices': typeof PracticesIndexRoute
+  '/practices/$practiceId/rank': typeof PracticesPracticeIdRankRoute
 }
 
 export interface FileRoutesByTo {
@@ -212,13 +227,14 @@ export interface FileRoutesByTo {
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
-  '/practice': typeof PracticeRoute
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/members/$handle': typeof MembersHandleRoute
   '/members/settings': typeof MembersSettingsRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
   '/contests': typeof ContestsIndexRoute
+  '/practices': typeof PracticesIndexRoute
+  '/practices/$practiceId/rank': typeof PracticesPracticeIdRankRoute
 }
 
 export interface FileRoutesById {
@@ -228,13 +244,14 @@ export interface FileRoutesById {
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
-  '/practice': typeof PracticeRoute
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/members/$handle': typeof MembersHandleRoute
   '/members/settings': typeof MembersSettingsRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
   '/contests/': typeof ContestsIndexRoute
+  '/practices/': typeof PracticesIndexRoute
+  '/practices/$practiceId/rank': typeof PracticesPracticeIdRankRoute
 }
 
 export interface FileRouteTypes {
@@ -245,13 +262,14 @@ export interface FileRouteTypes {
     | '/create'
     | '/login'
     | '/logout'
-    | '/practice'
     | '/register'
     | '/contests/$contestId'
     | '/members/$handle'
     | '/members/settings'
     | '/rooms/$roomId'
     | '/contests'
+    | '/practices'
+    | '/practices/$practiceId/rank'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -259,13 +277,14 @@ export interface FileRouteTypes {
     | '/create'
     | '/login'
     | '/logout'
-    | '/practice'
     | '/register'
     | '/contests/$contestId'
     | '/members/$handle'
     | '/members/settings'
     | '/rooms/$roomId'
     | '/contests'
+    | '/practices'
+    | '/practices/$practiceId/rank'
   id:
     | '__root__'
     | '/'
@@ -273,13 +292,14 @@ export interface FileRouteTypes {
     | '/create'
     | '/login'
     | '/logout'
-    | '/practice'
     | '/register'
     | '/contests/$contestId'
     | '/members/$handle'
     | '/members/settings'
     | '/rooms/$roomId'
     | '/contests/'
+    | '/practices/'
+    | '/practices/$practiceId/rank'
   fileRoutesById: FileRoutesById
 }
 
@@ -289,13 +309,14 @@ export interface RootRouteChildren {
   CreateRoute: typeof CreateRoute
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
-  PracticeRoute: typeof PracticeRoute
   RegisterRoute: typeof RegisterRoute
   ContestsContestIdRoute: typeof ContestsContestIdRoute
   MembersHandleRoute: typeof MembersHandleRoute
   MembersSettingsRoute: typeof MembersSettingsRoute
   RoomsRoomIdRoute: typeof RoomsRoomIdRoute
   ContestsIndexRoute: typeof ContestsIndexRoute
+  PracticesIndexRoute: typeof PracticesIndexRoute
+  PracticesPracticeIdRankRoute: typeof PracticesPracticeIdRankRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -304,13 +325,14 @@ const rootRouteChildren: RootRouteChildren = {
   CreateRoute: CreateRoute,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
-  PracticeRoute: PracticeRoute,
   RegisterRoute: RegisterRoute,
   ContestsContestIdRoute: ContestsContestIdRoute,
   MembersHandleRoute: MembersHandleRoute,
   MembersSettingsRoute: MembersSettingsRoute,
   RoomsRoomIdRoute: RoomsRoomIdRoute,
   ContestsIndexRoute: ContestsIndexRoute,
+  PracticesIndexRoute: PracticesIndexRoute,
+  PracticesPracticeIdRankRoute: PracticesPracticeIdRankRoute,
 }
 
 export const routeTree = rootRoute
@@ -328,13 +350,14 @@ export const routeTree = rootRoute
         "/create",
         "/login",
         "/logout",
-        "/practice",
         "/register",
         "/contests/$contestId",
         "/members/$handle",
         "/members/settings",
         "/rooms/$roomId",
-        "/contests/"
+        "/contests/",
+        "/practices/",
+        "/practices/$practiceId/rank"
       ]
     },
     "/": {
@@ -351,9 +374,6 @@ export const routeTree = rootRoute
     },
     "/logout": {
       "filePath": "logout.tsx"
-    },
-    "/practice": {
-      "filePath": "practice.tsx"
     },
     "/register": {
       "filePath": "register.tsx"
@@ -372,6 +392,12 @@ export const routeTree = rootRoute
     },
     "/contests/": {
       "filePath": "contests/index.tsx"
+    },
+    "/practices/": {
+      "filePath": "practices/index.tsx"
+    },
+    "/practices/$practiceId/rank": {
+      "filePath": "practices/$practiceId/rank.tsx"
     }
   }
 }

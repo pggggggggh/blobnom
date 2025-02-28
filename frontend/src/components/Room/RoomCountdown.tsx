@@ -10,7 +10,7 @@ const RoomCountdown = ({timeBefore}: { timeBefore: string }) => {
                 transform: 'translate(-50%, -50%)',
             }}
         >
-            <Text size="150">
+            <Text size="80">
                 {timeBefore}
             </Text>
         </Box>

@@ -5,16 +5,30 @@ import {useSolveProblem} from "../../hooks/hooks.tsx";
 import {gradientNull, userColors} from "../../constants/UserColorsFill.tsx";
 import {useEffect, useState} from "react";
 import HexEntry from "./HexEntry.tsx";
+import {BoardType} from "../../types/BoardType.tsx";
 
 export const HexComponent = ({roomDetails}: { roomDetails: RoomDetail }) => {
     const missions = roomDetails.mission_info;
-    const width: number = (3 + Math.sqrt(12 * missions.length - 3)) / 6 - 1;
-    const hexagons = GridGenerator.hexagon(width);
     const mutation = useSolveProblem();
+    const [hexagons, setHexagons] = useState<Hex[]>();
     const [unSolvableMissionsSet, setUnSolvbleMissionsSet] = useState<Set<number>>(new Set());
+    const [viewBox, setViewBox] = useState<string>("-105 -120 210 240");
 
     useEffect(() => {
         if (!roomDetails) return;
+
+        if (roomDetails.board_type === BoardType.HEXAGON) {
+            const width: number = (3 + Math.sqrt(12 * missions.length - 3)) / 6 - 1;
+            setHexagons(GridGenerator.hexagon(width));
+            setViewBox("-105 -120 210 240"); // Default viewBox for hexagon layout
+        } else {
+            setHexagons(GridGenerator.orientedRectangle(missions.length, 1));
+
+            const hexSize = 15;
+            const totalWidth = missions.length * hexSize * 1.04;
+            setViewBox(`${-totalWidth / 2 - hexSize / 2} -60 ${totalWidth * 2} 120`);
+        }
+
         setUnSolvbleMissionsSet(new Set(roomDetails.your_unsolvable_mission_ids));
     }, [roomDetails]);
 
@@ -23,7 +37,7 @@ export const HexComponent = ({roomDetails}: { roomDetails: RoomDetail }) => {
             <HexGrid
                 width="100%"
                 height="100%"
-                viewBox="-105 -120 210 240"
+                viewBox={viewBox}
             >
                 <defs>
                     <linearGradient
@@ -54,10 +68,15 @@ export const HexComponent = ({roomDetails}: { roomDetails: RoomDetail }) => {
                     ))}
                 </defs>
                 <Layout spacing={1.04}>
-                    {hexagons.map((hex: Hex, i: number) => (
-                        <HexEntry roomDetails={roomDetails} hex={hex} mission={missions[i]}
-                                  isUnsolvable={unSolvableMissionsSet.has(missions[i].id)}
-                                  mutation={mutation}/>
+                    {hexagons?.map((hex: Hex, i: number) => (
+                        <HexEntry
+                            key={`hex-${missions[i].id}`}
+                            roomDetails={roomDetails}
+                            hex={hex}
+                            mission={missions[i]}
+                            isUnsolvable={unSolvableMissionsSet.has(missions[i].id)}
+                            mutation={mutation}
+                        />
                     ))}
                 </Layout>
             </HexGrid>

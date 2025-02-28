@@ -1,6 +1,7 @@
 import {MemberSummary} from "./MemberSummary.tsx";
 import {Platform} from "./enum/Platforms.tsx";
 import {ModeType} from "./enum/ModeType.tsx";
+import {BoardType} from "./BoardType.tsx";
 
 export interface RoomDetail {
     id: number;
@@ -14,6 +15,7 @@ export interface RoomDetail {
     num_players: number;
     max_players: number;
     mode_type: ModeType;
+    board_type: BoardType;
     is_private: boolean;
     is_user_in_room: boolean;
     is_owner_a_member: boolean;
@@ -23,6 +25,7 @@ export interface RoomDetail {
     mission_info: MissionInfo[];
     is_contest_room: boolean;
     your_unsolvable_mission_ids: number[];
+    practice_id: number;
 }
 
 export interface TeamInfo {
@@ -41,6 +44,7 @@ export interface RoomPlayerInfo {
 
 export interface MissionInfo {
     id: number;
+    index_in_room: number;
     platform: Platform;
     problem_id: string;
     solved_at: string | null;
