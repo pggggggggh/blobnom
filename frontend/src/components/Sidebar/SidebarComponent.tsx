@@ -1,7 +1,7 @@
 import {Avatar, Card, Flex, Group, Stack, Table, Text, Title} from "@mantine/core";
 import {IconTrophy} from "@tabler/icons-react";
 import React from "react";
-import StatsCard from "../Sidebar/StatsCard.tsx";
+import StatsCard from "./StatsCard.tsx";
 import {useLeaderboards} from "../../hooks/hooks.tsx";
 import HandleComponent from "../HandleComponent.tsx";
 import dayjs from "dayjs";

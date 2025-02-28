@@ -1,4 +1,4 @@
-import {Platform} from "../../types/Platforms.tsx";
+import {Platform} from "../../types/enum/Platforms.tsx";
 import {Button, HoverCard, Text} from "@mantine/core";
 import {Hex, Hexagon} from "react-hexgrid";
 import {Text as SVGText} from "react-hexgrid/lib/Hexagon/Text";
@@ -155,7 +155,6 @@ const HexEntry = ({roomDetails, hex, mission, isUnsolvable, mutation}: HexEntryP
                             </HoverCard.Dropdown>
                     )
             }
-
         </HoverCard>
     )
 }

@@ -4,9 +4,9 @@ import logo from '../../assets/blobnom.png';
 import {Link} from '@tanstack/react-router';
 import {useAuth} from '../../context/AuthProvider.tsx';
 import {useSearchStore} from "../../store/searchStore.ts";
-import NotificationComponent from "../Header/NotificationComponent.tsx";
-import MemberAvatar from "../Header/MemberAvatar.tsx";
-import ColorSchemeToggle from "../Header/ColorSchemeToggle.tsx";
+import NotificationComponent from "./NotificationComponent.tsx";
+import MemberAvatar from "./MemberAvatar.tsx";
+import ColorSchemeToggle from "./ColorSchemeToggle.tsx";
 
 const HeaderComponent = () => {
     const [opened, {toggle, close}] = useDisclosure(false);
@@ -19,6 +19,7 @@ const HeaderComponent = () => {
 
     const menuItems = [
         {label: '홈', link: '/'},
+        // {label: '연습', link: '/practice'},
         {label: '대회', link: '/contests'},
         {label: '도움말', link: '/about'},
     ];

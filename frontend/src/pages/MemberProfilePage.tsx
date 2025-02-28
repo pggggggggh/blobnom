@@ -5,7 +5,7 @@ import RatingChartComponent from "../components/RatingChartComponent.tsx";
 import {getRatingColor} from "../utils/MiscUtils.tsx";
 import React from "react";
 import HandleComponent from "../components/HandleComponent.tsx";
-import {Platform} from "../types/Platforms.tsx";
+import {Platform} from "../types/enum/Platforms.tsx";
 import NotFound from "./NotFound.tsx";
 import {AxiosError} from "axios";
 import PlatformIcon from "../components/PlatformIcon.tsx";

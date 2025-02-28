@@ -1,8 +1,9 @@
-import {Container, Skeleton, Stack, Title} from "@mantine/core";
+import {Skeleton, Stack, Title} from "@mantine/core";
 import {useContestList} from "../../hooks/hooks.tsx";
 import ContestListComponent from "../../components/Contest/ContestListComponent.tsx";
 import React from "react";
 import dayjs from "dayjs";
+import WithSidebar from "../../components/Layout/WithSidebar.tsx";
 
 const ContestListPage = () => {
     const {data, isLoading, error} = useContestList();
@@ -12,7 +13,7 @@ const ContestListPage = () => {
 
 
     return (
-        <Container size="md" my="xl">
+        <WithSidebar>
             <Stack>
                 <Title order={2}>대회</Title>
                 {isInitialLoading ? (
@@ -29,7 +30,7 @@ const ContestListPage = () => {
                     )
                 )}
             </Stack>
-        </Container>
+        </WithSidebar>
     )
 }
 

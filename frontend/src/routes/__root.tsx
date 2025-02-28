@@ -1,6 +1,6 @@
 import {createRootRoute, Outlet, useLocation} from '@tanstack/react-router'
 import {AppShell, ScrollArea} from "@mantine/core";
-import HeaderComponent from "../components/Layout/HeaderComponent.tsx";
+import HeaderComponent from "../components/Header/HeaderComponent.tsx";
 import {notifications} from "@mantine/notifications";
 import {useEffect} from "react";
 import NotFound from "../pages/NotFound.tsx";

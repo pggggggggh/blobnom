@@ -1,11 +1,11 @@
 import React from "react";
 import {Button, Checkbox, Flex, Group, TextInput} from "@mantine/core";
 import SearchIcon from "@mui/icons-material/Search";
-import AddIcon from "@mui/icons-material/Add";
 import {Link} from "@tanstack/react-router";
 import {useSearchStore} from "../../store/searchStore.ts";
 import {useAuth} from "../../context/AuthProvider.tsx";
 import {useTranslation} from "react-i18next";
+import {IconHexagonPlus2} from "@tabler/icons-react";
 
 const RoomFilterComponent = () => {
     const {t} = useTranslation();
@@ -49,7 +49,7 @@ const RoomFilterComponent = () => {
                 />
                 {auth.member && (
                     <Link to="/create" className="flex-shrink-0 ml-2">
-                        <Button leftSection={<AddIcon/>}>
+                        <Button leftSection={<IconHexagonPlus2/>}>
                             {t("방 만들기")}
                         </Button>
                     </Link>

@@ -1,7 +1,7 @@
 import {Image} from "@mantine/core";
 import logo_boj from "/platforms/boj.png";
 import logo_codeforces from "/platforms/codeforces.png";
-import {Platform} from "../types/Platforms.tsx";
+import {Platform} from "../types/enum/Platforms.tsx";
 
 const platformLogos: Record<string, string> = {
     [Platform.BOJ]: logo_boj,

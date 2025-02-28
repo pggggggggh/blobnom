@@ -2,7 +2,7 @@ import {Group, Input, NumberInput, RangeSlider, SimpleGrid, Stack, Text, TextInp
 import React, {useEffect, useState} from 'react';
 import {SetAlgorithmTag} from './';
 import {marks, tiers} from '../../constants/tierdata';
-import {Platform} from "../../types/Platforms.tsx";
+import {Platform} from "../../types/enum/Platforms.tsx";
 
 interface SetRoomQueryProps {
     platform: Platform;

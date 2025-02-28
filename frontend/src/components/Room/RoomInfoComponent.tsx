@@ -3,10 +3,11 @@ import {Box, Button, Flex, Text, Title, UnstyledButton} from "@mantine/core";
 import dayjs from "dayjs";
 import {modals} from "@mantine/modals";
 import RoomDeleteModal from "../Modals/RemoveModal.tsx";
-import RoomJoinModal from "../Modals/RoomJoinModal.tsx";
 import {useAuth} from "../../context/AuthProvider.tsx";
 import {IconLock, IconTrash} from "@tabler/icons-react";
 import PlatformIcon from "../PlatformIcon.tsx";
+import {ModeType} from "../../types/enum/ModeType.tsx";
+import RoomJoinModal from "../Modals/RoomJoinModal.tsx";
 
 interface RoomInfoProps {
     roomDetail: RoomDetail;
@@ -61,7 +62,7 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
                         </UnstyledButton>
                     )
             }
-            {!roomDetail.is_user_in_room && !roomDetail.is_contest_room && roomDetail.mode_type === "land_grab_solo" && new Date(roomDetail.ends_at) > new Date() &&
+            {!roomDetail.is_user_in_room && !roomDetail.is_contest_room && roomDetail.mode_type === ModeType.LAND_GRAB_SOLO && new Date(roomDetail.ends_at) > new Date() &&
                 <div
                     className="mt-1">
                     <Button

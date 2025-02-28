@@ -12,7 +12,7 @@ import {
 } from '../components/RoomForm';
 import {useCreateRoom} from '../hooks/hooks';
 import {useAuth} from "../context/AuthProvider.tsx";
-import {Platform} from "../types/Platforms.tsx";
+import {Platform} from "../types/enum/Platforms.tsx";
 import SetPlatform from "../components/RoomForm/SetPlatform.tsx";
 
 function CreateRoom() {

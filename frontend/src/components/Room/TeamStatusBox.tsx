@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {Menu} from '@mantine/core';
 import {TeamInfo} from "../../types/roomDetails.tsx";
-import {Platform} from "../../types/Platforms.tsx";
+import {Platform} from "../../types/enum/Platforms.tsx";
 import HandleComponent from "../HandleComponent.tsx";
 
 function TeamStatusBox({roomDetails, userColors, activeUsers}) {

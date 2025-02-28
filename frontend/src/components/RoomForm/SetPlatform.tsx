@@ -1,5 +1,5 @@
 import {Group, Radio, Stack, Text} from "@mantine/core";
-import {Platform} from "../../types/Platforms.tsx";
+import {Platform} from "../../types/enum/Platforms.tsx";
 import PlatformIcon from "../PlatformIcon.tsx";
 import React from "react";
 

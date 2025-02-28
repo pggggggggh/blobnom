@@ -2,10 +2,11 @@ import {roomSummary} from "../../types/Summaries.tsx";
 import {Box, Button, Card, Flex, Group, Stack, Text} from "@mantine/core";
 import HandleComponent from "../HandleComponent.tsx";
 import {Link} from "@tanstack/react-router";
-import {IconClock, IconHexagons, IconLock, IconUserCheck} from "@tabler/icons-react";
+import {IconArrowRight, IconClock, IconHexagons, IconLock, IconUserCheck} from "@tabler/icons-react";
 import dayjs from "dayjs";
 import PlatformIcon from "../PlatformIcon.tsx";
 import RoomStatusBadge from "./RoomProgressBadge.tsx";
+import React from "react";
 
 interface RoomCardProps {
     roomSummary: roomSummary
@@ -61,7 +62,8 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
                             roomId: roomSummary.id.toString()
                         }}
                     >
-                        <Button variant="light" fw={300}>
+                        <Button variant="light" fw={300}
+                                rightSection={<IconArrowRight size={16}/>}>
                             참여하기
                         </Button>
                     </Link>

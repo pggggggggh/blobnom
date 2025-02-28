@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as RegisterImport } from './routes/register'
+import { Route as PracticeImport } from './routes/practice'
 import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as CreateImport } from './routes/create'
@@ -28,6 +29,12 @@ import { Route as ContestsContestIdImport } from './routes/contests/$contestId'
 const RegisterRoute = RegisterImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PracticeRoute = PracticeImport.update({
+  id: '/practice',
+  path: '/practice',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -130,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogoutImport
       parentRoute: typeof rootRoute
     }
+    '/practice': {
+      id: '/practice'
+      path: '/practice'
+      fullPath: '/practice'
+      preLoaderRoute: typeof PracticeImport
+      parentRoute: typeof rootRoute
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -183,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/practice': typeof PracticeRoute
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/members/$handle': typeof MembersHandleRoute
@@ -197,6 +212,7 @@ export interface FileRoutesByTo {
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/practice': typeof PracticeRoute
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/members/$handle': typeof MembersHandleRoute
@@ -212,6 +228,7 @@ export interface FileRoutesById {
   '/create': typeof CreateRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/practice': typeof PracticeRoute
   '/register': typeof RegisterRoute
   '/contests/$contestId': typeof ContestsContestIdRoute
   '/members/$handle': typeof MembersHandleRoute
@@ -228,6 +245,7 @@ export interface FileRouteTypes {
     | '/create'
     | '/login'
     | '/logout'
+    | '/practice'
     | '/register'
     | '/contests/$contestId'
     | '/members/$handle'
@@ -241,6 +259,7 @@ export interface FileRouteTypes {
     | '/create'
     | '/login'
     | '/logout'
+    | '/practice'
     | '/register'
     | '/contests/$contestId'
     | '/members/$handle'
@@ -254,6 +273,7 @@ export interface FileRouteTypes {
     | '/create'
     | '/login'
     | '/logout'
+    | '/practice'
     | '/register'
     | '/contests/$contestId'
     | '/members/$handle'
@@ -269,6 +289,7 @@ export interface RootRouteChildren {
   CreateRoute: typeof CreateRoute
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
+  PracticeRoute: typeof PracticeRoute
   RegisterRoute: typeof RegisterRoute
   ContestsContestIdRoute: typeof ContestsContestIdRoute
   MembersHandleRoute: typeof MembersHandleRoute
@@ -283,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   CreateRoute: CreateRoute,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
+  PracticeRoute: PracticeRoute,
   RegisterRoute: RegisterRoute,
   ContestsContestIdRoute: ContestsContestIdRoute,
   MembersHandleRoute: MembersHandleRoute,
@@ -306,6 +328,7 @@ export const routeTree = rootRoute
         "/create",
         "/login",
         "/logout",
+        "/practice",
         "/register",
         "/contests/$contestId",
         "/members/$handle",
@@ -328,6 +351,9 @@ export const routeTree = rootRoute
     },
     "/logout": {
       "filePath": "logout.tsx"
+    },
+    "/practice": {
+      "filePath": "practice.tsx"
     },
     "/register": {
       "filePath": "register.tsx"

@@ -1,5 +1,5 @@
 import {MemberSummary} from "./MemberSummary.tsx";
-import {Platform} from "./Platforms.tsx";
+import {Platform} from "./enum/Platforms.tsx";
 
 export interface MainData {
     total_pages: number;

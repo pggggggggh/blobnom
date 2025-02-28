@@ -3,7 +3,7 @@ import {useFetchPlatformToken, useRegister} from "../../hooks/hooks.tsx";
 import {useForm} from "@mantine/form";
 import React, {useState} from "react";
 import SetPlatform from "../../components/RoomForm/SetPlatform.tsx";
-import {Platform} from "../../types/Platforms.tsx";
+import {Platform} from "../../types/enum/Platforms.tsx";
 import {RegisterForm} from "../../types/RegisterForm.tsx";
 import TokenStepComponent from "../../components/Register/TokenStepComponent.tsx";
 import RegisterFormComponent from "../../components/Register/RegisterFormComponent.tsx";

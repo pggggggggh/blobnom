@@ -3,7 +3,7 @@ import {useBindAccount, useFetchPlatformToken} from "../../hooks/hooks.tsx";
 import {useNavigate} from "@tanstack/react-router";
 import {useForm} from "@mantine/form";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import {Platform} from "../../types/Platforms.tsx";
+import {Platform} from "../../types/enum/Platforms.tsx";
 
 export default function AccountSettingsPage() {
     const navigate = useNavigate();

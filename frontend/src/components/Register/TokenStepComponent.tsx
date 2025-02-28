@@ -1,6 +1,6 @@
 import {ActionIcon, Alert, Button, CopyButton, Stack, TextInput} from "@mantine/core";
 import {IconCopy, IconInfoCircle} from "@tabler/icons-react";
-import {Platform} from "../../types/Platforms.tsx";
+import {Platform} from "../../types/enum/Platforms.tsx";
 import React from "react";
 
 interface TokenStepComponentProps {

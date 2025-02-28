@@ -1,5 +1,6 @@
 import {MemberSummary} from "./MemberSummary.tsx";
-import {Platform} from "./Platforms.tsx";
+import {Platform} from "./enum/Platforms.tsx";
+import {ModeType} from "./enum/ModeType.tsx";
 
 export interface RoomDetail {
     id: number;
@@ -12,7 +13,7 @@ export interface RoomDetail {
     owner: string;
     num_players: number;
     max_players: number;
-    mode_type: string;
+    mode_type: ModeType;
     is_private: boolean;
     is_user_in_room: boolean;
     is_owner_a_member: boolean;

@@ -1,4 +1,4 @@
-import {Platform} from "./Platforms.tsx";
+import {Platform} from "./enum/Platforms.tsx";
 
 export interface RoomForm {
     owner_handle: string;
