@@ -10,11 +10,7 @@ const PracticeRankPage = () => {
     const {data, refetch, isPending} = usePracticeRank(practiceId);
 
     if (!data) return;
-    if (data.rank.length === 0) return (
-        <>
-            No Rank
-        </>
-    )
+
 
     return (
         <WithSidebar>
