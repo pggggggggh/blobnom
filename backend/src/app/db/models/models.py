@@ -1,8 +1,8 @@
 from sqlalchemy import Integer, Column, String, ForeignKey, DateTime, Boolean, Enum, ARRAY
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Relationship
 
 from src.app.core.constants import MAX_TEAM_PER_ROOM
-from src.app.core.enums import Platform, ModeType, ContestType, Role
+from src.app.core.enums import Platform, ModeType, ContestType, Role, PenaltyType
 from src.app.db.database import Base, TimestampMixin
 
 
@@ -34,6 +34,7 @@ class Member(TimestampMixin, Base):
     users = relationship("User", back_populates="member")
     owned_rooms = relationship("Room", back_populates="owner", foreign_keys="[Room.owner_id]")
     registered_contests = relationship("ContestMember", back_populates="member")
+    practice_sets = relationship("PracticeMember", back_populates="member")
 
 
 class Room(TimestampMixin, Base):
@@ -69,6 +70,9 @@ class Room(TimestampMixin, Base):
 
     players = relationship("RoomPlayer", back_populates="room", foreign_keys="RoomPlayer.room_id")
     missions = relationship("RoomMission", back_populates="room")
+
+    practice_session = relationship("PracticeMember", back_populates="room",
+                                    uselist=False)
 
     is_contest_room = Column(Boolean, nullable=False, default=False)
 
@@ -187,3 +191,35 @@ class ContestMember(TimestampMixin, Base):
     performance = Column(Integer)
     rating_before = Column(Integer)
     rating_after = Column(Integer)
+
+
+class PracticeSet(TimestampMixin, Base):
+    __tablename__ = "practice_sets"
+    id = Column(Integer, primary_key=True)
+
+    name = Column(String, nullable=False)
+    duration = Column(Integer, nullable=False)  # minutes
+    platform = Column(Enum(Platform), nullable=False, default=Platform.BOJ)
+    penalty_type = Column(Enum(PenaltyType), nullable=False, default=PenaltyType.ICPC)
+    problem_ids = Column(ARRAY(Integer), nullable=False, default=lambda: [])
+
+    practice_members = relationship("PracticeMember", back_populates="practice_set")
+
+    created_member_id = Column(ForeignKey("members.id"))
+    created_by = relationship("Member", foreign_keys=[created_member_id])
+
+
+class PracticeMember(TimestampMixin, Base):
+    __tablename__ = "practice_members"
+    id = Column(Integer, primary_key=True)
+
+    practice_set_id = Column(ForeignKey("practice_sets.id"))
+    practice_set = relationship("PracticeSet", foreign_keys=[practice_set_id], back_populates="practice_members")
+    member_id = Column(ForeignKey("members.id"))
+    member = relationship("Member", foreign_keys=[member_id], back_populates="practice_sets")
+    room_id = Column(ForeignKey("rooms.id"))
+    room = relationship("Room", foreign_keys=[room_id], back_populates="practice_session", uselist=False)
+
+    score = Column(Integer, default=0)
+    penalty = Column(Integer, default=0)
+    rank = Column(Integer)
