@@ -23,7 +23,7 @@ async def get_stats(db: Session):
         if cached_data:
             return pickle.loads(cached_data)
 
-    num_solved_missions = db.query(RoomMission).filter(RoomMission.solved_at is not None).count()
+    num_solved_missions = db.query(RoomMission).filter(RoomMission.solved_at.isnot(None)).count()
     num_members = db.query(Member).count()
     updated_at = datetime.now(pytz.UTC)
 
