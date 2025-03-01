@@ -547,6 +547,7 @@ async def update_solver(room_id, missions, room_players, db, client, initial=Fal
                 room.num_solved_missions += 1
                 room.last_solved_at = mission.solved_at
                 db.add(room)
+                player.user.num_solved_missions += 1
     db.commit()
 
     if initial is not True:

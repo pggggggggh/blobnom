@@ -48,7 +48,7 @@ async def get_member_details(handle: str, db: Session) -> MemberDetails:
         raise HTTPException(status_code=404, detail="Member not found")
     num_solved_missions = 0
     for user in member.users:
-        num_solved_missions += db.query(RoomMission).filter(RoomMission.solved_user_id == user.id).count()
+        num_solved_missions += user.num_solved_missions
 
     contest_history_list = []
     contest_members = db.query(ContestMember).filter(ContestMember.member_id == member.id).options(
