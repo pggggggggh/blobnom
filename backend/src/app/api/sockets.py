@@ -14,7 +14,7 @@ from src.app.utils.logger import logger
 async def connect(sid, environ, auth):
     if auth:
         handle = auth.get("handle")
-        print("connect", sid, handle)
+        logger.info(f"connect {sid} {handle}")
         if handle:
             redis = await get_redis()
             if redis:
@@ -29,7 +29,7 @@ async def connect(sid, environ, auth):
 
 @sio.event
 async def disconnect(sid):
-    print("disconnect", sid)
+    logger.info(f"disconnect {sid}")
     redis = await get_redis()
 
     if redis:

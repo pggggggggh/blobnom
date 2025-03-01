@@ -13,6 +13,7 @@ from starlette import status
 
 from src.app.db.database import get_db
 from src.app.db.models.models import User, Member
+from src.app.utils.logger import logger
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -53,7 +54,7 @@ async def get_handle_by_token(authorization: Optional[str] = Header(None), db: S
         payload = jwt.decode(token, os.environ.get("JWT_SECRET_KEY"),
                              algorithms=os.environ.get("JWT_ALGORITHM"))
         handle = payload.get("sub")
-        print(handle, "login")
+        logger.info(f"handle: {handle}")
         if handle is None:
             raise credentials_exception
         member = db.query(Member).filter(Member.handle == handle).first()
