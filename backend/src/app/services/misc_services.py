@@ -93,8 +93,6 @@ async def get_active_users(db: Session):
 
     sessions_with_rooms = {}
     rooms = sio.manager.rooms.get("/", {})
-    print(rooms)
-
     for room, bidict_obj in rooms.items():
         if room and room.startswith("room_"):
             room_id = room[len("room_"):]
