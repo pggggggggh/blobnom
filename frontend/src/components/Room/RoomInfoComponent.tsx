@@ -22,16 +22,18 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
     return (
         <Box pos="absolute" w={{"base": 200, "md": 400}}>
             <PlatformIcon platform={roomDetail.platform} w={24}/>
-            <Flex align="center" mt="-2" mb={2}>
-                <Title lh={1}>{roomDetail.name}</Title>
-                {roomDetail.is_private && <IconLock size={34}/>}
+            <Flex align="center" mt="">
+                <Title flex={1} lh={0.9} display="inline-block">
+                    {roomDetail.name}
+                </Title>
+                {roomDetail.is_private && <IconLock height={20}/>}
             </Flex>
             {roomDetail.query &&
                 <Text c="dimmed" size="xs" truncate="end">
                     {roomDetail.query}
                 </Text>
             }
-            <Text>
+            <Text size="sm">
                 {roomDetail.is_started
                     ? timeLeft
                     : `${dayjs(roomDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ ${dayjs(roomDetail.ends_at).format('YYYY-MM-DD HH:mm')}, ${t("num_problems", {n: roomDetail.num_missions})}`}
