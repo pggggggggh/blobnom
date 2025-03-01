@@ -1,13 +1,14 @@
 import {roomSummary} from "../../types/Summaries.tsx";
-import {Box, Button, Card, Flex, Group, Stack, Text} from "@mantine/core";
+import {Box, Card, Flex, Group, Stack, Text} from "@mantine/core";
 import HandleComponent from "../HandleComponent.tsx";
 import {Link} from "@tanstack/react-router";
-import {IconArrowRight, IconClock, IconHexagons, IconLock, IconUserCheck} from "@tabler/icons-react";
+import {IconClock, IconHexagons, IconLock, IconUserCheck} from "@tabler/icons-react";
 import dayjs from "dayjs";
 import PlatformIcon from "../PlatformIcon.tsx";
 import RoomStatusBadge from "./RoomProgressBadge.tsx";
 import React from "react";
 import {useTranslation} from "react-i18next";
+import EnterButton from "../UI/EnterButton.tsx";
 
 interface RoomCardProps {
     roomSummary: roomSummary
@@ -22,7 +23,7 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
         <Card
             key={roomSummary.id}
             withBorder
-            shadow="sm"
+            shadow="md"
         >
             <Group justify="space-between">
                 <Box>
@@ -64,10 +65,7 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
                             roomId: roomSummary.id.toString()
                         }}
                     >
-                        <Button variant="light" fw={300}
-                                rightSection={<IconArrowRight size={16}/>}>
-                            {t("참여하기")}
-                        </Button>
+                        <EnterButton/>
                     </Link>
                 </Group>
             </Group>

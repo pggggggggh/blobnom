@@ -1,5 +1,5 @@
 import {RoomDetail} from "../../types/RoomDetail.tsx";
-import {Box, Button, Flex, Text, Title, UnstyledButton} from "@mantine/core";
+import {Box, Flex, Text, Title, UnstyledButton} from "@mantine/core";
 import dayjs from "dayjs";
 import {modals} from "@mantine/modals";
 import RoomDeleteModal from "../Modals/RemoveModal.tsx";
@@ -9,6 +9,7 @@ import PlatformIcon from "../PlatformIcon.tsx";
 import {ModeType} from "../../types/enum/ModeType.tsx";
 import RoomJoinModal from "../Modals/RoomJoinModal.tsx";
 import {useTranslation} from "react-i18next";
+import EnterButton from "../UI/EnterButton.tsx";
 
 interface RoomInfoProps {
     roomDetail: RoomDetail;
@@ -20,7 +21,7 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
     const {t} = useTranslation();
 
     return (
-        <Box pos="absolute" w={{"base": 200, "md": 400}}>
+        <Box pos="absolute" maw={{"base": 200, "md": 400}}>
             <PlatformIcon platform={roomDetail.platform} w={24}/>
             <Flex align="center" mt="">
                 <Title flex={1} lh={0.9} display="inline-block">
@@ -69,8 +70,7 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
             {!roomDetail.is_user_in_room && !roomDetail.is_contest_room && roomDetail.mode_type === ModeType.LAND_GRAB_SOLO && new Date(roomDetail.ends_at) > new Date() &&
                 <div
                     className="mt-1">
-                    <Button
-                        variant="light"
+                    <EnterButton
                         onClick={() => {
                             modals.open({
                                 title: t("참여하기"),
@@ -79,7 +79,7 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
                         }}
                     >
                         {t("참여하기")}
-                    </Button>
+                    </EnterButton>
                 </div>
             }
         </Box>

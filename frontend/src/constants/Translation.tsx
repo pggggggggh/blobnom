@@ -1,7 +1,8 @@
 export const Translation = {
     ko: {
         translation: {
-            "solve failed": "문제가 해결되지 않았습니다. '맞았습니다!!'를 받았는데도 이 메시지가 보인다면 잠시 뒤 다시 시도해주세요.",
+            "Solve failed": "문제가 해결되지 않았습니다. '맞았습니다!!'를 받았는데도 이 메시지가 보인다면 잠시 뒤 다시 시도해주세요.",
+            "greeting_message": "환영합니다! 문제를 풀기 전에 방에 입장되어있는지 확인해주시고, 풀고 난 후에는 Solve!를 누르는 것을 잊지 말아주세요!",
             "num_problems": "{{n}}문제",
             "updated": "{{t}} 업데이트됨",
             "ended": "{{t}} 전 종료",
@@ -49,6 +50,7 @@ export const Translation = {
             "비회원은 참가하실 수 없습니다.": "Guests are not allowed to enter.",
             "비밀번호를 입력해주세요.": "Please enter your password",
             "게임이 시작되었습니다.": "Game started",
+            "greeting_message": "Welcome! Please make sure you are in the room when you solve the problem, and then press Solve! after you solve it.",
             "problem_solved": "{{handle}} solved {{problemId}}",
             "Solve failed": "Failed to process solve. If you got 'Accepted' in Online Judge, please try after a while.",
             "num_problems": "{{n}} Problems",

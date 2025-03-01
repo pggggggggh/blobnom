@@ -1,17 +1,23 @@
 import {useState} from 'react';
 import {Box, Card, Flex, Group, Menu, Text, UnstyledButton} from '@mantine/core';
-import {IconChevronDown, IconChevronUp} from '@tabler/icons-react';
+import {IconChevronDown} from '@tabler/icons-react';
 import {TeamInfo} from "../../types/RoomDetail.tsx";
 import {Platform} from "../../types/enum/Platforms.tsx";
 import HandleComponent from "../HandleComponent.tsx";
 import {useTranslation} from "react-i18next";
 
 function TeamStatusBox({roomDetails, userColors, activeUsers}) {
+    const [maximized, setMaximized] = useState(true);
     const [showAll, setShowAll] = useState(true);
     const {t} = useTranslation();
 
     const toggleView = () => {
-        setShowAll(prev => !prev);
+        if (!maximized) {
+            setShowAll((prev) => !prev);
+        } else {
+            setTimeout(() => setShowAll(prev => !prev), 300);
+        }
+        setMaximized(prev => !prev)
     };
 
     const teamsToShow = showAll
@@ -20,11 +26,15 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
 
     return (
         <Card
-            className="fixed bottom-4 right-4 shadow-lg"
+            shadow="lg"
+            className={`fixed bottom-4 right-4 transition-all duration-300 ${
+                maximized ? "max-h-[500px]" : "max-h-[64px]"
+            }`}
             padding="xs"
             radius="md"
             w="auto"
         >
+
             <UnstyledButton
                 className="absolute top-2 right-2"
                 variant="subtle"
@@ -32,10 +42,20 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
                 onClick={toggleView}
                 aria-label="Toggle view mode"
             >
-                {showAll ? <IconChevronDown size={16}/> : <IconChevronUp size={16}/>}
+                <IconChevronDown
+                    className={`transition-transform duration-300 ${
+                        maximized ? "" : "rotate-180"
+                    }`}
+                    size={16}
+                />
             </UnstyledButton>
 
-            <Card.Section pt="lg" pb="sm" px="md">
+            <Card.Section
+                className={`transition-all duration-300 overflow-hidden`}
+                pt="md"
+                pb="sm"
+                px="md"
+            >
                 {teamsToShow.map((team: TeamInfo, i) => (
                     <Group key={i} align="center" gap="xs">
                         <Box w={7} h={5} bg={userColors[team.team_index % userColors.length][0]}/>
@@ -61,7 +81,7 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
                                                         <Box
                                                             w={5}
                                                             h={5}
-                                                            bg="green"
+                                                            bg="teal"
                                                             title={t("Active")}
                                                             style={{borderRadius: '50%'}}
                                                         />
@@ -100,7 +120,7 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
                             <Text size="sm" c="dimmed">:</Text>
                             <Group gap={1} align="flex-end">
                                 <Text fw="bold">{team.adjacent_solved_count}</Text>
-                                <Text fw="lighter" c="dimmed" size="xs">({team.total_solved_count})</Text>
+                                <Text c="dimmed" size="xs">({team.total_solved_count})</Text>
                             </Group>
                         </Group>
                     </Group>
