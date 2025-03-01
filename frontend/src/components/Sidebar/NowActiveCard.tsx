@@ -41,7 +41,7 @@ const ActiveUsersRoomsCard = () => {
                                         : t("연습 중")}
                             </Text>
                             {roomId !== null && roomId > 0 && (
-                                <Link to={`rooms/${roomId}`}>
+                                <Link to={`/rooms/${roomId}`}>
                                     <Button
                                         size="xs"
                                         variant="light"
