@@ -8,6 +8,7 @@ import NotificationComponent from "./NotificationComponent.tsx";
 import MemberAvatar from "./MemberAvatar.tsx";
 import ColorSchemeToggle from "./ColorSchemeToggle.tsx";
 import {useTranslation} from "react-i18next";
+import LanguageToggle from "./LanguageToggle.tsx";
 
 const HeaderComponent = () => {
     const {t} = useTranslation();
@@ -69,6 +70,7 @@ const HeaderComponent = () => {
                 </Group>
 
                 <Group align="center" gap="md">
+                    <LanguageToggle/>
                     <ColorSchemeToggle/>
 
                     {auth.member && <NotificationComponent notifications={notifications}/>}

@@ -1,5 +1,5 @@
 import {createRootRoute, Outlet, useLocation} from '@tanstack/react-router'
-import {AppShell, Box, ScrollArea} from "@mantine/core";
+import {AppShell, ScrollArea} from "@mantine/core";
 import HeaderComponent from "../components/Header/HeaderComponent.tsx";
 import {notifications} from "@mantine/notifications";
 import {useEffect} from "react";
@@ -30,9 +30,7 @@ function RootComponent() {
             </AppShell.Header>
             <AppShell.Main>
                 <ScrollArea h="100%" type="hover">
-                    <Box miw="640px">
-                        <Outlet/>
-                    </Box>
+                    <Outlet/>
                 </ScrollArea>
             </AppShell.Main>
         </AppShell>
