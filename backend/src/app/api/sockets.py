@@ -45,7 +45,6 @@ async def disconnect(sid):
                     room_handle = await redis.hget("sid_to_handle", room_sid)
                     if room_handle:
                         active_users.add(room_handle.decode('utf-8'))
-                await sio.emit("active_users", list(active_users), room=f"room_{room_id}")
         if handle:
             await redis.hdel("sid_to_handle", sid)
             await redis.hdel("handle_to_sid", handle.decode("utf-8"))
@@ -61,7 +60,6 @@ async def join_room(sid, data):
         cache_key = f"room:{room_id}:messages"
         messages = await redis.lrange(cache_key, 0, -1)
         messages = [json.loads(msg) for msg in messages]
-        print(messages)
         messages.append({
             "type": "system",
             "message": "greeting_message",
@@ -75,7 +73,7 @@ async def join_room(sid, data):
             handle = await redis.hget("sid_to_handle", sid)
             if handle:
                 active_users.add(handle.decode('utf-8'))
-        await sio.emit("active_users", list(active_users))
+        await sio.emit("active_users", list(active_users), room=f"room_{room_id}")
 
 
 @sio.event
@@ -94,7 +92,7 @@ async def leave_room(sid, data):
             handle = await redis.hget("sid_to_handle", sid)
             if handle:
                 active_users.add(handle.decode('utf-8'))
-        await sio.emit("active_users", list(active_users))
+        await sio.emit("active_users", list(active_users), room=f"room_{room_id}")
 
 
 @sio.event
