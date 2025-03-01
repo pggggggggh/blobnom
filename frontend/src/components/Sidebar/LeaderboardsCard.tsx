@@ -1,10 +1,10 @@
-import {Avatar, Card, Flex, Group, Stack, Table, Text, Title} from "@mantine/core";
+import {Avatar, Card, Flex, Group, Table, Text, Title} from "@mantine/core";
 import {IconTrophy} from "@tabler/icons-react";
 import HandleComponent from "../HandleComponent.tsx";
-import dayjs from "dayjs";
 import React from "react";
 import {useLeaderboards} from "../../hooks/hooks.tsx";
 import {useTranslation} from "react-i18next";
+import UpdatedTime from "../UI/UpdatedTime.tsx";
 
 const LeaderboardsCard = () => {
     const {t} = useTranslation();
@@ -57,11 +57,8 @@ const LeaderboardsCard = () => {
                     ))}
                 </Table.Tbody>
             </Table>
-            <Stack gap={0} mt="lg" w="100%" justify="flex-end" align="flex-end">
-                <Text size="xs" c="dimmed">
-                    {t("updated", {t: dayjs(leaderboardsData?.updated_at).fromNow()})}
-                </Text>
-            </Stack>
+            {leaderboardsData &&
+                <UpdatedTime updated_at={leaderboardsData.updated_at}/>}
         </Card>
     )
 }

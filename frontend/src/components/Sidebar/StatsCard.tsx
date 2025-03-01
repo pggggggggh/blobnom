@@ -1,8 +1,8 @@
-import {Box, Card, Group, Stack, Text, Title} from '@mantine/core';
+import {Box, Card, Group, Text, Title} from '@mantine/core';
 import {IconChartHistogram, IconCode, IconUserPlus} from '@tabler/icons-react';
-import dayjs from 'dayjs';
 import {useSiteStats} from "../../hooks/hooks.tsx";
 import {useTranslation} from "react-i18next";
+import UpdatedTime from "../UI/UpdatedTime.tsx";
 
 
 const StatsCard = () => {
@@ -50,11 +50,7 @@ const StatsCard = () => {
             </Group>
 
             {statsData &&
-                <Stack gap={0} mt="lg" w="100%" justify="flex-end" align="flex-end">
-                    <Text size="xs" c="dimmed">
-                        {t("updated", {t: dayjs(statsData?.updated_at).fromNow()})}
-                    </Text>
-                </Stack>
+                <UpdatedTime updated_at={statsData?.updated_at}/>
             }
         </Card>
     );

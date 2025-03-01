@@ -1,13 +1,18 @@
-import {Badge, Button, Card, Group, Stack, Text, Title} from '@mantine/core';
+import {Badge, Button, Card, Collapse, Group, Text, Title} from '@mantine/core';
 import {IconActivity} from '@tabler/icons-react';
 import {useTranslation} from "react-i18next";
 import {useActiveUsers} from "../../hooks/hooks.tsx";
 import {Link} from "@tanstack/react-router";
-import dayjs from "dayjs";
+import UpdatedTime from "../UI/UpdatedTime.tsx";
+import {useState} from "react";
 
 const ActiveUsersRoomsCard = () => {
     const {t} = useTranslation();
-    const {data: nowActiveData, isLoading, error} = useActiveUsers()
+    const {data: nowActiveData, isLoading, error} = useActiveUsers();
+    const [expanded, setExpanded] = useState(false); // 확장 상태 관리
+
+    const activeUsersEntries = nowActiveData?.active_users ? Object.entries(nowActiveData.active_users) : [];
+    const visibleUsers = expanded ? activeUsersEntries : activeUsersEntries.slice(0, 1);
 
     return (
         <Card withBorder shadow="sm" p="md">
@@ -17,11 +22,12 @@ const ActiveUsersRoomsCard = () => {
                     {t("현재 접속자")}
                 </Title>
                 <Badge color="green" variant="light">
-                    {nowActiveData && t("active_users", {n: Object.keys(nowActiveData.active_users).length})}
+                    {nowActiveData && t("active_users", {n: activeUsersEntries.length})}
                 </Badge>
             </Group>
-            {nowActiveData?.active_users && Object.entries(nowActiveData.active_users).map(([handle, roomId]) => {
-                return (
+
+            <Collapse in={visibleUsers.length > 0}>
+                {visibleUsers.map(([handle, roomId]) => (
                     <Group key={handle} style={{marginBottom: '8px', alignItems: 'center'}}>
                         <Title order={5} style={{flex: 1}}>
                             {handle}
@@ -38,6 +44,7 @@ const ActiveUsersRoomsCard = () => {
                                 <Link to={`rooms/${roomId}`}>
                                     <Button
                                         size="xs"
+                                        variant="light"
                                     >
                                         {t("따라가기")}
                                     </Button>
@@ -45,15 +52,20 @@ const ActiveUsersRoomsCard = () => {
                             )}
                         </Group>
                     </Group>
-                );
-            })}
-            {nowActiveData &&
-                <Stack gap={0} mt="lg" w="100%" justify="flex-end" align="flex-end">
-                    <Text size="xs" c="dimmed">
-                        {t("updated", {t: dayjs(nowActiveData?.updated_at).fromNow()})}
-                    </Text>
-                </Stack>
-            }
+                ))}
+            </Collapse>
+
+            {activeUsersEntries.length > 1 && (
+                <Button
+                    variant="subtle"
+                    fullWidth
+                    onClick={() => setExpanded(!expanded)}
+                >
+                    {expanded ? t("접기") : t("더보기")}
+                </Button>
+            )}
+
+            {nowActiveData && <UpdatedTime updated_at={nowActiveData?.updated_at}/>}
         </Card>
     );
 }
