@@ -66,6 +66,15 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
                                         <Menu shadow="md" width={200} position="top">
                                             <Menu.Target>
                                                 <Flex align="center" gap={3}>
+                                                    {activeUsers.has(player_info.user.handle) && (
+                                                        <Box
+                                                            w={5}
+                                                            h={5}
+                                                            bg="teal"
+                                                            title={t("Active")}
+                                                            style={{borderRadius: '50%'}}
+                                                        />
+                                                    )}
                                                     <Text
                                                         className="cursor-pointer"
                                                         fw={
@@ -77,15 +86,7 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
                                                         <HandleComponent member={player_info.user}
                                                                          linkToProfile={false}/>
                                                     </Text>
-                                                    {activeUsers.has(player_info.user.handle) && (
-                                                        <Box
-                                                            w={5}
-                                                            h={5}
-                                                            bg="teal"
-                                                            title={t("Active")}
-                                                            style={{borderRadius: '50%'}}
-                                                        />
-                                                    )}
+
                                                 </Flex>
                                             </Menu.Target>
                                             <Menu.Dropdown>

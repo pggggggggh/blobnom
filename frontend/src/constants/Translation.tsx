@@ -47,6 +47,8 @@ export const Translation = {
             "로비": "Lobby",
             "연습 중": "Running Practice",
             "따라가기": "Follow",
+            "더보기": "More",
+            "접기": "Hide",
             "백준": "Baekjoon",
             "코드포스": "Codeforces",
             "현재 접속자": "Now Active",
