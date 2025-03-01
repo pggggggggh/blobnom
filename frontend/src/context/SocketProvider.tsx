@@ -24,6 +24,10 @@ export const SocketProvider = ({children}: { children: React.ReactNode }) => {
             console.log("Socket connected");
         });
 
+        newSocket.on("disconnect", () => {
+            // notifications.show({message: "서버와의 연결이 끊어졌습니다."})
+        });
+
         const handleBeforeUnload = () => {
             console.log("Window closing");
             newSocket.disconnect();
@@ -32,7 +36,6 @@ export const SocketProvider = ({children}: { children: React.ReactNode }) => {
         window.addEventListener("beforeunload", handleBeforeUnload);
 
         return () => {
-            console.log("Socket disconnected");
             newSocket.disconnect();
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
