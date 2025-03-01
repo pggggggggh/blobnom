@@ -8,6 +8,7 @@ import {IconLock, IconTrash} from "@tabler/icons-react";
 import PlatformIcon from "../PlatformIcon.tsx";
 import {ModeType} from "../../types/enum/ModeType.tsx";
 import RoomJoinModal from "../Modals/RoomJoinModal.tsx";
+import {useTranslation} from "react-i18next";
 
 interface RoomInfoProps {
     roomDetail: RoomDetail;
@@ -16,6 +17,7 @@ interface RoomInfoProps {
 
 const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
     const auth = useAuth();
+    const {t} = useTranslation();
 
     return (
         <Box pos="absolute" w={{"base": 200, "md": 400}}>
@@ -32,7 +34,7 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
             <Text>
                 {roomDetail.is_started
                     ? timeLeft
-                    : `${dayjs(roomDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ ${dayjs(roomDetail.ends_at).format('YYYY-MM-DD HH:mm')}, ${roomDetail.num_missions}문항`}
+                    : `${dayjs(roomDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ ${dayjs(roomDetail.ends_at).format('YYYY-MM-DD HH:mm')}, ${t("num_problems", {n: roomDetail.num_missions})}`}
             </Text>
             {
                 (auth.member?.handle === roomDetail.owner) ?
@@ -40,7 +42,7 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
                         <UnstyledButton mt="5" variant="outline"
                                         onClick={() => {
                                             modals.open({
-                                                title: "방 삭제하기",
+                                                title: t("삭제하기"),
                                                 children: <RoomDeleteModal roomId={roomDetail.id} needPassword={false}/>
                                             });
                                         }}>
@@ -52,7 +54,7 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
                         <UnstyledButton mt="5" variant="transparent"
                                         onClick={() => {
                                             modals.open({
-                                                title: "방 삭제하기",
+                                                title: t("삭제하기"),
                                                 children: <RoomDeleteModal
                                                     roomId={roomDetail.id}
                                                     needPassword={true}/>
@@ -69,12 +71,12 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
                         variant="light"
                         onClick={() => {
                             modals.open({
-                                title: "입장하기",
+                                title: t("참여하기"),
                                 children: <RoomJoinModal roomId={roomDetail.id} is_private={roomDetail.is_private}/>
                             });
                         }}
                     >
-                        참가하기
+                        {t("참여하기")}
                     </Button>
                 </div>
             }

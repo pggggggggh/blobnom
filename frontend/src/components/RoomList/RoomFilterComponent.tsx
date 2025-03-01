@@ -40,7 +40,7 @@ const RoomFilterComponent = () => {
         <>
             <Flex>
                 <TextInput
-                    placeholder="방 검색..."
+                    placeholder={t("방 검색")}
                     leftSection={<SearchIcon aria-label="검색 아이콘"/>}
                     value={search}
                     onChange={(event) => handleSearchChange(event.currentTarget.value)}
@@ -61,15 +61,13 @@ const RoomFilterComponent = () => {
                     <Checkbox
                         checked={myRoomOnly}
                         onChange={(event) => handleMyRoomOnlyChange(event.currentTarget.checked)}
-                        label="참여중인 방만 표시"
-                        aria-label="참여중인 방만 표시"
+                        label={t("참여중인 방만 표시")}
                     />
                 )}
                 <Checkbox
                     checked={activeOnly}
                     onChange={(event) => handleActiveOnlyChange(event.currentTarget.checked)}
-                    label="진행 중인 공개방만 표시"
-                    aria-label="진행 중인 공개방만 표시"
+                    label={t("진행중인 공개방만 표시")}
                 />
             </Group>
         </>

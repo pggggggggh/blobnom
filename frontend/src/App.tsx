@@ -21,9 +21,7 @@ import {initReactI18next} from "react-i18next";
 import {Translation} from "./constants/Translation.tsx";
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-i18next.use(LanguageDetector)
-i18n
-    .use(initReactI18next)
+i18next.use(LanguageDetector).use(initReactI18next)
     .init({
         resources: Translation,
         interpolation: {
@@ -34,8 +32,13 @@ i18n
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 dayjs.extend(isBetween);
-dayjs.locale("ko");
 dayjs.extend(utc);
+
+dayjs.locale(i18n.language);
+
+i18n.on("languageChanged", (lng) => {
+    dayjs.locale(lng);
+});
 
 const App = () => {
     const {search, page, activeOnly, setSearch, setPage, setActiveOnly} = useSearchStore();

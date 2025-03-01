@@ -3,9 +3,11 @@ import {Menu} from '@mantine/core';
 import {TeamInfo} from "../../types/roomDetails.tsx";
 import {Platform} from "../../types/enum/Platforms.tsx";
 import HandleComponent from "../HandleComponent.tsx";
+import {useTranslation} from "react-i18next";
 
 function TeamStatusBox({roomDetails, userColors, activeUsers}) {
     const [showAll, setShowAll] = useState(true);
+    const {t} = useTranslation();
 
     const toggleView = () => {
         setShowAll(prev => !prev);
@@ -57,14 +59,14 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
                                             <Menu.Item component="a"
                                                        href={`/members/${player_info.user.handle}`}
                                                        target="_blank">
-                                                프로필 보기
+                                                {t("프로필 보기")}
                                             </Menu.Item>
                                             <Menu.Item component="a" href={
                                                 roomDetails.platform === Platform.BOJ
                                                     ? `https://www.acmicpc.net/status?user_id=${player_info.user.accounts[roomDetails.platform]}`
                                                     : `https://codeforces.com/submissions/${player_info.user.accounts[roomDetails.platform]}`
                                             } target="_blank">
-                                                제출 기록 보기
+                                                {t("제출 기록 보기")}
                                             </Menu.Item>
                                         </Menu.Dropdown>
                                     </Menu>

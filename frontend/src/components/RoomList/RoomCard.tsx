@@ -7,12 +7,14 @@ import dayjs from "dayjs";
 import PlatformIcon from "../PlatformIcon.tsx";
 import RoomStatusBadge from "./RoomProgressBadge.tsx";
 import React from "react";
+import {useTranslation} from "react-i18next";
 
 interface RoomCardProps {
     roomSummary: roomSummary
 }
 
 const RoomCard = ({roomSummary}: RoomCardProps) => {
+    const {t} = useTranslation();
     const duration = dayjs.duration(dayjs(roomSummary.ends_at).diff(dayjs(roomSummary.starts_at))).humanize()
     const now = new Date()
 
@@ -24,7 +26,7 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
         >
             <Group justify="space-between">
                 <Box>
-                    <Flex align="center" className="w-24 md:w-60 lg:w-80">
+                    <Flex align="center" className="w-24 md:w-60">
                         <Text mr={7}>
                             <PlatformIcon platform={roomSummary.platform}/>
                         </Text>
@@ -34,7 +36,7 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
                         </Text>
                     </Flex>
                     <Text size="sm">
-                        방장:&nbsp;
+                        {t("방장")}:&nbsp;
                         {
                             roomSummary.owner && <HandleComponent member={roomSummary.owner}/>
                         }
@@ -43,15 +45,15 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
                 <Group>
                     <Group gap="xs" visibleFrom="xs">
                         <RoomStatusBadge startsAt={roomSummary.starts_at} endsAt={roomSummary.ends_at} now={now}/>
-                        <Stack gap={0} align="center" visibleFrom="lg" w={40}>
+                        <Stack gap={0} align="center" visibleFrom="lg" w={50}>
                             <IconClock/>
                             <Text size="xs">{duration}</Text>
                         </Stack>
-                        <Stack gap={0} align="center" visibleFrom="lg" w={40}>
+                        <Stack gap={0} align="center" visibleFrom="lg" w={50}>
                             <IconUserCheck/>
                             <Text size="xs">{roomSummary.num_players}/{roomSummary.max_players}</Text>
                         </Stack>
-                        <Stack gap={0} align="center" visibleFrom="sm" w={40}>
+                        <Stack gap={0} align="center" visibleFrom="sm" w={50}>
                             <IconHexagons/>
                             <Text size="xs">{roomSummary.num_solved_missions}/{roomSummary.num_missions}</Text>
                         </Stack>
@@ -64,7 +66,7 @@ const RoomCard = ({roomSummary}: RoomCardProps) => {
                     >
                         <Button variant="light" fw={300}
                                 rightSection={<IconArrowRight size={16}/>}>
-                            참여하기
+                            {t("참여하기")}
                         </Button>
                     </Link>
                 </Group>

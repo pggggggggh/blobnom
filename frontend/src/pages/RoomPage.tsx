@@ -17,16 +17,18 @@ import {HexComponent} from "../components/Room/HexComponent.tsx";
 import RoomCountdown from "../components/Room/RoomCountdown.tsx";
 import {ModeType} from "../types/enum/ModeType.tsx";
 import MyRankComponent from "../components/Room/MyRankComponent.tsx";
+import {useTranslation} from "react-i18next";
 
 
 export default function RoomPage() {
     const {roomId} = Route.useParams();
+    const {t} = useTranslation();
+    const socket = useSocket()
+    const auth = useAuth();
     const {data: roomDetails, isError, isLoading, error, refetch} = useRoomDetail(parseInt(roomId));
     const [activeUsers, setActiveUsers] = useState<Set<string>>(new Set());
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [myTeamIndex, setMyTeamIndex] = useState<number | null>(null);
-    const socket = useSocket()
-    const auth = useAuth();
     const [timeLeft, setTimeLeft] = useState<string>("");
     const [timeBefore, setTimeBefore] = useState<string>("");
 
@@ -91,14 +93,15 @@ export default function RoomPage() {
 
         const handleProblemSolved = async (data) => {
             requestNotificationPermission().then(() => {
-                showNotification("Blobnom", `${data.username}가 ${data.problem_id}를 해결하였습니다.`);
+                const message = t("problem_solved", {handle: data.username, problemId: data.problem_id})
+                showNotification("Blobnom", message);
             });
             await refetch();
         };
 
         const handleRoomStarted = async (data) => {
             requestNotificationPermission().then(() => {
-                showNotification("Blobnom", `게임이 시작되었습니다.`);
+                showNotification("Blobnom", t("게임이 시작되었습니다."));
             });
             await refetch();
         };

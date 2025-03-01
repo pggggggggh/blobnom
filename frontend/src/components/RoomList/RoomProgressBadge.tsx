@@ -1,15 +1,18 @@
 import dayjs from "dayjs";
 import {Badge} from "@mantine/core";
+import {useTranslation} from "react-i18next";
 
 const RoomStatusBadge = ({startsAt, endsAt, now}: { startsAt: string, endsAt: string, now: Date }) => {
+    const {t} = useTranslation();
+
     if (dayjs(startsAt).isBefore(now)) {
         return dayjs(endsAt).isBefore(now) ? (
             <Badge variant="gradient" gradient={{from: 'indigo', to: 'blue', deg: 90}} className="font-medium">
-                {dayjs(endsAt).to(now, true)} 전 종료
+                {t("ended", {t: dayjs(endsAt).to(now, true)})}
             </Badge>
         ) : (
             <Badge variant="gradient" gradient={{from: 'green', to: 'teal', deg: 90}} className="font-medium">
-                {dayjs(endsAt).to(now, true)} 후 종료
+                {t("ends", {t: dayjs(endsAt).to(now, true)})}
             </Badge>
         );
     } else {

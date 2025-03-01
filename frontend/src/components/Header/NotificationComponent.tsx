@@ -1,5 +1,6 @@
 import {Badge, Flex, Menu, Text, UnstyledButton} from "@mantine/core";
 import {IconBell} from "@tabler/icons-react";
+import {useTranslation} from "react-i18next";
 
 interface Notification {
     id: number;
@@ -12,6 +13,7 @@ interface NotificationComponentProps {
 }
 
 const NotificationComponent = ({notifications}: NotificationComponentProps) => {
+    const {t} = useTranslation();
     return (
         <Menu shadow="md" width={320} position="bottom-end">
             <Menu.Target>
@@ -29,7 +31,7 @@ const NotificationComponent = ({notifications}: NotificationComponentProps) => {
                 </UnstyledButton>
             </Menu.Target>
             <Menu.Dropdown>
-                <Menu.Label>알림</Menu.Label>
+                <Menu.Label>{t("알림")}</Menu.Label>
                 {
                     notifications.length > 0 ?
                         (
@@ -43,7 +45,7 @@ const NotificationComponent = ({notifications}: NotificationComponentProps) => {
                             )))
                         :
                         <Menu.Item>
-                            <span className="text-sm">알림이 없습니다.</span>
+                            <span className="text-sm">{t("알림이 없습니다.")}</span>
                         </Menu.Item>
                 }
             </Menu.Dropdown>

@@ -4,8 +4,10 @@ import {useAuth} from "../../context/AuthProvider.tsx";
 import MinimizeIcon from '@mui/icons-material/Minimize';
 import {ChatMessage} from "../../types/ChatMessage.tsx";
 import dayjs from "dayjs";
+import {useTranslation} from "react-i18next";
 
 const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage[], handleSendMessage: any }) => {
+    const {t} = useTranslation();
     const auth = useAuth()
     const [isChatMinimized, setIsChatMinimized] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -25,7 +27,7 @@ const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage
         >
             <Box className="flex flex-col h-full">
                 <Box className="p-2 border-gray-600 flex justify-between items-center">
-                    <Text className="text-white text-sm font-semibold mr-1">채팅</Text>
+                    <Text className="text-white text-sm font-semibold mr-1">{t("채팅")}</Text>
                     <ActionIcon
                         variant="subtle"
                         color="gray"
@@ -46,12 +48,16 @@ const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage
                                         msg.type == "system" ?
                                             <>
                                                 <Text className="text-green-500 text-xs">
-                                                    {msg.message}
+                                                    {msg.message.match(/^(.+?)가\s(.+?)를\s해결하였습니다\.$/)
+                                                        ? t("problem_solved", {
+                                                            handle: msg.message.match(/^(.+?)가\s(.+?)를\s해결하였습니다\.$/)![1],
+                                                            problemId: msg.message.match(/^(.+?)가\s(.+?)를\s해결하였습니다\.$/)![2],
+                                                        })
+                                                        : msg.message}
                                                 </Text>
                                                 <Text className="min-w-12 text-gray-400 text-xs ml-2">
-                                                    {dayjs().isBefore(msg.time) ? "지금" : dayjs(msg.time).fromNow()}
+                                                    {dayjs().isBefore(msg.time) ? t("지금") : dayjs(msg.time).fromNow()}
                                                 </Text>
-
                                             </>
                                             :
                                             <>
@@ -66,7 +72,6 @@ const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage
                                                 </Text>
                                             </>
                                     }
-
                                 </Box>
                             ))}
                             <div ref={messagesEndRef}/>
@@ -77,7 +82,7 @@ const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage
                                 <input
                                     type="text"
                                     maxLength={500}
-                                    placeholder="메시지를 입력하세요."
+                                    placeholder={t("메시지를 입력하세요.")}
                                     className="w-full bg-gray-800 bg-opacity-50 text-white rounded px-2 py-1 text-sm focus:outline-none"
                                     onKeyPress={(e) => {
                                         if (e.key === 'Enter') {
@@ -91,7 +96,7 @@ const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage
                             ) : (
                                 <input
                                     type="text"
-                                    placeholder="채팅하려면 로그인해주세요."
+                                    placeholder={t("채팅하려면 로그인해주세요.")}
                                     disabled
                                     className="w-full bg-gray-800 bg-opacity-50 text-white rounded px-2 py-1 text-sm focus:outline-none"
                                 />

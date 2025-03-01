@@ -1,7 +1,60 @@
 export const Translation = {
+    ko: {
+        translation: {
+            "solve failed": "문제가 해결되지 않았습니다. '맞았습니다!!'를 받았는데도 이 메시지가 보인다면 잠시 뒤 다시 시도해주세요.",
+            "num_problems": "{{n}}문제",
+            "updated": "{{t}} 업데이트됨",
+            "ended": "{{t}} 전 종료",
+            "ends": "{{t}} 후 종료",
+            "problem_solved": "{{handle}}가 {{problemId}}를 해결하였습니다.",
+        }
+    },
+
     en: {
         translation: {
-            "방 만들기": "Welcome to React and react-i18next"
+            "홈": "Home",
+            "연습": "Practice",
+            "대회": "Contest",
+            "도움말": "About",
+            "방 만들기": "Create Room",
+            "내 정보": "My Profile",
+            "로그인": "Sign In",
+            "로그아웃": "Sign Out",
+            "비밀번호": "Password",
+            "회원가입": "Sign Up",
+            "메뉴": "Menu",
+            "방 검색": "Search Room",
+            "참여중인 방만 표시": "My Rooms Only",
+            "진행중인 공개방만 표시": "Actice Public Rooms Only",
+            "리더보드": "Leaderboards",
+            "순위": "Rank",
+            "사용자": "Member",
+            "점수": "Points",
+            "방장": "Owner",
+            "참여하기": "Enter",
+            "삭제하기": "Delete",
+            "통계": "Statistics",
+            "가입된 회원 수": "Registered Users",
+            "해결된 문제": "Solved Problems",
+            "알림": "Notifications",
+            "알림이 없습니다.": "No notifications",
+            "채팅": "Chat",
+            "지금": "now",
+            "프로필 보기": "View Profile",
+            "제출 기록 보기": "View Submissions",
+            "백준": "Baekjoon",
+            "코드포스": "Codeforces",
+            "메시지를 입력하세요.": "Type your message here",
+            "채팅하려면 로그인해주세요.": "Please sign in to chat",
+            "비회원은 참가하실 수 없습니다.": "Guests are not allowed to enter.",
+            "비밀번호를 입력해주세요.": "Please enter your password",
+            "게임이 시작되었습니다.": "Game started",
+            "problem_solved": "{{handle}} solved {{problemId}}",
+            "Solve failed": "Failed to process solve. If you got 'Accepted' in Online Judge, please try after a while.",
+            "num_problems": "{{n}} Problems",
+            "updated": "Updated {{t}}",
+            "ended": "Ended {{t}} ago",
+            "ends": "Ends {{t}} later"
         }
     }
 }

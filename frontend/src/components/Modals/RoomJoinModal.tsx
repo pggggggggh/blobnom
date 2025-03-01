@@ -4,10 +4,12 @@ import blobsad from "../../assets/blobsad.webp"
 import {useForm} from "@mantine/form";
 import {useJoinRoom} from "../../hooks/hooks.tsx";
 import {useAuth} from "../../context/AuthProvider.tsx";
+import {useTranslation} from "react-i18next";
 
 const RoomJoinModal = ({roomId, is_private}: { roomId: number, is_private: boolean }) => {
     const mutation = useJoinRoom();
     const auth = useAuth();
+    const {t} = useTranslation();
 
     const form = useForm({
         mode: 'uncontrolled',
@@ -18,7 +20,7 @@ const RoomJoinModal = ({roomId, is_private}: { roomId: number, is_private: boole
         validate: {
             password: (value) => {
                 if (!is_private) return null;
-                if (value.length == 0) return "비밀번호를 입력해주세요."
+                if (value.length == 0) return t("비밀번호를 입력해주세요.")
             }
             // handle: (value) => {
             //     if (auth.user) return null;
@@ -52,11 +54,11 @@ const RoomJoinModal = ({roomId, is_private}: { roomId: number, is_private: boole
                                 />
                             )}
                             <Button type="submit" loading={mutation.isPending}>
-                                입장하기
+                                {t("참여하기")}
                             </Button>
                         </> : <>
                             <Image w="64px" src={blobsad}/>
-                            비회원은 참가하실 수 없습니다.
+                            {t("비회원은 참가하실 수 없습니다.")}
                         </>
                 }
             </Stack>

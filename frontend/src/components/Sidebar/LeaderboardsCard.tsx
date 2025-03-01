@@ -4,8 +4,10 @@ import HandleComponent from "../HandleComponent.tsx";
 import dayjs from "dayjs";
 import React from "react";
 import {useLeaderboards} from "../../hooks/hooks.tsx";
+import {useTranslation} from "react-i18next";
 
 const LeaderboardsCard = () => {
+    const {t} = useTranslation();
     const {data: leaderboardsData, isLoading, error} = useLeaderboards();
 
     return (
@@ -13,16 +15,16 @@ const LeaderboardsCard = () => {
             <Group justify="space-between" mb="md">
                 <Title order={4} style={{display: "flex", alignItems: "center", gap: "8px"}}>
                     <IconTrophy size={20} color="gold"/>
-                    리더보드
+                    {t("리더보드")}
                 </Title>
             </Group>
 
             <Table striped highlightOnHover>
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th>순위</Table.Th>
-                        <Table.Th>사용자</Table.Th>
-                        <Table.Th style={{textAlign: "right"}}>점수</Table.Th>
+                        <Table.Th>{t("순위")}</Table.Th>
+                        <Table.Th>{t("사용자")}</Table.Th>
+                        <Table.Th>{t("점수")}</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -48,7 +50,8 @@ const LeaderboardsCard = () => {
                             </Table.Td>
                             <Table.Td style={{textAlign: "right"}}>
                                 <Text size="sm" fw={700}>{entry.points.toLocaleString()}</Text>
-                                <Text size="xs" c="dimmed">{entry.num_solved_missions}문제</Text>
+                                <Text size="xs"
+                                      c="dimmed">{t("num_problems", {n: entry.num_solved_missions})}</Text>
                             </Table.Td>
                         </Table.Tr>
                     ))}
@@ -56,7 +59,7 @@ const LeaderboardsCard = () => {
             </Table>
             <Stack gap={0} mt="lg" w="100%" justify="flex-end" align="flex-end">
                 <Text size="xs" c="dimmed">
-                    {dayjs(leaderboardsData?.updated_at).fromNow()} 업데이트됨
+                    {t("updated", {t: dayjs(leaderboardsData?.updated_at).fromNow()})}
                 </Text>
             </Stack>
         </Card>

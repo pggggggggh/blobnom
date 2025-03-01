@@ -5,8 +5,10 @@ import {useForm} from "@mantine/form";
 import {useAuth} from "../../context/AuthProvider.tsx";
 import {DateTimePicker} from "@mantine/dates";
 import {usePracticeStart} from "../../hooks/hooks.tsx";
+import {useTranslation} from "react-i18next";
 
 const PracticeStartModal = ({practiceId}: { practiceId: number }) => {
+    const {t} = useTranslation();
     const mutation = usePracticeStart();
     const auth = useAuth();
 
@@ -44,7 +46,7 @@ const PracticeStartModal = ({practiceId}: { practiceId: number }) => {
                             </Button>
                         </> : <>
                             <Image w="64px" src={blobsad}/>
-                            비회원은 참가하실 수 없습니다.
+                            {t("비회원은 참가하실 수 없습니다.")}
                         </>
                 }
             </Stack>

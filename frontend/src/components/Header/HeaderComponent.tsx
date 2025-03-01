@@ -7,8 +7,10 @@ import {useSearchStore} from "../../store/searchStore.ts";
 import NotificationComponent from "./NotificationComponent.tsx";
 import MemberAvatar from "./MemberAvatar.tsx";
 import ColorSchemeToggle from "./ColorSchemeToggle.tsx";
+import {useTranslation} from "react-i18next";
 
 const HeaderComponent = () => {
+    const {t} = useTranslation();
     const [opened, {toggle, close}] = useDisclosure(false);
     const auth = useAuth();
     const {
@@ -58,7 +60,7 @@ const HeaderComponent = () => {
                             <>
                                 {menuItems.map((item) => (
                                     <Link key={item.label} to={item.link}>
-                                        <Text>{item.label}</Text>
+                                        <Text>{t(item.label)}</Text>
                                     </Link>
                                 ))}
                             </>
@@ -75,7 +77,7 @@ const HeaderComponent = () => {
                         <MemberAvatar member={auth.member}/>
                     ) : (
                         <Link to="/login" style={{textDecoration: 'none'}}>
-                            <Button variant="light">로그인</Button>
+                            <Button variant="light">{t("로그인")}</Button>
                         </Link>
                     ))}
                 </Group>
@@ -85,7 +87,7 @@ const HeaderComponent = () => {
                 <Drawer
                     opened={opened}
                     onClose={close}
-                    title="메뉴"
+                    title={t("메뉴")}
                     padding="md"
                     size="sm"
                     position="left"
@@ -99,7 +101,7 @@ const HeaderComponent = () => {
                                 style={{textDecoration: 'none'}}
                             >
                                 <Button variant="subtle" fullWidth c="inherit">
-                                    {item.label}
+                                    {t(item.label)}
                                 </Button>
                             </Link>
                         ))}
