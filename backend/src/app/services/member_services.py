@@ -14,11 +14,12 @@ from src.app.utils.security_utils import hash_password, verify_password, create_
 from src.app.utils.platforms_utils import token_validate
 
 
-async def convert_to_member_summary(member: Member, db: Session) -> UserSummary:
-    users = db.query(User).filter(User.member_id == member.id).all()
+async def convert_to_member_summary(member: Member, db: Session, with_accounts: bool = True) -> UserSummary:
     accounts = {}
-    for user in users:
-        accounts[user.platform] = user.handle
+    if with_accounts:
+        users = db.query(User).filter(User.member_id == member.id).all()
+        for user in users:
+            accounts[user.platform] = user.handle
     return UserSummary(
         handle=member.handle,
         rating=member.rating,

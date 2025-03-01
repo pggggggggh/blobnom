@@ -28,4 +28,4 @@ async def stats_endpoint(request: Request, db: Session = Depends(get_db)):
 @router.get("/leaderboards")
 @limiter.limit("20/minute")
 async def leaderboards_endpoint(request: Request, db: Session = Depends(get_db)):
-    return await get_leaderboards(15, 0, db)
+    return await get_leaderboards(10, 0, db)

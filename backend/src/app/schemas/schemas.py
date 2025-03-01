@@ -80,7 +80,7 @@ class UserSummary(BaseModel):
     role: Optional[str] = None  # 비회원일 경우 None
     rating: Optional[int] = None
     guild_mark: Optional[str] = None
-    accounts: Dict[str, str]
+    accounts: Optional[Dict[str, str]] = None
 
 
 class RoomTeamInfo(BaseModel):

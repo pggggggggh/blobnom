@@ -412,7 +412,7 @@ async def problem_solved(room_id: int, problem_id: str, db: Session, handle: str
 
         verdict = await update_solver(room_id, [mission], target_players, db, client)
         if verdict is False:
-            raise HTTPException(status_code=400, detail="문제가 해결되지 않았습니다. '맞았습니다!!'를 받았는데도 이 메시지가 보인다면 잠시 뒤 다시 시도해주세요.")
+            raise HTTPException(status_code=400, detail="Solve failed")
         await update_score(room_id, db)
 
     redis = await get_redis()

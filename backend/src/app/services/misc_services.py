@@ -55,7 +55,7 @@ async def get_leaderboards(limit: int, offset: int, db: Session):
     for member in members:
         num_solved_missions = 0
         for user in member.users:
-            num_solved_missions += db.query(RoomMission).filter(RoomMission.solved_user_id == user.id).count()
+            num_solved_missions += user.num_solved_missions
         member_list.append([member, num_solved_missions * 10, num_solved_missions])
     member_list.sort(key=lambda x: x[1], reverse=True)
 
@@ -66,7 +66,7 @@ async def get_leaderboards(limit: int, offset: int, db: Session):
     for member, points, num_solved_missions in sliced_member_list:
         leaderboards.append(
             LeaderboardEntry(
-                member_summary=await convert_to_member_summary(member, db),
+                member_summary=await convert_to_member_summary(member, db, with_accounts=False),
                 points=points,
                 num_solved_missions=num_solved_missions,
             )

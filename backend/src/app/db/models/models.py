@@ -13,6 +13,7 @@ class User(TimestampMixin, Base):
     handle = Column("name", String, index=True)
 
     member_id = Column(ForeignKey("members.id"), nullable=True)
+    num_solved_missions = Column(Integer, nullable=False, default=0)
 
     member = relationship("Member")
     user_rooms = relationship("RoomPlayer", back_populates="user")
