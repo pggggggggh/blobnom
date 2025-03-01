@@ -51,6 +51,10 @@ export const HexComponent = ({roomDetails}: { roomDetails: RoomDetail }) => {
                         <stop offset="0%" style={{stopColor: gradientNull[1], stopOpacity: 1}}/>
                         <stop offset="100%" style={{stopColor: gradientNull[0], stopOpacity: 1}}/>
                     </linearGradient>
+                    <filter id="hexShadow" x="-30%" y="-30%" width="160%" height="160%">
+                        <feDropShadow dx="1" dy="1" stdDeviation="0.5" floodOpacity="0.4"/>
+                    </filter>
+
                     {userColors.map((g, i) => (
                         <linearGradient
                             id={`gradient-${i}`}

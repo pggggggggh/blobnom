@@ -9,6 +9,7 @@ import {MissionInfo, RoomDetail} from "../../types/RoomDetail.tsx";
 import {UseMutationResult} from "@tanstack/react-query";
 import {ModeType} from "../../types/enum/ModeType.tsx";
 
+
 interface HexEntryProps {
     roomDetails: RoomDetail;
     hex: Hex;
@@ -30,6 +31,7 @@ const HexEntry = ({roomDetails, hex, mission, isUnsolvable, mutation}: HexEntryP
         <HoverCard key={mission.id} shadow="lg" position="bottom" offset={-12}
                    openDelay={mutation.isPending ? 100000 : 0}
                    closeDelay={mutation.isPending ? 1000 : 0}>
+
             <HoverCard.Target>
                 <a
                     href={href}
@@ -40,15 +42,21 @@ const HexEntry = ({roomDetails, hex, mission, isUnsolvable, mutation}: HexEntryP
                         q={hex.q}
                         r={hex.r}
                         s={hex.s}
-                        className=" "
                         style={{
                             fill: (!mission.solved_at
                                 ? "url(#gradient-null)"
                                 : `url(#gradient-${mission.solved_team_index})`),
-                            fillOpacity: isUnsolvable && !mission.solved_at ? 0.5 : 1,
+                            fillOpacity: isUnsolvable && !mission.solved_at ? 0.4 : 0.95,
+                            filter: "url(#hexShadow)",
+                            transition: "filter 0.1s, fill-opacity 0.2s"
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.filter = "url(#hexShadow) brightness(1.7)";
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.filter = "url(#hexShadow)";
                         }}
                     >
-
                         {
                             mission.difficulty != null &&
                             (
@@ -59,7 +67,9 @@ const HexEntry = ({roomDetails, hex, mission, isUnsolvable, mutation}: HexEntryP
                                         y="-8"
                                         width="5"
                                         height="5"
-                                    /> :
+                                        opacity="0.9"
+                                    />
+                                    :
                                     <SVGText textAnchor="middle" fontSize="3"
                                              y={-4}
                                              className={getRatingFill(mission.difficulty)}>
@@ -162,4 +172,5 @@ const HexEntry = ({roomDetails, hex, mission, isUnsolvable, mutation}: HexEntryP
     )
 }
 
-export default HexEntry
+
+export default HexEntry;
