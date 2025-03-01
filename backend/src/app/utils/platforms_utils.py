@@ -36,6 +36,7 @@ async def token_validate(handle, platform: Platform, db: Session):
             return True
         elif platform == Platform.CODEFORCES:
             response = await client.get(f"https://codeforces.com/api/user.info?handles={handle}")
+            print(response)
             data = response.json()
             if data["status"] == "FAILED":
                 raise HTTPException(status_code=404, detail="User not found")
