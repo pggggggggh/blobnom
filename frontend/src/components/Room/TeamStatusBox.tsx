@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {Box, Card, Flex, Group, Menu, Text, UnstyledButton} from '@mantine/core';
 import {IconChevronDown, IconChevronUp} from '@tabler/icons-react';
-import {TeamInfo} from "../../types/roomDetails.tsx";
+import {TeamInfo} from "../../types/RoomDetail.tsx";
 import {Platform} from "../../types/enum/Platforms.tsx";
 import HandleComponent from "../HandleComponent.tsx";
 import {useTranslation} from "react-i18next";
@@ -38,7 +38,7 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
             <Card.Section pt="lg" pb="sm" px="md">
                 {teamsToShow.map((team: TeamInfo, i) => (
                     <Group key={i} align="center" gap="xs">
-                        <Box w={7} h={5} bg={userColors[i % userColors.length][0]}/>
+                        <Box w={7} h={5} bg={userColors[team.team_index % userColors.length][0]}/>
                         <Group gap={3} align="center">
                             {team.users.map((player_info, idx) => (
                                 <Group key={player_info.user.handle} gap={0} align="center">
