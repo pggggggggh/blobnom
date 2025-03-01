@@ -4,11 +4,12 @@ from datetime import datetime
 import pytz
 from sqlalchemy.orm import Session, joinedload
 
-from src.app.core.constants import STATS_CACHE_SECONDS
+from src.app.core.constants import STATS_CACHE_SECONDS, ACTIVE_USERS_CACHE_SECONDS
+from src.app.core.enums import ModeType
 from src.app.core.socket import sio
-from src.app.db.models.models import RoomMission, Member
+from src.app.db.models.models import RoomMission, Member, Room
 from src.app.db.redis import get_redis
-from src.app.schemas.schemas import SiteStats, LeaderboardEntry, Leaderboards
+from src.app.schemas.schemas import SiteStats, LeaderboardEntry, Leaderboards, ActiveUsersData
 from src.app.services.member_services import convert_to_member_summary
 
 
@@ -78,3 +79,45 @@ async def get_leaderboards(limit: int, offset: int, db: Session):
         await redis.set(cache_key, pickle.dumps(leaderboards_data))
 
     return leaderboards_data
+
+
+async def get_active_users(db: Session):
+    redis = await get_redis()
+    cache_key = f"active_users"
+    if redis:
+        cached_data = await redis.get(cache_key)
+        if cached_data:
+            return pickle.loads(cached_data)
+    else:
+        return
+
+    sessions_with_rooms = {}
+    rooms = sio.manager.rooms.get("/", {})
+    print(rooms)
+
+    for room, bidict_obj in rooms.items():
+        if room and room.startswith("room_"):
+            room_id = room[len("room_"):]
+            room = db.query(Room).filter(Room.id == room_id).first()
+            secret = False
+            if room.mode_type == ModeType.PRACTICE_LINEAR:
+                secret = True
+            for session_id in bidict_obj.keys():
+                handle = await redis.hget("sid_to_handle", session_id)
+                if handle:
+                    if handle not in sessions_with_rooms:
+                        sessions_with_rooms[handle] = room_id if not secret else 0
+
+    for session_id in rooms[None].keys():
+        handle = await redis.hget("sid_to_handle", session_id)
+        if handle:
+            if handle not in sessions_with_rooms:
+                sessions_with_rooms[handle] = None
+
+    active_user_data = ActiveUsersData(
+        updated_at=datetime.now(pytz.UTC),
+        active_users=sessions_with_rooms
+    )
+    await redis.setex(cache_key, ACTIVE_USERS_CACHE_SECONDS, pickle.dumps(active_user_data))
+
+    return active_user_data

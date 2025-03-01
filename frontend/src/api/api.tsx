@@ -9,6 +9,7 @@ import {SiteStats} from "../types/SiteStats.tsx";
 import {Leaderboards} from "../types/Leaderboards.tsx";
 import {PracticeRankData, PracticeSetSummary} from "../types/ProblemSet.tsx";
 import {PracticeRankData} from "../types/PracticeRankData.tsx";
+import {ActiveUsersData} from "../types/ActiveUsersData.tsx";
 
 export const fetchMainData = async (page: number, search: string, activeOnly: boolean, myRoomOnly: boolean): Promise<MainData> => {
     const response = await api.get(`/rooms/list`, {
@@ -49,6 +50,10 @@ export const fetchSiteStats = async (): Promise<SiteStats> => {
     return response.data;
 };
 
+export const fetchActiveUsers = async (): Promise<ActiveUsersData> => {
+    const response = await api.get(`/active-users`);
+    return response.data;
+};
 export const fetchLeaderboards = async (): Promise<Leaderboards> => {
     const response = await api.get(`/leaderboards`);
     return response.data;

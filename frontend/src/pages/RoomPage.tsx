@@ -126,7 +126,7 @@ export default function RoomPage() {
             socket.off("room_new_message", handleNewMessage);
             socket.off("previous_messages", handlePreviousMessages);
         };
-    }, [auth, roomDetails?.id]);
+    }, [auth, socket, roomDetails?.id]);
 
     if ((error as AxiosError)?.status === 404 || (error as AxiosError)?.status === 422) return <NotFound/>;
     if (!roomDetails || isLoading) return <div></div>;

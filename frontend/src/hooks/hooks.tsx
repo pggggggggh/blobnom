@@ -3,6 +3,7 @@ import {RoomDetail} from "../types/RoomDetail.tsx";
 import {BindPayload, LoginPayload, PlatformTokenResponse, RegisterPayload,} from "../types/Auth.tsx"
 import {
     deleteRoom,
+    fetchActiveUsers,
     fetchContestDetail,
     fetchContestList,
     fetchLeaderboards,
@@ -36,6 +37,7 @@ import {Leaderboards} from "../types/Leaderboards.tsx";
 import {PracticeSetSummary} from "../types/ProblemSet.tsx";
 import PracticeStartModal from "../components/Modals/PracticeStartModal.tsx";
 import {PracticeRankData} from "../types/PracticeRankData.tsx";
+import {ActiveUsersData} from "../types/ActiveUsersData.tsx";
 
 const handleError = (error: any) => {
     console.log(error);
@@ -118,6 +120,14 @@ export const useSiteStats = () => {
     });
 };
 
+export const useActiveUsers = () => {
+    return useQuery<ActiveUsersData, Error>({
+        queryKey: ['activeUsers'],
+        queryFn: () => fetchActiveUsers(),
+        refetchInterval: 10000
+    });
+}
+
 export const useLeaderboards = () => {
     return useQuery<Leaderboards, Error>({
         queryKey: ['leaderboards'],
@@ -181,6 +191,7 @@ export const usePracticeRank = (practiceId: number) => {
     return useQuery<PracticeRankData, Error>({
         queryKey: ['practiceRank', practiceId],
         queryFn: () => fetchPracticeRank(practiceId),
+        refetchInterval: 10000
     });
 };
 

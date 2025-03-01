@@ -240,6 +240,11 @@ class Leaderboards(BaseModel):
     leaderboards: List[LeaderboardEntry]
 
 
+class ActiveUsersData(BaseModel):
+    updated_at: datetime
+    active_users: Dict[str, Optional[int]]
+
+
 class PracticeSummary(BaseModel):
     id: int
     name: str

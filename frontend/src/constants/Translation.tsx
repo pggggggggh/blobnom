@@ -5,6 +5,7 @@ export const Translation = {
             "greeting_message": "환영합니다! 문제를 풀기 전에 방에 입장되어있는지 확인해주시고, 풀고 난 후에는 Solve!를 누르는 것을 잊지 말아주세요!",
             "num_problems": "{{n}}문제",
             "updated": "{{t}} 업데이트됨",
+            "active_users": "{{n}}명이 문제푸는 중",
             "ended": "{{t}} 전 종료",
             "ends": "{{t}} 후 종료",
             "problem_solved": "{{handle}}가 {{problemId}}를 해결하였습니다.",
@@ -43,6 +44,9 @@ export const Translation = {
             "지금": "now",
             "프로필 보기": "View Profile",
             "제출 기록 보기": "View Submissions",
+            "로비": "Lobby",
+            "연습 중": "Running Practice",
+            "따라가기": "Follow",
             "백준": "Baekjoon",
             "코드포스": "Codeforces",
             "메시지를 입력하세요.": "Type your message here",
@@ -56,7 +60,9 @@ export const Translation = {
             "num_problems": "{{n}} Problems",
             "updated": "Updated {{t}}",
             "ended": "Ended {{t}} ago",
-            "ends": "Ends {{t}} later"
+            "ends": "Ends {{t}} later",
+            "active_users": "{{n}} Users Active",
+            "at_room": "Coding in room {{room_id}}"
         }
     }
 }
