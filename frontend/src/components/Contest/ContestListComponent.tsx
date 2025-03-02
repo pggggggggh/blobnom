@@ -15,8 +15,7 @@ const ContestListComponent = ({contests, cur_datetime, border}: {
         <Stack gap="sm">
             {contests?.map((contest) => {
                 return (
-                    <Card key={contest.id} withBorder shadow="sm"
-                          style={{border: border ? '1px solid #DFCD7E' : 'none'}}>
+                    <Card key={contest.id} withBorder shadow="md">
                         <Group justify="space-between">
                             <Box w={{base: 120, xs: 120, sm: 120, md: 180, lg: 240}}>
                                 <Text fw={500} size="lg" lh="xs">

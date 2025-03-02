@@ -6,6 +6,7 @@ export interface PracticeRankData {
 }
 
 export interface PracticeRank {
+    handle: string | null,
     running_time: number,
     score: number,
     penalty: number,

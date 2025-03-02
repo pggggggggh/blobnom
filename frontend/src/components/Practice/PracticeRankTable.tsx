@@ -43,17 +43,17 @@ const PracticeRankTable = ({data, refetch, isPending}: PracticeRankTableProps) =
                 data.rank.length === 0 ?
                     "아직 연습을 진행한 사람이 없습니다."
                     :
-                    <Table highlightOnHover withColumnBorders striped>
+                    <Table highlightOnHover striped withTableBorder>
                         <Table.Thead>
                             <Table.Tr>
                                 <Table.Th style={{width: '5%'}}></Table.Th>
-                                <Table.Th style={{width: '25%'}} align="center">
+                                <Table.Th style={{width: '25%'}}>
                                     {t('이름')}
                                 </Table.Th>
-                                <Table.Th style={{width: '10%'}} align="center">
+                                <Table.Th style={{width: '10%'}} ta="center">
                                     {t('점수')}
                                 </Table.Th>
-                                <Table.Th style={{width: '10%'}} align="center">
+                                <Table.Th style={{width: '10%'}} ta="center">
                                     {t('패널티')}
                                 </Table.Th>
                                 {data.rank[0].solve_time_list.map((item, i) => (
@@ -80,7 +80,12 @@ const PracticeRankTable = ({data, refetch, isPending}: PracticeRankTableProps) =
                                                     {auth.member.handle}
                                                 </Text>
                                             ) : (
-                                                <Text c="dimmed">****</Text>
+
+                                                item.handle ?
+                                                    <Text>{item.handle}</Text>
+                                                    :
+                                                    <Text c="dimmed">****</Text>
+
                                             )}
                                             {item.running_time && (
                                                 <Badge color="red" size="sm" ml="xs">
