@@ -7,7 +7,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from typing_extensions import Optional
 
-from src.app.core.enums import ModeType, BoardType, PenaltyType
+from src.app.core.enums import ModeType, BoardType, PenaltyType, Role
 from src.app.db.models.models import PracticeSet, User, Member, Room, RoomPlayer, PracticeMember, RoomMission
 from src.app.schemas.schemas import PracticeSummary, PracticeStartRequest
 from src.app.services.room_services import handle_room_ready
@@ -184,7 +184,12 @@ async def get_current_rank(practice: PracticeSet, member: Member, db: Session):
         if datetime.now(pytz.UTC) < room.ends_at:
             running_time = int((datetime.now(tz=pytz.UTC) - room.starts_at).total_seconds())
 
+        handle = None
+        if member.role == Role.ADMIN:
+            handle = session.member.handle
+
         rank.append({
+            "handle": handle,
             "running_time": running_time,
             "score": score,
             "solve_time_list": solve_time_list,
