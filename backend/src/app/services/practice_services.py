@@ -185,7 +185,7 @@ async def get_current_rank(practice: PracticeSet, member: Member, db: Session):
             running_time = int((datetime.now(tz=pytz.UTC) - room.starts_at).total_seconds())
 
         handle = None
-        if member.role == Role.ADMIN:
+        if member and member.role == Role.ADMIN:
             handle = session.member.handle
 
         rank.append({
