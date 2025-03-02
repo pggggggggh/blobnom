@@ -4,6 +4,9 @@ import {TanStackRouterVite} from '@tanstack/router-plugin/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+    esbuild: {
+        drop: ['console', 'debugger'],
+    },
     plugins: [
         react(),
         TanStackRouterVite(),

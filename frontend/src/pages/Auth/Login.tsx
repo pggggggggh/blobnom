@@ -23,7 +23,6 @@ export default function Login() {
 
     const onLogin = (values) => {
         setError(null);
-        console.log(values)
         loginMutation.mutate(
             {handle: values.handle, password: values.password, remember_me: values.rememberMe},
             {
