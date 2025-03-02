@@ -12,7 +12,7 @@ const ActiveUsersRoomsCard = () => {
     const [expanded, setExpanded] = useState(false); // 확장 상태 관리
 
     const activeUsersEntries = nowActiveData?.active_users ? Object.entries(nowActiveData.active_users) : [];
-    const visibleUsers = expanded ? activeUsersEntries : activeUsersEntries.slice(0, 1);
+    const visibleUsers = expanded ? activeUsersEntries : activeUsersEntries.slice(0, 5);
 
     return (
         <Card withBorder shadow="sm" p="md">
@@ -55,7 +55,7 @@ const ActiveUsersRoomsCard = () => {
                 ))}
             </Collapse>
 
-            {activeUsersEntries.length > 1 && (
+            {activeUsersEntries.length > 5 && (
                 <Button
                     variant="subtle"
                     fullWidth
