@@ -4,7 +4,7 @@ import HandleComponent from "../HandleComponent.tsx";
 import {Link} from "@tanstack/react-router";
 import {IconClock, IconHexagons, IconLock, IconUserCheck} from "@tabler/icons-react";
 import dayjs from "dayjs";
-import PlatformIcon from "../PlatformIcon.tsx";
+import PlatformIcon from "../UI/PlatformIcon.tsx";
 import RoomStatusBadge from "./RoomProgressBadge.tsx";
 import React from "react";
 import {useTranslation} from "react-i18next";

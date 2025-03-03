@@ -5,7 +5,7 @@ import {modals} from "@mantine/modals";
 import RoomDeleteModal from "../Modals/RemoveModal.tsx";
 import {useAuth} from "../../context/AuthProvider.tsx";
 import {IconLock, IconTrash} from "@tabler/icons-react";
-import PlatformIcon from "../PlatformIcon.tsx";
+import PlatformIcon from "../UI/PlatformIcon.tsx";
 import {ModeType} from "../../types/enum/ModeType.tsx";
 import RoomJoinModal from "../Modals/RoomJoinModal.tsx";
 import {useTranslation} from "react-i18next";

@@ -8,7 +8,7 @@ import HandleComponent from "../components/HandleComponent.tsx";
 import {Platform} from "../types/enum/Platforms.tsx";
 import NotFound from "./NotFound.tsx";
 import {AxiosError} from "axios";
-import PlatformIcon from "../components/PlatformIcon.tsx";
+import PlatformIcon from "../components/UI/PlatformIcon.tsx";
 
 const MemberProfilePage = () => {
     const {handle} = Route.useParams();
