@@ -89,7 +89,7 @@ function CreatePractice() {
                         <NumberInput
                             label="진행 기간"
                             min={5}
-                            max={1440}
+                            max={525600}
                             suffix={t("분")}
                             key={form.key("duration")}
                             {...form.getInputProps("duration")}
