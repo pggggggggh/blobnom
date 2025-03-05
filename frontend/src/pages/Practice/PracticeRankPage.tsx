@@ -1,8 +1,8 @@
 import React from "react";
-import {usePracticeRank} from "../hooks/hooks.tsx";
+import {usePracticeRank} from "../../hooks/hooks.tsx";
 import {useParams} from "@tanstack/react-router";
-import PracticeRankTable from "../components/Practice/PracticeRankTable.tsx";
-import WithSidebar from "../components/Layout/WithSidebar.tsx";
+import PracticeRankTable from "../../components/Practice/PracticeRankTable.tsx";
+import WithSidebar from "../../components/Layout/WithSidebar.tsx";
 
 
 const PracticeRankPage = () => {

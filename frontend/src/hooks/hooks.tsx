@@ -2,6 +2,7 @@ import {useMutation, useQuery} from '@tanstack/react-query';
 import {RoomDetail} from "../types/RoomDetail.tsx";
 import {BindPayload, LoginPayload, PlatformTokenResponse, RegisterPayload,} from "../types/Auth.tsx"
 import {
+    deletePractice,
     deleteRoom,
     fetchActiveUsers,
     fetchContestDetail,
@@ -15,6 +16,7 @@ import {
     fetchRoomDetail,
     fetchSiteStats,
     postBindAccount,
+    postCreatePractice,
     postCreateRoom,
     postJoinRoom,
     postLogin,
@@ -34,7 +36,7 @@ import {ContestDetail} from "../types/ContestDetail.tsx";
 import {MemberDetails} from "../types/MemberDetails.tsx";
 import {SiteStats} from "../types/SiteStats.tsx";
 import {Leaderboards} from "../types/Leaderboards.tsx";
-import {PracticeSetSummary} from "../types/ProblemSet.tsx";
+import {PracticeSetSummary} from "../types/PracticeSet.tsx";
 import PracticeStartModal from "../components/Modals/PracticeStartModal.tsx";
 import {PracticeRankData} from "../types/PracticeRankData.tsx";
 import {ActiveUsersData} from "../types/ActiveUsersData.tsx";
@@ -253,12 +255,36 @@ export const useCreateRoom = () => {
     });
 };
 
+export const useCreatePractice = () => {
+    const router = useRouter();
+
+    return useMutation({
+        mutationFn: postCreatePractice,
+        onSuccess: (data) => {
+            router.navigate({
+                to: '/practices/',
+            });
+        },
+        onError: handleError
+    });
+};
+
 
 export const useDeleteRoom = () => {
     return useMutation({
         mutationFn: deleteRoom,
         onSuccess: () => {
             window.location.href = "/";
+        },
+        onError: handleError
+    });
+};
+
+export const useDeletePractice = () => {
+    return useMutation({
+        mutationFn: deletePractice,
+        onSuccess: () => {
+            window.location.href = "/practices/";
         },
         onError: handleError
     });

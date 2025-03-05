@@ -21,6 +21,7 @@ import {initReactI18next} from "react-i18next";
 import {Translation} from "./constants/Translation.tsx";
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+
 i18next.use(LanguageDetector).use(initReactI18next)
     .init({
         resources: Translation,

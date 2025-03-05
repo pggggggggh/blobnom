@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useTranslation} from "react-i18next";
-import {Badge, Card, Container, Group, Pagination, SimpleGrid, Stack, Tabs, Text, Title} from "@mantine/core";
-import {IconCode, IconStairs} from '@tabler/icons-react';
-import WithSidebar from "../components/Layout/WithSidebar.tsx";
-import {usePracticeList} from "../hooks/hooks.tsx";
-import PracticeListTable from "../components/Practice/PracticeListTable.tsx";
+import {Badge, Box, Card, Container, Group, SimpleGrid, Stack, Tabs, Text, Title} from "@mantine/core";
+import {IconCode, IconHexagonPlus2, IconStairs} from '@tabler/icons-react';
+import WithSidebar from "../../components/Layout/WithSidebar.tsx";
+import {usePracticeList} from "../../hooks/hooks.tsx";
+import PracticeListTable from "../../components/Practice/PracticeListTable.tsx";
+import {Link} from "@tanstack/react-router";
 
 const LevelInfoCards = () => {
     const levelInfo = [
@@ -64,7 +65,6 @@ const LevelInfoCards = () => {
 const PracticeListComponent = () => {
     const {t} = useTranslation();
     const {data: practiceSets, isLoading, error} = usePracticeList();
-    const [page, setPage] = useState(1);
 
 
     return (
@@ -81,19 +81,20 @@ const PracticeListComponent = () => {
                 <Tabs defaultValue="all">
                     <Tabs.List>
                         <Tabs.Tab value="all" leftSection={<IconCode size={16}/>}>{t('전체')}</Tabs.Tab>
+                        <Box ml="auto">
+                            <Link to="/practices/create">
+                                <Tabs.Tab value="new"
+                                          leftSection={<IconHexagonPlus2 size={16}/>}>
+                                    {t('새로 만들기')}
+                                </Tabs.Tab>
+                            </Link>
+                        </Box>
                     </Tabs.List>
+
                 </Tabs>
 
                 <PracticeListTable practiceSets={practiceSets}/>
 
-                <Group justify="center" mt="md">
-                    <Pagination
-                        total={1}
-                        value={page}
-                        onChange={setPage}
-                        siblings={1}
-                    />
-                </Group>
             </Stack>
         </>
     );

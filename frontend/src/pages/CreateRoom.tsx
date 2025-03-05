@@ -142,7 +142,7 @@ function CreateRoom() {
 
                         <SetRoomTime form={form}/>
 
-                        <Button type="submit" loading={mutation.isPending}>
+                        <Button type="submit" loading={mutation.isPending} ml="auto">
                             생성
                         </Button>
                     </Stack>

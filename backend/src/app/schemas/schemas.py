@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional, Dict
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import DateTime
 
 from src.app.core.enums import ModeType, ContestType, Platform, BoardType
@@ -22,6 +22,14 @@ class RoomCreateRequest(BaseModel):
     unfreeze_offset_minutes: Optional[int]
     starts_at: datetime
     ends_at: datetime
+
+
+class PracticeCreateRequest(BaseModel):
+    title: str
+    platform: Platform
+    difficulty: int
+    problem_ids: List[str] = Field(..., alias="problemIds")
+    duration: int
 
 
 class ContestCreateRequest(BaseModel):
@@ -75,7 +83,7 @@ class RoomListRequest(BaseModel):
     myRoomOnly: Optional[bool] = False
 
 
-class UserSummary(BaseModel):
+class MemberSummary(BaseModel):
     handle: str
     role: Optional[str] = None  # 비회원일 경우 None
     rating: Optional[int] = None
@@ -129,7 +137,7 @@ class RoomSummary(BaseModel):
     platform: Platform
     starts_at: datetime
     ends_at: datetime
-    owner: Optional[UserSummary] = None
+    owner: Optional[MemberSummary] = None
     num_players: int
     max_players: int
     num_missions: int
@@ -176,7 +184,7 @@ class ContestDetails(BaseModel):
     starts_at: datetime
     ends_at: datetime
     num_participants: int
-    participants: List[UserSummary]
+    participants: List[MemberSummary]
     players_per_room: int
     missions_per_room: int
     is_user_registered: bool
@@ -206,7 +214,7 @@ class MemberDetails(BaseModel):
     rating: int
     contest_history: List[ContestHistory]
     num_solved_missions: int
-    user_summary: UserSummary
+    user_summary: MemberSummary
 
 
 class MessagePayload(BaseModel):
@@ -230,7 +238,7 @@ class SiteStats(BaseModel):
 
 
 class LeaderboardEntry(BaseModel):
-    member_summary: UserSummary
+    member_summary: MemberSummary
     points: int
     num_solved_missions: int
 
@@ -248,9 +256,11 @@ class ActiveUsersData(BaseModel):
 class PracticeSummary(BaseModel):
     id: int
     name: str
+    author: MemberSummary
     platform: Platform
     difficulty: int
     num_missions: int
     duration: int
+    num_members: int
     your_rank: Optional[int] = None
     your_room_id: Optional[int] = None

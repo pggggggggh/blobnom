@@ -9,15 +9,52 @@ from typing_extensions import Optional
 
 from src.app.core.enums import ModeType, BoardType, PenaltyType, Role
 from src.app.db.models.models import PracticeSet, User, Member, Room, RoomPlayer, PracticeMember, RoomMission
-from src.app.schemas.schemas import PracticeSummary, PracticeStartRequest
+from src.app.schemas.schemas import PracticeSummary, PracticeStartRequest, PracticeCreateRequest
+from src.app.services.member_services import convert_to_member_summary
 from src.app.services.room_services import handle_room_ready
 from src.app.utils.platforms_utils import get_solved_problem_list
 from src.app.utils.security_utils import hash_password
 
 
+async def create_practice(practice_create_request: PracticeCreateRequest, db: Session, token_handle: str):
+    if token_handle is None:
+        raise HTTPException(status_code=401)
+    member = db.query(Member).filter(Member.handle == token_handle).first()
+    if practice_create_request.duration < 1:
+        raise HTTPException(status_code=400)
+    practice = PracticeSet(
+        name=practice_create_request.title,
+        difficulty=practice_create_request.difficulty,
+        platform=practice_create_request.platform,
+        duration=practice_create_request.duration,
+        penalty_type=PenaltyType.ICPC,
+        problem_ids=practice_create_request.problem_ids,
+        created_member_id=member.id
+    )
+    db.add(practice)
+    db.commit()
+    return {"status": "success"}
+
+
+async def delete_practice(practice_id: int, db: Session, token_handle: str):
+    if token_handle is None:
+        raise HTTPException(status_code=401)
+    member = db.query(Member).filter(Member.handle == token_handle).first()
+    practice = db.query(PracticeSet).filter(PracticeSet.id == practice_id).first()
+    if practice is None:
+        raise HTTPException(status_code=404, detail="Practice not found")
+    if practice.created_member_id != member.id:
+        raise HTTPException(status_code=403)
+    practice.is_deleted = True
+    db.add(practice)
+    db.commit()
+    return {"status": "success"}
+
+
 async def get_practice_list(db: Session, token_handle: Optional[str]):
-    practices = db.query(PracticeSet).order_by(
-        desc(PracticeSet.created_at))
+    practices = (db.query(PracticeSet)
+                 .filter(PracticeSet.is_deleted == False)
+                 .order_by(desc(PracticeSet.id)))
 
     practice_list = []
     for practice in practices:
@@ -57,9 +94,12 @@ async def get_practice_summary(practice: PracticeSet, db: Session,
     return PracticeSummary(
         id=practice.id,
         name=practice.name,
+        author=await convert_to_member_summary(practice.created_by, db, False),
         platform=practice.platform,
         difficulty=practice.difficulty,
         num_missions=len(practice.problem_ids),
+        num_members=len(
+            db.query(PracticeMember).filter(PracticeMember.practice_set_id == practice.id).all()),
         duration=practice.duration,
         your_room_id=your_room_id
     )

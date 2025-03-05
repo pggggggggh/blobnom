@@ -8,19 +8,19 @@ from sqlalchemy.orm import Session, joinedload
 
 from src.app.core.enums import Platform
 from src.app.db.models.models import SolvedacToken, Member, User, RoomMission, ContestMember
-from src.app.schemas.schemas import RegisterRequest, LoginRequest, UserSummary, MemberDetails, ContestHistory, \
+from src.app.schemas.schemas import RegisterRequest, LoginRequest, MemberSummary, MemberDetails, ContestHistory, \
     BindRequest
 from src.app.utils.security_utils import hash_password, verify_password, create_access_token
 from src.app.utils.platforms_utils import token_validate
 
 
-async def convert_to_member_summary(member: Member, db: Session, with_accounts: bool = True) -> UserSummary:
+async def convert_to_member_summary(member: Member, db: Session, with_accounts: bool = True) -> MemberSummary:
     accounts = {}
     if with_accounts:
         users = db.query(User).filter(User.member_id == member.id).all()
         for user in users:
             accounts[user.platform] = user.handle
-    return UserSummary(
+    return MemberSummary(
         handle=member.handle,
         rating=member.rating,
         role=member.role,
@@ -28,13 +28,13 @@ async def convert_to_member_summary(member: Member, db: Session, with_accounts: 
     )
 
 
-async def convert_to_user_summary(user: User, db: Session) -> UserSummary:
+async def convert_to_user_summary(user: User, db: Session) -> MemberSummary:
     # 아직 비회원 정보가 user에 남아있기에 사용하는 레거시 함수, 삭제 예정
     handle = user.handle
     member = user.member
     if member is not None:
         return await convert_to_member_summary(member, db)
-    return UserSummary(
+    return MemberSummary(
         handle=handle,
         rating=None,
         role=None,

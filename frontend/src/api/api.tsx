@@ -7,9 +7,10 @@ import {ContestDetail} from "../types/ContestDetail.tsx";
 import {MemberDetails} from "../types/MemberDetails.tsx";
 import {SiteStats} from "../types/SiteStats.tsx";
 import {Leaderboards} from "../types/Leaderboards.tsx";
-import {PracticeRankData, PracticeSetSummary} from "../types/ProblemSet.tsx";
+import {PracticeRankData, PracticeSetSummary} from "../types/PracticeSet.tsx";
 import {PracticeRankData} from "../types/PracticeRankData.tsx";
 import {ActiveUsersData} from "../types/ActiveUsersData.tsx";
+import {PracticeForm} from "../types/PracticeForm.tsx";
 
 export const fetchMainData = async (page: number, search: string, activeOnly: boolean, myRoomOnly: boolean): Promise<MainData> => {
     const response = await api.get(`/rooms/list`, {
@@ -92,6 +93,17 @@ export const postPracticeStart = async (data: { practiceId: number, startTime: D
     const response = await api.post(`/practices/${data.practiceId}/start`, {start_time: data.startTime});
     return response.data;
 }
+
+export const postCreatePractice = async (data: PracticeForm) => {
+    console.log(data)
+    const response = await api.post(`/practices/create`, data);
+    return response.data;
+}
+
+export const deletePractice = async (data: { practiceId: number; }) => {
+    const response = await api.delete(`/practices/${data.practiceId}`);
+    return response.data;
+};
 
 export const postUnregisterContest = async (data: { contestId: number }) => {
     const response = await api.post(`/contests/unregister/${data.contestId}`);

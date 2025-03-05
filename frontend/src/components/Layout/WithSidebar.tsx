@@ -10,10 +10,10 @@ const WithSidebar: React.FC<LayoutProps> = ({children}) => {
     return (
         <Container size="xl" py="md">
             <Grid>
-                <Grid.Col span={{base: 12, md: 8}}>
+                <Grid.Col span={{base: 12, md: 8.5}}>
                     {children}
                 </Grid.Col>
-                <Grid.Col span={{base: 12, md: 4}}>
+                <Grid.Col span={{base: 12, md: 3.5}}>
                     <SidebarComponent/>
                 </Grid.Col>
             </Grid>
