@@ -206,6 +206,7 @@ class PracticeSet(TimestampMixin, Base):
     platform = Column(Enum(Platform), nullable=False, default=Platform.BOJ)
     penalty_type = Column(Enum(PenaltyType), nullable=False, default=PenaltyType.ICPC)
     problem_ids = Column(ARRAY(Integer), nullable=False, default=lambda: [])
+    is_deleted = Column(Boolean, default=False)
 
     practice_members = relationship("PracticeMember", back_populates="practice_set")
 

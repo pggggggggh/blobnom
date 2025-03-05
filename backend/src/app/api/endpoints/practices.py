@@ -7,11 +7,30 @@ from sqlalchemy.orm import Session
 from src.app.core.rate_limit import limiter
 from src.app.db.models.models import PracticeSet, Member
 from src.app.db.session import get_db
-from src.app.schemas.schemas import PracticeStartRequest
-from src.app.services.practice_services import get_practice_list, check_is_eligible, start_practice, get_current_rank
+from src.app.schemas.schemas import PracticeStartRequest, PracticeCreateRequest
+from src.app.services.practice_services import get_practice_list, check_is_eligible, start_practice, get_current_rank, \
+    create_practice, delete_practice
 from src.app.utils.security_utils import get_handle_by_token
 
 router = APIRouter()
+
+
+@router.post("/create")
+@limiter.limit("5/minute")
+async def create_practice_endpoint(request: Request,
+                                   practice_create_request: PracticeCreateRequest,
+                                   db: Session = Depends(get_db),
+                                   token_handle: Optional[str] = Depends(get_handle_by_token)):
+    response = await create_practice(practice_create_request, db, token_handle)
+    return response
+
+
+@router.delete("/{id}")
+@limiter.limit("5/minute")
+async def delete_practice_endpoint(request: Request, id: int, db: Session = Depends(get_db),
+                                   token_handle: Optional[str] = Depends(get_handle_by_token)):
+    response = await delete_practice(id, db, token_handle)
+    return response
 
 
 @router.get("/list")
