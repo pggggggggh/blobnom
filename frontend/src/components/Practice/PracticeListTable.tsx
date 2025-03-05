@@ -21,7 +21,7 @@ const PracticeListTable = ({practiceSets}: PracticeSetProps) => {
     const removeMutation = useDeletePractice();
 
     const renderDifficulty = (level: number) => {
-        const color = level <= 2 ? "green" : level <= 3 ? "yellow" : level <= 4 ? "orange" : level <= 5 ? "violet" : level <= 6 ? "red" : "black";
+        const color = level <= 1 ? "teal" : level <= 2 ? "green" : level <= 3 ? "yellow" : level <= 4 ? "orange" : level <= 5 ? "violet" : level <= 6 ? "red" : "black";
         return (
             <Group gap={4}>
                 <Progress value={level * (100 / 7)} color={color} size="sm" style={{flex: 1}}/>

@@ -53,7 +53,7 @@ const LevelInfoCards = () => {
                     <Card key={info.level} withBorder shadow="sm" padding="md">
                         <Group justify="space-between" mb="xs">
                             <Badge size="sm" variant="filled"
-                                   color={info.level <= 2 ? "green" : info.level <= 3 ? "yellow" : info.level <= 4 ? "orange" : info.level <= 5 ? "violet" : info.level <= 6 ? "red" : "black"}>
+                                   color={info.level == 1 ? "teal" : info.level <= 2 ? "green" : info.level <= 3 ? "yellow" : info.level <= 4 ? "orange" : info.level <= 5 ? "violet" : info.level <= 6 ? "red" : "black"}>
                                 레벨 {info.level}
                             </Badge>
                             <Text fw={500}>{info.target}</Text>
