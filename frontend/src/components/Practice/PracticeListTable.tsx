@@ -94,10 +94,11 @@ const PracticeListTable = ({practiceSets}: PracticeSetProps) => {
                 Cell: ({cell}) => (
                     <Group gap={4}>
                         <IconClock size={16}/>
-                        <Text size="sm">{Math.floor((cell.getValue() as number) / 60)}시간</Text>
+                        <Text
+                            size="sm">{Math.floor((cell.getValue() as number) / 60)}시간 {cell.getValue() as number % 60 !== 0 && `${cell.getValue() as number % 60}분`}</Text>
                     </Group>
                 ),
-                size: 90,
+                size: 120,
             },
             {
                 accessorKey: 'num_members',
