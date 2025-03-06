@@ -40,6 +40,12 @@ function CreatePractice() {
 
     const mutation = useCreatePractice();
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    };
+
     return (
         <Container py="lg">
             <Card mx="xl" px="xl" pt="lg" pb="xl" shadow="sm" withBorder>
@@ -49,6 +55,7 @@ function CreatePractice() {
                     onSubmit={form.onSubmit((values) => {
                         return mutation.mutate(values);
                     })}
+                    onKeyDown={handleKeyDown}
                 >
                     <Stack>
                         <TextInput
