@@ -62,7 +62,7 @@ const AboutComponent = () => (
         <Card shadow="sm" padding="lg" withBorder>
             <Title order={3} mb="md">신고/제보 및 건의사항</Title>
             <Group>
-                <Anchor href="https://discord.gg/rE7jhhTd" target="_blank">
+                <Anchor href="https://discord.gg/5KeFVHzfTH" target="_blank">
                     <Button variant="light" color="indigo">
                         Discord 참여하기
                     </Button>
