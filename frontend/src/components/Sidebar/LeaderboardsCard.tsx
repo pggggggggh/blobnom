@@ -48,7 +48,6 @@ const LeaderboardsCard = () => {
                         ))}
                     </Table.Tbody>
                 </Table>
-                <UpdatedTime updated_at={undefined}/>
             </Card>
         );
     }
