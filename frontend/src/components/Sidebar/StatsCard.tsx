@@ -1,13 +1,13 @@
-import {Box, Card, Group, Text, Title} from '@mantine/core';
+import {Box, Card, Group, Skeleton, Text, Title} from '@mantine/core';
 import {IconChartHistogram, IconCode, IconUserPlus} from '@tabler/icons-react';
 import {useSiteStats} from "../../hooks/hooks.tsx";
 import {useTranslation} from "react-i18next";
 import UpdatedTime from "../UI/UpdatedTime.tsx";
 
-
 const StatsCard = () => {
     const {t} = useTranslation();
     const {data: statsData, isLoading, error} = useSiteStats();
+
     return (
         <Card withBorder shadow="sm" p="md">
             <Group justify="space-between" mb="md">
@@ -24,12 +24,9 @@ const StatsCard = () => {
                         <Text fw={500}>{t("가입된 회원 수")}</Text>
                     </Group>
                     {isLoading ? (
-                        // <Skeleton mt="xs" height={24} width="60%"/>
-                        <></>
+                        <Skeleton mt="xs" height={24} width="60%"/>
                     ) : (
-                        <Text size="xl" fw={700}>
-                            {statsData?.num_members.toLocaleString()}
-                        </Text>
+                        <Text size="xl" fw={700}>{statsData?.num_members.toLocaleString()}</Text>
                     )}
                 </Box>
 
@@ -39,21 +36,16 @@ const StatsCard = () => {
                         <Text fw={500}>{t("해결된 문제")}</Text>
                     </Group>
                     {isLoading ? (
-                        // <Skeleton mt="xs" height={24} width="60%"/>
-                        <></>
+                        <Skeleton mt="xs" height={24} width="60%"/>
                     ) : (
-                        <Text size="xl" fw={700}>
-                            {statsData?.num_solved_missions.toLocaleString()}
-                        </Text>
+                        <Text size="xl" fw={700}>{statsData?.num_solved_missions.toLocaleString()}</Text>
                     )}
                 </Box>
             </Group>
 
-            {statsData &&
-                <UpdatedTime updated_at={statsData?.updated_at}/>
-            }
+            <UpdatedTime updated_at={statsData?.updated_at}/>
         </Card>
     );
-}
+};
 
 export default StatsCard;

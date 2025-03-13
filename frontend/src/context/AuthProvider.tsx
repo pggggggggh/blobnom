@@ -18,20 +18,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const token = localStorage.getItem('accessToken');
-                if (!token) {
-                    setMember(null);
-                    setLoading(false);
-                    return;
-                }
-
-                const response = await api.get('/members/me', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                setMember(response.data || 'User');
+                const response = await api.get('/members/me');
+                if (response.data) setMember(response.data);
             } catch (error) {
                 console.error('Failed to fetch user:', error);
                 setMember(null);
@@ -39,15 +27,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 setLoading(false);
             }
         };
-
         fetchUser();
     }, []);
 
 
-    const logout = () => {
-        localStorage.removeItem('accessToken');
-        setMember(null);
-        window.location.href = "/"
+    const logout = async () => {
+        try {
+            const response = await api.post('/auth/logout');
+        } catch (error) {
+            console.error('Failed to logout:', error);
+        } finally {
+            setMember(null);
+            window.location.href = "/"
+        }
     };
 
     return (
