@@ -144,7 +144,7 @@ async def login(login_request: LoginRequest, db: Session):
     td = timedelta(days=30)
     response = JSONResponse(content={"status": "success"})
     response.set_cookie("access_token", create_access_token(data={"sub": member.handle}, expires_delta=td),
-                        httponly=True, secure=True)
+                        httponly=True, secure=True, samesite=None)
     return response
 
 
