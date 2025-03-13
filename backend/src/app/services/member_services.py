@@ -5,6 +5,7 @@ import pytz
 from fastapi import HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
+from starlette.responses import JSONResponse
 
 from src.app.core.enums import Platform
 from src.app.db.models.models import SolvedacToken, Member, User, RoomMission, ContestMember
@@ -141,9 +142,16 @@ async def login(login_request: LoginRequest, db: Session):
     if not verify_password(login_request.password, member.password):
         raise HTTPException(status_code=400, detail="Incorrect password")
     td = timedelta(days=30)
-    # if login_request.remember_me:
-    #     td = timedelta(days=30)
-    return create_access_token(data={"sub": member.handle}, expires_delta=td)
+    response = JSONResponse(content={"status": "success"})
+    response.set_cookie("access_token", create_access_token(data={"sub": member.handle}, expires_delta=td),
+                        httponly=True, secure=True)
+    return response
+
+
+async def logout():
+    response = JSONResponse(content={"status": "success"})
+    response.delete_cookie("access_token")
+    return response
 
 
 async def bind_account(bind_request: BindRequest, member_handle: str, db: Session):
