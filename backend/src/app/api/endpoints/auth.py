@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from src.app.core.rate_limit import limiter
 from src.app.db.database import get_db
 from src.app.schemas.schemas import RegisterRequest, LoginRequest, BindRequest
-from src.app.services.member_services import create_token, register, login, bind_account
+from src.app.services.member_services import create_token, register, login, bind_account, logout
 from src.app.utils.security_utils import get_handle_by_token
 
 router = APIRouter()
@@ -27,8 +27,13 @@ async def post_register(request: Request, register_request: RegisterRequest = Bo
 @router.post('/login')
 @limiter.limit("10/minute")
 async def post_login(request: Request, login_request: LoginRequest = Body(...), db: Session = Depends(get_db)):
-    token = await login(login_request, db=db)
-    return {"result": "success", "token": token}
+    return await login(login_request, db=db)
+
+
+@router.post('/logout')
+@limiter.limit("10/minute")
+async def post_login(request: Request):
+    return await logout()
 
 
 @router.post('/bind')

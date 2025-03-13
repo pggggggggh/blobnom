@@ -5,7 +5,7 @@ from typing import Optional
 import jwt
 import pytz
 from fastapi import HTTPException
-from fastapi.params import Depends, Header
+from fastapi.params import Depends, Header, Cookie
 from jwt import InvalidTokenError
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
@@ -37,21 +37,21 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-async def get_handle_by_token(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
+async def get_handle_by_token(access_token: Optional[str] = Cookie(None), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    if authorization is None:
+    if access_token is None:
         return None  # 비회원
-    if not authorization.startswith("Bearer "):
-        raise credentials_exception
+    # if not authorization.startswith("Bearer "):
+    #     raise credentials_exception
 
     try:
-        token = authorization.split(" ")[1]
-        payload = jwt.decode(token, os.environ.get("JWT_SECRET_KEY"),
+        # token = authorization.split(" ")[1]
+        payload = jwt.decode(access_token, os.environ.get("JWT_SECRET_KEY"),
                              algorithms=os.environ.get("JWT_ALGORITHM"))
         handle = payload.get("sub")
         logger.info(f"handle: {handle}")

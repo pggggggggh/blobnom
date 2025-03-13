@@ -13,6 +13,8 @@ router = APIRouter()
 @router.get('/me')
 @limiter.limit("20/minute")
 async def get_me(request: Request, token_handle: str = Depends(get_handle_by_token), db: Session = Depends(get_db)):
+    if token_handle is None:
+        return None
     member = db.query(Member).filter(Member.handle == token_handle).first()
     if not member:
         raise HTTPException(status_code=401, detail="Member not found")
