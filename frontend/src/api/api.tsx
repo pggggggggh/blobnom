@@ -1,16 +1,16 @@
-import {api} from "./instance.tsx";
-import {RoomDetail} from "../types/RoomDetail.tsx";
-import {MainData} from "../types/Summaries.tsx";
-import {RoomForm} from "../types/RoomForm.tsx";
-import {BindPayload, LoginPayload, PlatformTokenResponse, RegisterPayload,} from "../types/Auth.tsx"
-import {ContestDetail} from "../types/ContestDetail.tsx";
-import {MemberDetails} from "../types/MemberDetails.tsx";
-import {SiteStats} from "../types/SiteStats.tsx";
-import {Leaderboards} from "../types/Leaderboards.tsx";
-import {PracticeRankData, PracticeSetSummary} from "../types/PracticeSet.tsx";
-import {PracticeRankData} from "../types/PracticeRankData.tsx";
-import {ActiveUsersData} from "../types/ActiveUsersData.tsx";
-import {PracticeForm} from "../types/PracticeForm.tsx";
+import { api } from "./instance.tsx";
+import { RoomDetail } from "../types/RoomDetail.tsx";
+import { MainData } from "../types/Summaries.tsx";
+import { RoomForm } from "../types/RoomForm.tsx";
+import { BindPayload, LoginPayload, PlatformTokenResponse, RegisterPayload, } from "../types/Auth.tsx"
+import { ContestDetail } from "../types/ContestDetail.tsx";
+import { MemberDetails } from "../types/MemberDetails.tsx";
+import { SiteStats } from "../types/SiteStats.tsx";
+import { Leaderboards } from "../types/Leaderboards.tsx";
+import { PracticeRankData, PracticeSetSummary } from "../types/PracticeSet.tsx";
+import { PracticeRankData } from "../types/PracticeRankData.tsx";
+import { ActiveUsersData } from "../types/ActiveUsersData.tsx";
+import { PracticeForm } from "../types/PracticeForm.tsx";
 
 export const fetchMainData = async (page: number, search: string, activeOnly: boolean, myRoomOnly: boolean): Promise<MainData> => {
     const response = await api.get(`/rooms/list`, {
@@ -66,14 +66,14 @@ export const fetchPracticeRank = async (practiceId: number): Promise<PracticeRan
 };
 
 export const postSolveProblem = async (data: { roomId: number; problemId: number }) => {
-    const response = await api.post(`/rooms/solved`, {room_id: data.roomId, problem_id: data.problemId});
+    const response = await api.post(`/rooms/solved`, { room_id: data.roomId, problem_id: data.problemId });
     return response.data;
 }
 
 export const postJoinRoom = async (data: { roomId: number; password: string | null; }) => {
     let response;
     if (data.password != null) {
-        response = await api.post(`/rooms/join/${data.roomId}`, {password: data.password});
+        response = await api.post(`/rooms/join/${data.roomId}`, { password: data.password });
     } else {
         response = await api.post(`/rooms/join/${data.roomId}`);
     }
@@ -90,7 +90,7 @@ export const postPracticeEligible = async (data: { practiceId: number }) => {
 }
 
 export const postPracticeStart = async (data: { practiceId: number, startTime: Date }) => {
-    const response = await api.post(`/practices/${data.practiceId}/start`, {start_time: data.startTime});
+    const response = await api.post(`/practices/${data.practiceId}/start`, { start_time: data.startTime });
     return response.data;
 }
 
@@ -117,7 +117,7 @@ export const postCreateRoom = async (data: RoomForm) => {
 }
 
 export const deleteRoom = async (data: { roomId: number; password: string }) => {
-    const response = await api.post(`/rooms/delete/${data.roomId}`, {password: data.password});
+    const response = await api.post(`/rooms/delete/${data.roomId}`, { password: data.password });
     return response.data;
 };
 

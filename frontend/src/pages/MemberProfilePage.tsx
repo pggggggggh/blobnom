@@ -1,20 +1,20 @@
-import {useMemberDetail} from "../hooks/hooks.tsx";
-import {Anchor, Avatar, Card, Container, Group, Text, Title} from "@mantine/core";
-import {Route} from "../routes/members/$handle.tsx";
+import { useMemberDetail } from "../hooks/hooks.tsx";
+import { Anchor, Avatar, Card, Container, Group, Text, Title } from "@mantine/core";
+import { Route } from "../routes/profile/$handle.tsx";
 import RatingChartComponent from "../components/RatingChartComponent.tsx";
-import {getRatingColor} from "../utils/MiscUtils.tsx";
+import { getRatingColor } from "../utils/MiscUtils.tsx";
 import React from "react";
 import HandleComponent from "../components/HandleComponent.tsx";
-import {Platform} from "../types/enum/Platforms.tsx";
+import { Platform } from "../types/enum/Platforms.tsx";
 import NotFound from "./NotFound.tsx";
-import {AxiosError} from "axios";
+import { AxiosError } from "axios";
 import PlatformIcon from "../components/UI/PlatformIcon.tsx";
 
 const MemberProfilePage = () => {
-    const {handle} = Route.useParams();
-    const {data: memberDetails, isLoading, error} = useMemberDetail(handle);
+    const { handle } = Route.useParams();
+    const { data: memberDetails, isLoading, error } = useMemberDetail(handle);
 
-    if ((error as AxiosError)?.status === 404) return <NotFound/>;
+    if ((error as AxiosError)?.status === 404) return <NotFound />;
     if (isLoading || !memberDetails) return <div></div>;
 
     return (
@@ -28,7 +28,7 @@ const MemberProfilePage = () => {
                     size={80} radius={60} className="mb-4"
                 />
                 <Title className="text-3xl font-bold">
-                    <HandleComponent member={memberDetails.user_summary}/>의 프로필
+                    <HandleComponent member={memberDetails.user_summary} />의 프로필
                 </Title>
                 <Text size="md" className="text-gray-600 mt-2">
                     {memberDetails.bio || "사용자의 자기소개가 없습니다."}
@@ -38,7 +38,7 @@ const MemberProfilePage = () => {
                 {Object.entries(memberDetails.user_summary.accounts).map(([key, value]) => (
                     <Card shadow="sm" padding="md" radius="md" key={key} className="flex items-center">
                         <Group className="w-full">
-                            <PlatformIcon platform={key}/>
+                            <PlatformIcon platform={key} />
                             <div>
                                 <Text size="sm">
                                     {key.toUpperCase()} 계정
@@ -76,7 +76,7 @@ const MemberProfilePage = () => {
             {/* Chart Section */}
             <Card shadow="sm" padding="lg" radius="md" className="mt-5">
                 <Text size="lg" className="">레이팅 변화</Text>
-                <RatingChartComponent contestHistory={memberDetails.contest_history}/>
+                <RatingChartComponent contestHistory={memberDetails.contest_history} />
             </Card>
         </Container>
     );
