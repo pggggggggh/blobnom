@@ -1,15 +1,15 @@
-import {useState} from 'react';
-import {Box, Card, Flex, Group, Menu, Text, UnstyledButton} from '@mantine/core';
-import {IconChevronDown} from '@tabler/icons-react';
-import {TeamInfo} from "../../types/RoomDetail.tsx";
-import {Platform} from "../../types/enum/Platforms.tsx";
+import { useState } from 'react';
+import { Box, Card, Flex, Group, Menu, Text, UnstyledButton } from '@mantine/core';
+import { IconChevronDown } from '@tabler/icons-react';
+import { TeamInfo } from "../../types/RoomDetail.tsx";
+import { Platform } from "../../types/enum/Platforms.tsx";
 import HandleComponent from "../HandleComponent.tsx";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 
-function TeamStatusBox({roomDetails, userColors, activeUsers}) {
+function TeamStatusBox({ roomDetails, userColors, activeUsers }) {
     const [maximized, setMaximized] = useState(true);
     const [showAll, setShowAll] = useState(true);
-    const {t} = useTranslation();
+    const { t } = useTranslation();
 
     const toggleView = () => {
         if (!maximized) {
@@ -27,9 +27,8 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
     return (
         <Card
             shadow="lg"
-            className={`fixed bottom-4 right-4 transition-all duration-300 ${
-                maximized ? "max-h-[500px]" : "max-h-[64px]"
-            }`}
+            className={`fixed bottom-4 right-4 transition-all duration-300 ${maximized ? "max-h-[500px]" : "max-h-[64px]"
+                }`}
             padding="xs"
             radius="md"
             w="auto"
@@ -43,9 +42,8 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
                 aria-label="Toggle view mode"
             >
                 <IconChevronDown
-                    className={`transition-transform duration-300 ${
-                        maximized ? "" : "rotate-180"
-                    }`}
+                    className={`transition-transform duration-300 ${maximized ? "" : "rotate-180"
+                        }`}
                     size={16}
                 />
             </UnstyledButton>
@@ -58,7 +56,7 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
             >
                 {teamsToShow.map((team: TeamInfo, i) => (
                     <Group key={i} align="center" gap="xs">
-                        <Box w={7} h={5} bg={userColors[team.team_index % userColors.length][0]}/>
+                        <Box w={7} h={5} bg={userColors[team.team_index % userColors.length][0]} />
                         <Group gap={3} align="center">
                             {team.users.map((player_info, idx) => (
                                 <Group key={player_info.user.handle} gap={0} align="center">
@@ -72,19 +70,19 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
                                                             h={5}
                                                             bg="teal"
                                                             title={t("Active")}
-                                                            style={{borderRadius: '50%'}}
+                                                            style={{ borderRadius: '50%' }}
                                                         />
                                                     )}
                                                     <Text
                                                         className="cursor-pointer"
                                                         fw={
                                                             team.users.length > 1 &&
-                                                            player_info.indiv_solved_cnt > 0 &&
-                                                            idx === 0 ? 800 : 600
+                                                                player_info.indiv_solved_cnt > 0 &&
+                                                                idx === 0 ? 800 : 600
                                                         }
                                                     >
                                                         <HandleComponent member={player_info.user}
-                                                                         linkToProfile={false}/>
+                                                            linkToProfile={false} />
                                                     </Text>
 
                                                 </Flex>
@@ -92,7 +90,7 @@ function TeamStatusBox({roomDetails, userColors, activeUsers}) {
                                             <Menu.Dropdown>
                                                 <Menu.Item
                                                     component="a"
-                                                    href={`/members/${player_info.user.handle}`}
+                                                    href={`/profile/${player_info.user.handle}`}
                                                     target="_blank"
                                                 >
                                                     {t("프로필 보기")}

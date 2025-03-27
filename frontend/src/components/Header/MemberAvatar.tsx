@@ -1,10 +1,10 @@
-import {Avatar, Group, Menu} from "@mantine/core";
-import {Link} from "@tanstack/react-router";
-import {MemberSummary} from "../../types/MemberSummary.tsx";
-import {useTranslation} from "react-i18next";
+import { Avatar, Group, Menu } from "@mantine/core";
+import { Link } from "@tanstack/react-router";
+import { MemberSummary } from "../../types/MemberSummary.tsx";
+import { useTranslation } from "react-i18next";
 
-const MemberAvatar = ({member}: { member: MemberSummary }) => {
-    const {t} = useTranslation();
+const MemberAvatar = ({ member }: { member: MemberSummary }) => {
+    const { t } = useTranslation();
 
     return (
         <Group align="center">
@@ -18,10 +18,10 @@ const MemberAvatar = ({member}: { member: MemberSummary }) => {
                 </Menu.Target>
 
                 <Menu.Dropdown>
-                    <Menu.Item component={Link} to={`members/${member.handle}`}>
+                    <Menu.Item component={Link} to={`profile/${member.handle}`}>
                         {t("내 정보")}
                     </Menu.Item>
-                    <Menu.Item color="" component={Link} to="members/settings">
+                    <Menu.Item color="" component={Link} to="/settings">
                         {t("계정 연동")}
                     </Menu.Item>
                     <Menu.Item color="red" component={Link} to="/logout">
