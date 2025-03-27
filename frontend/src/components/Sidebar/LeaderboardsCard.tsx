@@ -1,22 +1,22 @@
-import {Avatar, Card, Flex, Group, Skeleton, Table, Text, Title} from "@mantine/core";
-import {IconTrophy} from "@tabler/icons-react";
+import { Avatar, Card, Flex, Group, Skeleton, Table, Text, Title } from "@mantine/core";
+import { IconTrophy } from "@tabler/icons-react";
 import HandleComponent from "../HandleComponent.tsx";
 import React from "react";
-import {useLeaderboards} from "../../hooks/hooks.tsx";
-import {useTranslation} from "react-i18next";
+import { useLeaderboards } from "../../hooks/hooks.tsx";
+import { useTranslation } from "react-i18next";
 import UpdatedTime from "../UI/UpdatedTime.tsx";
 
 const LeaderboardsCard = () => {
-    const {t} = useTranslation();
-    const {data: leaderboardsData, isLoading, error} = useLeaderboards();
+    const { t } = useTranslation();
+    const { data: leaderboardsData, isLoading, error } = useLeaderboards();
 
     if (isLoading) {
         return (
             <Card withBorder shadow="sm" p="md">
                 <Group justify="space-between" mb="md">
-                    <Title order={4} style={{display: "flex", alignItems: "center", gap: "8px"}}>
-                        <IconTrophy size={20} color="gray"/>
-                        <Skeleton height={20} width={120} radius="sm"/>
+                    <Title order={4} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <IconTrophy size={20} color="gray" />
+                        <Skeleton height={20} width={120} radius="sm" />
                     </Title>
                 </Group>
 
@@ -32,17 +32,17 @@ const LeaderboardsCard = () => {
                         {[...Array(5)].map((_, i) => (
                             <Table.Tr key={i}>
                                 <Table.Td>
-                                    <Skeleton height={20} width={20} radius="sm"/>
+                                    <Skeleton height={20} width={20} radius="sm" />
                                 </Table.Td>
                                 <Table.Td>
                                     <Flex gap="xs">
-                                        <Skeleton height={32} width={32} circle/>
-                                        <Skeleton height={20} width={100} radius="sm"/>
+                                        <Skeleton height={32} width={32} circle />
+                                        <Skeleton height={20} width={100} radius="sm" />
                                     </Flex>
                                 </Table.Td>
-                                <Table.Td style={{textAlign: "right"}}>
-                                    <Skeleton height={20} width={50} radius="sm"/>
-                                    <Skeleton height={16} width={80} radius="sm" mt={4}/>
+                                <Table.Td style={{ textAlign: "right" }}>
+                                    <Skeleton height={20} width={50} radius="sm" />
+                                    <Skeleton height={16} width={80} radius="sm" mt={4} />
                                 </Table.Td>
                             </Table.Tr>
                         ))}
@@ -55,8 +55,8 @@ const LeaderboardsCard = () => {
     return (
         <Card withBorder shadow="sm" p="md">
             <Group justify="space-between" mb="md">
-                <Title order={4} style={{display: "flex", alignItems: "center", gap: "8px"}}>
-                    <IconTrophy size={20} color="gold"/>
+                <Title order={4} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <IconTrophy size={20} color="gold" />
                     {t("리더보드")}
                 </Title>
             </Group>
@@ -87,19 +87,19 @@ const LeaderboardsCard = () => {
                                         color="initials"
                                         size="sm"
                                     />
-                                    <Text size="sm" fw={500}><HandleComponent member={entry.member_summary}/></Text>
+                                    <Text size="sm" fw={500}><HandleComponent member={entry.member_summary} /></Text>
                                 </Flex>
                             </Table.Td>
-                            <Table.Td style={{textAlign: "right"}}>
+                            <Table.Td style={{ textAlign: "right" }}>
                                 <Text size="sm" fw={700}>{entry.points.toLocaleString()}</Text>
-                                <Text size="xs" c="dimmed">{t("num_problems", {n: entry.num_solved_missions})}</Text>
+                                <Text size="xs" c="dimmed">{t("num_problems", { n: entry.num_solved_missions })}</Text>
                             </Table.Td>
                         </Table.Tr>
                     ))}
                 </Table.Tbody>
             </Table>
 
-            <UpdatedTime updated_at={leaderboardsData?.updated_at}/>
+            <UpdatedTime updated_at={leaderboardsData?.updated_at} />
         </Card>
     );
 }
