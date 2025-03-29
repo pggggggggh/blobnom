@@ -1,14 +1,14 @@
-import {Tooltip} from '@mantine/core';
-import {Link} from "@tanstack/react-router";
-import {getRatingColor} from "../utils/MiscUtils.tsx";
-import {MemberSummary} from "../types/MemberSummary.tsx";
+import { Tooltip } from '@mantine/core';
+import { Link } from "@tanstack/react-router";
+import { getRatingColor } from "../utils/MiscUtils.tsx";
+import { MemberSummary } from "../types/MemberSummary.tsx";
 
-const HandleComponent = ({member, linkToProfile = true}: { member: MemberSummary, linkToProfile?: boolean }) => {
+const HandleComponent = ({ member, linkToProfile = true }: { member: MemberSummary, linkToProfile?: boolean }) => {
     return (
         <>
             {member.role ? (
                 linkToProfile ?
-                    <Link to={`/members/${member.handle}`}>
+                    <Link to={`/profile/${member.handle}`}>
                         <span className={`tracking-tighter font-bold ${getRatingColor(member.rating)}`}>
                             {member.handle}
                         </span>
