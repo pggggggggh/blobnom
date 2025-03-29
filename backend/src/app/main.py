@@ -3,7 +3,7 @@ import asyncio
 from fastapi import FastAPI
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.app.api import sockets
 from src.app.api.core_router import router as core_router
@@ -23,11 +23,10 @@ except Exception as e:
 
 origins = [
     "http://localhost:5173",
-    "http://121.189.148.34:5173",
     "https://blobnom.netlify.app",
-    "https://b5m.netlify.app",
     "http://blobnom.xyz",
     "https://blobnom.xyz",
+    "https://www.blobnom.xyz",
 ]
 app = FastAPI()
 

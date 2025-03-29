@@ -32,7 +32,7 @@ async def post_login(request: Request, login_request: LoginRequest = Body(...), 
 
 @router.post('/logout')
 @limiter.limit("10/minute")
-async def post_login(request: Request):
+async def post_logout(request: Request):
     return await logout()
 
 
