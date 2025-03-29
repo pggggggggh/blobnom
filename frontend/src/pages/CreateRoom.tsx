@@ -1,6 +1,6 @@
 import React from 'react';
 import {useForm} from '@mantine/form';
-import {Button, Card, Container, SimpleGrid, Stack, Text, TextInput, Title} from '@mantine/core';
+import {Button, Card, Container, Divider, SimpleGrid, Stack, Text, TextInput, Title} from '@mantine/core';
 import {RoomForm} from '../types/RoomForm';
 import {
     SetRoomDifficulty,
@@ -122,6 +122,8 @@ function CreateRoom() {
                         {/*        passwordProps={form.getInputProps('edit_password')}*/}
                         {/*    />}*/}
 
+                        <Divider/>
+
                         <SetPlatform platformProps={form.getInputProps("platform")} label={"문제 출처"} desc={""}/>
 
                         <SetRoomQuery
@@ -130,6 +132,8 @@ function CreateRoom() {
                             queryProps={form.getInputProps('query')}
                             handleValue={form.values.handles}
                         />
+
+                        <Divider/>
 
                         <SetRoomDifficulty unfreezeOffsetMinutesProps={form.getInputProps("unfreeze_offset_minutes")}/>
 
