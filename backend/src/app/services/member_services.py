@@ -150,7 +150,7 @@ async def login(login_request: LoginRequest, db: Session):
 
 async def logout():
     response = JSONResponse(content={"status": "success"})
-    response.delete_cookie("access_token")
+    response.delete_cookie("access_token", httponly=True, secure=True, samesite="none")
     return response
 
 
