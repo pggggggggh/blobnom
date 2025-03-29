@@ -1,8 +1,9 @@
-import {Group, Input, NumberInput, RangeSlider, SimpleGrid, Stack, Text, TextInput} from '@mantine/core';
+import {Checkbox, Group, Input, NumberInput, RangeSlider, SimpleGrid, Stack, Text, TextInput} from '@mantine/core';
 import React, {useEffect, useState} from 'react';
 import {SetAlgorithmTag} from './';
 import {marks, tiers} from '../../constants/tierdata';
 import {Platform} from "../../types/enum/Platforms.tsx";
+import {useTranslation} from "react-i18next";
 
 interface SetRoomQueryProps {
     platform: Platform;
@@ -18,11 +19,18 @@ const tierRangeString = (platform: Platform, tierInt: [number, number], selected
 }
 
 const SetRoomQuery = ({platform, queryValue, queryProps, handleValue}: SetRoomQueryProps) => {
+    const {t} = useTranslation();
+
     const [tierRange, setTierRange] = useState<[number, number]>([1, 16]);
     const [contestIdRange, setContestIdRange] = useState<[number, number]>([354, 4000]);
     const [fixedQuery, setFixedQuery] = useState<string>('');
     const [addedQuery, setAddedQuery] = useState<string>('');
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+    // codeforces
+    const [selectedCTypes, setSelectedCTypes] = useState<string[]>([]);
+    const [selectedPids, setSelectedPids] = useState<string[]>([]);
+    const [onlyOddId, setOnlyOddId] = useState<boolean>(false);
 
 
     useEffect(() => {
@@ -32,6 +40,9 @@ const SetRoomQuery = ({platform, queryValue, queryProps, handleValue}: SetRoomQu
         } else {
             setTierRange([0, 4000]);
             setAddedQuery(`contestid:${contestIdRange[0]}-${contestIdRange[1]}`)
+            setSelectedCTypes(["div1", "div2", "edu", "global", "div3", "div4"])
+            setSelectedPids(["A", "B", "C", "D", "E", "F", "G", "H", "I"])
+            setOnlyOddId(false)
         }
         setFixedQuery("")
         queryProps.onChange("");
@@ -42,10 +53,9 @@ const SetRoomQuery = ({platform, queryValue, queryProps, handleValue}: SetRoomQu
         setFixedQuery(updatedQuery)
     }, [tierRange, selectedTags, handleValue]);
 
-
     useEffect(() => {
-        if (platform === Platform.CODEFORCES) setAddedQuery(`contestid:${contestIdRange[0]}-${contestIdRange[1]}`)
-    }, [contestIdRange]);
+        if (platform === Platform.CODEFORCES) setAddedQuery(`contestid:${contestIdRange[0]}-${contestIdRange[1]}${onlyOddId ? "&odd" : ""} contesttype:${selectedCTypes.join("|")} problemid:${selectedPids.join("|")}`)
+    }, [contestIdRange, selectedCTypes, selectedPids, onlyOddId]);
 
     useEffect(() => {
         queryProps.onChange(fixedQuery + " " + addedQuery)
@@ -87,19 +97,27 @@ const SetRoomQuery = ({platform, queryValue, queryProps, handleValue}: SetRoomQu
                     </> :
                     <>
                         <SimpleGrid cols={2}>
-                            <Input.Wrapper label="대회 번호 지정">
-                                <Group wrap="nowrap">
-                                    <NumberInput
-                                        value={contestIdRange[0]}
-                                        onChange={(v) => setContestIdRange([v, contestIdRange[1]])}
+                            <Input.Wrapper label="대회 ID 지정">
+                                <Stack gap="xs" align="flex-end">
+                                    <Group wrap="nowrap">
+                                        <NumberInput
+                                            value={contestIdRange[0]}
+                                            onChange={(v) => setContestIdRange([v, contestIdRange[1]])}
+                                        />
+                                        <Text>~</Text>
+                                        <NumberInput
+                                            value={contestIdRange[1]}
+                                            onChange={(v) => setContestIdRange([contestIdRange[0], v])}
+                                        />
+                                    </Group>
+                                    <Checkbox
+                                        label="홀수 ID 대회만"
+                                        checked={onlyOddId}
+                                        onChange={(e) => setOnlyOddId(e.currentTarget.checked)}
                                     />
-                                    <Text>~</Text>
-                                    <NumberInput
-                                        value={contestIdRange[1]}
-                                        onChange={(v) => setContestIdRange([contestIdRange[0], v])}
-                                    />
-                                </Group>
+                                </Stack>
                             </Input.Wrapper>
+
                             <Input.Wrapper label="난이도 지정">
                                 <Group wrap="nowrap">
                                     <NumberInput
@@ -114,6 +132,43 @@ const SetRoomQuery = ({platform, queryValue, queryProps, handleValue}: SetRoomQu
                                 </Group>
                             </Input.Wrapper>
                         </SimpleGrid>
+
+                        <Checkbox.Group
+                            label={t("대회 종류")}
+                            withAsterisk
+                            required
+                            value={selectedCTypes}
+                            onChange={setSelectedCTypes}
+                        >
+                            <Group mt="xs">
+                                <Checkbox value="div1" label="Div. 1"/>
+                                <Checkbox value="div2" label="Div. 2"/>
+                                <Checkbox value="global" label="Global (Div. 1 + Div. 2)"/>
+                                <Checkbox value="edu" label="Educational"/>
+                                <Checkbox value="div3" label="Div. 3"/>
+                                <Checkbox value="div4" label="Div. 4"/>
+                                <Checkbox value="etc" label="etc"/>
+                            </Group>
+                        </Checkbox.Group>
+                        <Checkbox.Group
+                            label={t("문제 번호")}
+                            withAsterisk
+                            required
+                            value={selectedPids}
+                            onChange={setSelectedPids}
+                        >
+                            <Group mt="xs">
+                                <Checkbox value="A" label="A"/>
+                                <Checkbox value="B" label="B"/>
+                                <Checkbox value="C" label="C"/>
+                                <Checkbox value="D" label="D"/>
+                                <Checkbox value="E" label="E"/>
+                                <Checkbox value="F" label="F"/>
+                                <Checkbox value="G" label="G"/>
+                                <Checkbox value="H" label="H"/>
+                                <Checkbox value="I" label="I"/>
+                            </Group>
+                        </Checkbox.Group>
                     </>
             }
         </Stack>

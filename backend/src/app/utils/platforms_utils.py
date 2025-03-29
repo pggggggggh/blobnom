@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+from typing import List, Literal
 
 import httpx
 import pytz
@@ -90,8 +91,11 @@ async def fetch_problems(query, num_problems, platform):
         else:
             diff_s = None
             diff_e = None
-            id_s = None
-            id_e = None
+            cid_s = None
+            cid_e = None
+            ctypes = [List[Literal['div1', 'div2', 'global', 'div3', 'div4', 'edu', 'etc']]]
+            cid_only_odd = False
+            pids = set()
             forbidden_handles = []
             try:
                 for splitted_query in query.split():
@@ -102,15 +106,26 @@ async def fetch_problems(query, num_problems, platform):
                         diff_e = int(q[pos + 1:])
                     elif splitted_query.startswith("contestid:"):
                         q = splitted_query[len("contestid:"):]
+                        if q.endswith("&odd"):
+                            cid_only_odd = True
+                            q = q[:-len("&odd")]
                         pos = q.index("-")
-                        id_s = int(q[:pos])
-                        id_e = int(q[pos + 1:])
+                        cid_s = int(q[:pos])
+                        cid_e = int(q[pos + 1:])
                     elif splitted_query.startswith("!@:"):
                         handle = splitted_query[len("!@:"):]
                         forbidden_handles.append(handle)
+                    elif splitted_query.startswith("contesttype:"):
+                        ctypes = splitted_query[len("contesttype:"):].split('|')
+                    elif splitted_query.startswith("problemid:"):
+                        pids = set(splitted_query[len("problemid:"):].split('|'))
             except (ValueError, TypeError):
                 raise Exception(
-                    "Invalid query, codeforces query must be like: 'difficulty:(integer)-(integer) contestid:(integer)-(integer)'")
+                    "Invalid query, codeforces query must be like: 'difficulty:(integer)-(integer) contestid:(integer)-(integer){&odd}' contesttype:div1|div2 problemid:A|B|C")
+
+            response = await client.get("https://codeforces.com/api/contest.list?gym=false")
+            tmp = response.json()["result"]
+            contest_name = {x["id"]: x["name"] for x in tmp}
 
             response = await client.get("https://codeforces.com/api/problemset.problems")
             all_problems = response.json()["result"]["problems"]
@@ -130,10 +145,42 @@ async def fetch_problems(query, num_problems, platform):
                 if diff_s and diff_e:
                     if int(problem["rating"]) < diff_s or int(problem["rating"]) > diff_e:
                         continue
-                if id_s and id_e:
-                    if int(problem["contestId"]) < id_s or int(problem["contestId"]) > id_e:
+                if cid_s and cid_e:
+                    if int(problem["contestId"]) < cid_s or int(problem["contestId"]) > cid_e:
                         continue
+                if cid_only_odd and int(problem["contestId"]) % 2 == 0:
+                    continue
+                if problem["index"][0] not in pids:
+                    continue
+
+                chk = False
+                name = contest_name[problem["contestId"]].lower()
+
+                for x in ctypes:
+                    if x == 'div1' and "div. 1" in name:
+                        chk = True
+                    elif x == 'div2' and "div. 2" in name:
+                        chk = True
+                    elif x == 'div3' and "div. 3" in name:
+                        chk = True
+                    elif x == 'div4' and "div. 4" in name:
+                        chk = True
+                    elif x == 'edu' and "educational" in name:
+                        chk = True
+                    elif x == 'global' and ("div. 1 + div. 2" in name or "global" in name):
+                        chk = True
+                    elif x == 'etc':
+                        if all(kw not in name for kw in
+                               ["div. 1", "div. 2", "div. 3", "div. 4", "educational", "global", "div. 1 + div. 2"]):
+                            chk = True
+                    if chk:
+                        break
+
+                if not chk:
+                    continue
+
                 problem_id = str(problem["contestId"]) + problem["index"]
+
                 if problem_id not in forbidden_problems:
                     problems.append({"id": problem_id, "difficulty": problem["rating"]})
 
