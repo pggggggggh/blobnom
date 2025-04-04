@@ -112,8 +112,8 @@ async def fetch_problems(query, num_problems, platform):
                         pos = q.index("-")
                         cid_s = int(q[:pos])
                         cid_e = int(q[pos + 1:])
-                    elif splitted_query.startswith("!@:"):
-                        handle = splitted_query[len("!@:"):]
+                    elif splitted_query.startswith("!@"):
+                        handle = splitted_query[len("!@"):]
                         forbidden_handles.append(handle)
                     elif splitted_query.startswith("contesttype:"):
                         ctypes = splitted_query[len("contesttype:"):].split('|')
@@ -137,7 +137,7 @@ async def fetch_problems(query, num_problems, platform):
                 results = response.json()["result"]
                 for result in results:
                     problem = result["problem"]
-                    forbidden_problems.add(str(problem["contestId"] + problem["index"]))
+                    forbidden_problems.add(str(problem["contestId"]) + problem["index"])
 
             for problem in all_problems:
                 if "rating" not in problem:
