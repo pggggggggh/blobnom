@@ -1,4 +1,4 @@
 export enum Platform {
-    BOJ = "boj",
-    CODEFORCES = "codeforces"
+    BOJ = "BOJ",
+    CODEFORCES = "CODEFORCES"
 }
