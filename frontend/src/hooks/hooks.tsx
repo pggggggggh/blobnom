@@ -374,7 +374,7 @@ export const useLogin = () => {
     return useMutation({
         mutationFn: (payload: LoginPayload) => postLogin(payload),
         onSuccess: (data) => {
-            localStorage.setItem('accessToken', data.token);
+            localStorage.setItem('accessToken', data.accessToken);
             window.location.href = "/";
         },
         onError: (error: any) => {

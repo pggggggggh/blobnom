@@ -124,8 +124,8 @@ export const deleteRoom = async (data: { roomId: number; password: string }) => 
 
 export async function postLogin(
     payload: LoginPayload
-): Promise<{ result: 'success'; token: string }> {
-    const response = await api.post<{ result: 'success'; token: string }>('/auth/login', payload);
+): Promise<{ accessToken: string }> {
+    const response = await api.post<{ accessToken: string }>('/auth/login', payload);
     return response.data;
 }
 
