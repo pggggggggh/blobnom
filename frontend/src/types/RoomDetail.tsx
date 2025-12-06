@@ -11,7 +11,7 @@ export interface RoomDetail {
     is_started: boolean;
     starts_at: string;
     ends_at: string;
-    owner: string;
+    owner: MemberSummary;
     num_players: number;
     max_players: number;
     mode_type: ModeType;

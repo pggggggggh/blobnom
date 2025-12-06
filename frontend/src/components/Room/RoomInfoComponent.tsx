@@ -40,7 +40,7 @@ const RoomInfoComponent = ({roomDetail, timeLeft}: RoomInfoProps) => {
                     : `${dayjs(roomDetail.starts_at).format('YYYY-MM-DD HH:mm')} ~ ${dayjs(roomDetail.ends_at).format('YYYY-MM-DD HH:mm')}, ${t("num_problems", {n: roomDetail.num_missions})}`}
             </Text>
             {
-                (auth.member?.handle === roomDetail.owner) ?
+                (auth.member?.handle === roomDetail.owner.handle) ?
                     (
                         <UnstyledButton mt="5" variant="outline"
                                         onClick={() => {
