@@ -32,7 +32,7 @@ export const fetchPracticeList = async (): Promise<PracticeSetSummary[]> => {
 };
 
 export const fetchRoomDetail = async (roomId: number): Promise<RoomDetail> => {
-    const response = await api.get(`/rooms/detail/${roomId}`);
+    const response = await api.get(`/rooms/details/${roomId}`);
     return response.data;
 };
 
