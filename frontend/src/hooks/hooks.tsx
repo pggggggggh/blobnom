@@ -239,7 +239,7 @@ export const useCreateRoom = () => {
     return useMutation({
         mutationFn: postCreateRoom,
         onSuccess: (data) => {
-            const roomId = data?.roomId;
+            const roomId = data?.room_id;
             if (roomId) {
                 router.navigate({
                     to: '/rooms/$roomId',
