@@ -11,6 +11,7 @@ import { PracticeRankData, PracticeSetSummary } from "../types/PracticeSet.tsx";
 import { PracticeRankData } from "../types/PracticeRankData.tsx";
 import { ActiveUsersData } from "../types/ActiveUsersData.tsx";
 import { PracticeForm } from "../types/PracticeForm.tsx";
+import {TokenInfo} from "../types/TokenInfo.ts";
 
 export const fetchMainData = async (page: number, search: string, activeOnly: boolean, myRoomOnly: boolean): Promise<MainData> => {
     const response = await api.get(`/rooms/list`, {
@@ -122,10 +123,8 @@ export const deleteRoom = async (data: { roomId: number; password: string }) => 
 };
 
 
-export async function postLogin(
-    payload: LoginPayload
-): Promise<{ accessToken: string }> {
-    const response = await api.post<{ accessToken: string }>('/auth/login', payload);
+export const postLogin = async(data: LoginPayload) => {
+    const response = await api.post('/auth/login', data);
     return response.data;
 }
 

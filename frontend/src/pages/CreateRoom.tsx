@@ -14,6 +14,7 @@ import {useCreateRoom} from '../hooks/hooks';
 import {useAuth} from "../context/AuthProvider.tsx";
 import {Platform} from "../types/enum/Platforms.tsx";
 import SetPlatform from "../components/RoomForm/SetPlatform.tsx";
+import {ModeType} from "../types/enum/ModeType.tsx";
 
 function CreateRoom() {
     const auth = useAuth();
@@ -95,7 +96,7 @@ function CreateRoom() {
                 <Text c="dimmed" mb="sm">방을 만들어 친구들과 함께 문제풀이를 즐깁니다.</Text>
                 <form
                     onSubmit={form.onSubmit((values) => {
-                        values.mode = values.is_teammode ? 'land_grab_team' : 'land_grab_solo';
+                        values.mode = values.is_teammode ? ModeType.LAND_GRAB_TEAM : ModeType.LAND_GRAB_SOLO;
                         return mutation.mutate(values);
                     })}
                     onKeyDown={handleKeyDown}

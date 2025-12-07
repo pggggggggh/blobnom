@@ -1,4 +1,4 @@
 export enum BoardType {
-    HEXAGON = "hexagon",
-    LINEAR = "linear",
+    HEXAGON="HEXAGON",
+    LINEAR="LINEAR",
 }
