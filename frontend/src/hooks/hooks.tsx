@@ -60,7 +60,7 @@ const handleError = (error: any) => {
             //     detailMessage = "잘못된 요청입니다.";
             //     break;
             default:
-                detailMessage = error.response.data?.detail || detailMessage;
+                detailMessage = error.response.data?.message || detailMessage;
         }
     }
 

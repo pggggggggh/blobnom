@@ -9,7 +9,7 @@ export const SocketProvider = ({children}: { children: React.ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
-        const newSocket = io(import.meta.env.VITE_API_URL, {
+        const newSocket = io(import.meta.env.VITE_SIO_URL, {
             transports: ["websocket"],
             auth: {handle: auth?.member?.handle},
             reconnection: true,

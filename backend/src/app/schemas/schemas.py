@@ -108,9 +108,7 @@ class RoomMissionInfo(BaseModel):
     platform: Platform
     index_in_room: int
     solved_at: Optional[datetime]
-    solved_player_index: Optional[int]
     solved_team_index: Optional[int]
-    solved_user_name: Optional[str]
     difficulty: Optional[int]
 
     class Config:

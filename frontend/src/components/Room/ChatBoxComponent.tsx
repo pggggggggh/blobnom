@@ -9,6 +9,7 @@ import {useTranslation} from "react-i18next";
 const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage[], handleSendMessage: any }) => {
     const {t} = useTranslation();
     const auth = useAuth();
+    const [input, setInput] = useState("");
     const [isChatMinimized, setIsChatMinimized] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -114,13 +115,15 @@ const ChatBoxComponent = ({messages, handleSendMessage}: { messages: ChatMessage
                         <Box>
                             {auth.member ? (
                                 <TextInput
-                                    type="text"
-                                    maxLength={500}
-                                    placeholder={t("메시지를 입력하세요.")}
+                                    value={input}
+                                    onChange={(e) => setInput(e.currentTarget.value)}
                                     onKeyDown={(e) => {
-                                        if (e.key === "Enter" && e.currentTarget.value.trim()) {
-                                            handleSendMessage(e.currentTarget.value.trim());
-                                            e.currentTarget.value = "";
+                                        if (e.key === "Enter") {
+                                            if (e.nativeEvent.isComposing) return;
+                                            const v = input.trim();
+                                            if (!v) return;
+                                            handleSendMessage(v);
+                                            setInput("");
                                         }
                                     }}
                                 />
