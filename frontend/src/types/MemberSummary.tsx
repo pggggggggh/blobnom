@@ -4,4 +4,5 @@ export interface MemberSummary {
     rating: number;
     guild_mark: string;
     accounts: Record<string, string>;
+    id:number;
 }

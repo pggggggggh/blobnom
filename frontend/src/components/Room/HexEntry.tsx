@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import {MissionInfo, RoomDetail} from "../../types/RoomDetail.tsx";
 import {UseMutationResult} from "@tanstack/react-query";
 import {ModeType} from "../../types/enum/ModeType.tsx";
+import {useAuth} from "../../context/AuthProvider.tsx";
 
 
 interface HexEntryProps {
@@ -19,6 +20,8 @@ interface HexEntryProps {
 }
 
 const HexEntry = ({roomDetails, hex, mission, isUnsolvable, mutation}: HexEntryProps) => {
+    const auth = useAuth();
+
     let href;
     if (mission.platform === Platform.BOJ) {
         href = `https://www.acmicpc.net/problem/${mission.problem_id}`
@@ -161,7 +164,8 @@ const HexEntry = ({roomDetails, hex, mission, isUnsolvable, mutation}: HexEntryP
                                     className="border-0 bg-inherit"
                                     onClick={() => mutation.mutate({
                                         roomId: roomDetails.id,
-                                        problemId: mission.problem_id
+                                        missionId:mission.id,
+                                        memberId:auth?.member?.id
                                     })}
                                     loading={mutation.isPending}
                                 >Solve!</Button>

@@ -66,8 +66,8 @@ export const fetchPracticeRank = async (practiceId: number): Promise<PracticeRan
     return response.data;
 };
 
-export const postSolveProblem = async (data: { roomId: number; problemId: number }) => {
-    const response = await api.post(`/rooms/solved`, { room_id: data.roomId, problem_id: data.problemId });
+export const postSolveProblem = async (data: { roomId: number; missionId: number }) => {
+    const response = await api.post(`/rooms/solved`, { room_id: data.roomId, mission_id: data.missionId });
     return response.data;
 }
 
@@ -134,7 +134,7 @@ export async function fetchPlatformToken(): Promise<PlatformTokenResponse> {
 }
 
 export async function postRegister(payload: RegisterPayload): Promise<{ result: 'success' }> {
-    const response = await api.post<{ result: 'success' }>('/auth/register', payload);
+    const response = await api.post<{ result: 'success' }>('/members', payload);
     return response.data;
 }
 

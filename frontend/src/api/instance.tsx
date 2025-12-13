@@ -30,7 +30,7 @@ api.interceptors.response.use(
     async (error) => {
         if (error.response && error.response.status === 401) {
             try {
-                await api.post('/auth/logout');
+                localStorage.removeItem('accessToken');
                 window.location.href = '/login';
             } catch (error) {
                 console.error('Failed to logout:', error);
