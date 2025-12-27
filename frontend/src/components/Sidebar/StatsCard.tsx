@@ -7,6 +7,7 @@ import UpdatedTime from "../UI/UpdatedTime.tsx";
 const StatsCard = () => {
     const {t} = useTranslation();
     const {data: statsData, isLoading, error} = useSiteStats();
+    if (!statsData) return null;
 
     return (
         <Card withBorder shadow="sm" p="md">

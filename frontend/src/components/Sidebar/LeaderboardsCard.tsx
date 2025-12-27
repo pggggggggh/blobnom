@@ -62,13 +62,6 @@ const LeaderboardsCard = () => {
             </Group>
 
             <Table striped highlightOnHover>
-                <Table.Thead>
-                    <Table.Tr>
-                        <Table.Th>{t("순위")}</Table.Th>
-                        <Table.Th>{t("사용자")}</Table.Th>
-                        <Table.Th>{t("점수")}</Table.Th>
-                    </Table.Tr>
-                </Table.Thead>
                 <Table.Tbody>
                     {leaderboardsData?.leaderboards.map((entry, i) => (
                         <Table.Tr key={i + 1}>
@@ -91,7 +84,7 @@ const LeaderboardsCard = () => {
                                 </Flex>
                             </Table.Td>
                             <Table.Td style={{ textAlign: "right" }}>
-                                <Text size="sm" fw={700}>{entry.points.toLocaleString()}</Text>
+                                {/*<Text size="sm" fw={700}>{entry.points.toLocaleString()}</Text>*/}
                                 <Text size="xs" c="dimmed">{t("num_problems", { n: entry.num_solved_missions })}</Text>
                             </Table.Td>
                         </Table.Tr>
