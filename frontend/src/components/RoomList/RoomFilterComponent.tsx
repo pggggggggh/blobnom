@@ -57,13 +57,13 @@ const RoomFilterComponent = () => {
             </Flex>
 
             <Group className="flex justify-end">
-                {auth.member && (
-                    <Checkbox
-                        checked={myRoomOnly}
-                        onChange={(event) => handleMyRoomOnlyChange(event.currentTarget.checked)}
-                        label={t("참여중인 방만 표시")}
-                    />
-                )}
+                {/*{auth.member && (*/}
+                {/*    <Checkbox*/}
+                {/*        checked={myRoomOnly}*/}
+                {/*        onChange={(event) => handleMyRoomOnlyChange(event.currentTarget.checked)}*/}
+                {/*        label={t("참여중인 방만 표시")}*/}
+                {/*    />*/}
+                {/*)}*/}
                 <Checkbox
                     checked={activeOnly}
                     onChange={(event) => handleActiveOnlyChange(event.currentTarget.checked)}
