@@ -11,10 +11,8 @@ redis_client = None
 async def create_redis_client():
     global redis_client
     try:
-        redis_client = redis.Redis(
-            host=os.environ.get("REDIS_URL"),
-            port=int(os.environ.get("REDIS_PORT")),
-            db=int(os.environ.get("REDIS_DBNO")),
+        redis_client = redis.from_url(
+            os.environ["REDIS_URI"],
             socket_timeout=2,
         )
         await redis_client.ping()
