@@ -1,10 +1,27 @@
 import axios from 'axios';
+import applyCaseMiddleware from "axios-case-converter";
 
-export const api = axios.create({
+
+const toCamel = (input: string) =>
+    input.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+
+const toSnake = (input: string) =>
+    input
+        .replace(/([A-Z])/g, "_$1")
+        .toLowerCase()
+        .replace(/^_/, "");
+
+
+export const api = applyCaseMiddleware(axios.create({
     baseURL: import.meta.env.VITE_API_URL,
     timeout: 50000,
     withCredentials: true
-});
+}), {
+    caseFunctions: {
+        snake: toCamel,
+        camel: toSnake,
+    }
+})
 
 api.interceptors.request.use(
     (config) => {

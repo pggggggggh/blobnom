@@ -10,8 +10,8 @@ const SidebarComponent = () => {
         <Stack>
             {/*<RecentCard/>*/}
             {/*<NowActiveCard/>*/}
-            <LeaderboardsCard/>
-            <StatsCard/>
+            {/*<LeaderboardsCard/>*/}
+            {/*<StatsCard/>*/}
         </Stack>
     )
 }

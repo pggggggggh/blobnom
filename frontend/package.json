@@ -25,6 +25,7 @@
     "@tanstack/react-router": "^1.82.2",
     "apexcharts": "^4.4.0",
     "axios": "^1.7.7",
+    "axios-case-converter": "^1.1.1",
     "dayjs": "^1.11.13",
     "i18next": "^24.2.2",
     "i18next-browser-languagedetector": "^8.0.4",
